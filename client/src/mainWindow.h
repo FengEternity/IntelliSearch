@@ -28,6 +28,8 @@ public:
     explicit mainWindow(QWidget* parent = nullptr);
     ~mainWindow() override;
 
+    void on_sendButton_clicked();
+
 private:
     Ui::mainWindow* ui;
 };
