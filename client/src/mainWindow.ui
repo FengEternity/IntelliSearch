@@ -6,19 +6,43 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>400</width>
-                <height>300</height>
+                <width>524</width>
+                <height>490</height>
             </rect>
         </property>
         <property name="windowTitle">
             <string>mainWindow</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout">
+        <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
-                <widget class="QLabel" name="label">
-                    <property name="text">
-                        <string>Hello IntellSearch!</string>
+                <widget class="QGroupBox" name="chatGroupBox">
+                    <property name="title">
+                        <string>IntelliSearch</string>
                     </property>
+                    <layout class="QVBoxLayout" name="verticalLayout">
+                        <item>
+                            <widget class="QTextBrowser" name="chatHistoryBrowser"/>
+                        </item>
+                        <item>
+                            <widget class="QGroupBox" name="inpputGroupBox">
+                                <property name="title">
+                                    <string>InputBox</string>
+                                </property>
+                                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                                    <item>
+                                        <widget class="QLineEdit" name="inputLineEdit"/>
+                                    </item>
+                                    <item>
+                                        <widget class="QPushButton" name="sendButton">
+                                            <property name="text">
+                                                <string>PushButton</string>
+                                            </property>
+                                        </widget>
+                                    </item>
+                                </layout>
+                            </widget>
+                        </item>
+                    </layout>
                 </widget>
             </item>
         </layout>
