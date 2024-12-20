@@ -55,7 +55,7 @@
 * 编程语言：C++、Python
 * 前端框架：Qt
 * 搜索引擎：ElasticSearch
-* 模型框架：PyTorch、ONNX
+* 模型框架：Ollama
 * 数据库：MySQL、Redis
 * 容器化：Docker
 
