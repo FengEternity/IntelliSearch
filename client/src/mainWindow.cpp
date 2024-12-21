@@ -38,6 +38,7 @@ void mainWindow::on_sendButton_clicked()
     {
         QMessageBox::warning(this, "警告", "输入不能为空！");
         WARNLOG("Empty input received!");
+        return;
     }
 
     ui->chatHistoryBrowser->append(message);
