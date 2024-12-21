@@ -13,23 +13,27 @@
 #include "spdlog/sinks/rotating_file_sink.h"
 
 // 日志的配置项
-struct LogConfig {
+struct LogConfig
+{
     std::string level;
     std::string path;
-    int64_t     size;
-    int         count;
+    int64_t size;
+    int count;
 };
 
 // 日志的单例模式
-class Logger {
+class Logger
+{
 public:
-    static Logger* getInstance() {
+    static Logger* getInstance()
+    {
         static Logger instance;
         return &instance;
     }
 
     //c++14返回值可设置为auto
-    std::shared_ptr<spdlog::logger> getLogger() {
+    std::shared_ptr<spdlog::logger> getLogger()
+    {
         return loggerPtr;
     }
 
@@ -38,7 +42,6 @@ public:
     std::string GetLogLevel();
 
     void SetLogLevel(const std::string& level);
-
 
 private:
     Logger() = default;

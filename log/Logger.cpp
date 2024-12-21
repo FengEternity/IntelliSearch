@@ -4,7 +4,8 @@
 
 #include "Logger.h"
 
-void Logger::Init(const LogConfig& conf) {
+void Logger::Init(const LogConfig& conf)
+{
     //自定义的sink
     loggerPtr = spdlog::rotating_logger_mt("base_logger", conf.path.c_str(), conf.size, conf.count);
     //设置格式
@@ -33,16 +34,21 @@ void Logger::Init(const LogConfig& conf) {
  * critical 5
  * off 6 (not use)
  */
-std::string Logger::GetLogLevel() {
+std::string Logger::GetLogLevel()
+{
     auto level = loggerPtr->level();
     return spdlog::level::to_string_view(level).data();
 }
 
-void Logger::SetLogLevel(const std::string& log_level) {
+void Logger::SetLogLevel(const std::string& log_level)
+{
     auto level = spdlog::level::from_str(log_level);
-    if (level == spdlog::level::off) {
+    if (level == spdlog::level::off)
+    {
         WARNLOG("Given invalid log level {}", log_level);
-    } else {
+    }
+    else
+    {
         loggerPtr->set_level(level);
         loggerPtr->flush_on(level);
     }
