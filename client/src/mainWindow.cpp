@@ -6,12 +6,16 @@
 
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
+#include "../log/Logger.h"
 
 
 mainWindow::mainWindow(QWidget* parent) :
     QWidget(parent), ui(new Ui::mainWindow)
 {
     ui->setupUi(this);
+
+    LogConfig config = {"info", "log/intelli_search.log", 1048576 * 5, 3};
+    INITLOG(config);
 
     connect(ui->sendButton, &QPushButton::clicked, this, &mainWindow::on_sendButton_clicked);
 }
@@ -33,6 +37,7 @@ void mainWindow::on_sendButton_clicked()
     if (message.isEmpty())
     {
         QMessageBox::warning(this, "警告", "输入不能为空！");
+        WARNLOG("Empty input received!");
     }
 
     ui->chatHistoryBrowser->append(message);
