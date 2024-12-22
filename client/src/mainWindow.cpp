@@ -14,7 +14,7 @@ mainWindow::mainWindow(QWidget* parent) :
 {
     ui->setupUi(this);
 
-    LogConfig config = {"info", "log/intelli_search.log", 1048576 * 5, 3};
+    LogConfig config = {"info", "log/intelliSearch_client.log", 1048576 * 5, 3};
     INITLOG(config);
 
     connect(ui->sendButton, &QPushButton::clicked, this, &mainWindow::on_sendButton_clicked);
