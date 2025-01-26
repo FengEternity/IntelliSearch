@@ -36,6 +36,23 @@ Rectangle {
                     searchBar.search(text)
                 }
             }
+
+            // 添加清空按钮
+            RoundButton {
+                visible: parent.text.length > 0
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                width: 24
+                height: 24
+                flat: true
+                icon.source: "qrc:/icons/clear.svg"
+                icon.color: Material.foreground
+                onClicked: parent.text = ""
+                
+                Behavior on opacity {
+                    NumberAnimation { duration: 150 }
+                }
+            }
         }
         
         RoundButton {
@@ -44,6 +61,12 @@ Rectangle {
             icon.source: "qrc:/icons/search.svg"
             icon.color: Material.foreground
             flat: true
+            enabled: searchField.text.length > 0
+            opacity: enabled ? 1.0 : 0.5
+            
+            Behavior on opacity {
+                NumberAnimation { duration: 150 }
+            }
             
             onClicked: {
                 if (searchField.text.length > 0) {
