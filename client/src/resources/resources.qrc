@@ -1,0 +1,9 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/">
+        <file>qml/main.qml</file>
+        <file>qml/SearchBar.qml</file>
+        <file>qml/SearchResults.qml</file>
+        <file>icons/search.svg</file>
+    </qresource>
+</RCC>

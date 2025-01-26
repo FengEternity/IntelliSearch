@@ -1,19 +1,26 @@
-/*
-* Author: Montee
- * CreateData: 2024-12-20
- * UpdateData: 2024-12-20
- * Description: 客户端主函数
- */
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+#include <QQuickStyle>
 
-#include <QApplication>
-
-#include "mainWindow.h"
-
-int main(int argc, char* argv[])
-{
- QApplication app(argc, argv);
- mainWindow w;
- w.show();
-
- return app.exec();
+int main(int argc, char *argv[]) {
+    QGuiApplication app(argc, argv);
+    
+    // 设置Material风格
+    QQuickStyle::setStyle("Material");
+    
+    QQmlApplicationEngine engine;
+    
+    // 加载主QML文件
+    const QUrl url("qrc:/qml/main.qml");
+    QObject::connect(
+        &engine,
+        &QQmlApplicationEngine::objectCreationFailed,
+        &app,
+        []() { QCoreApplication::exit(-1); },
+        Qt::QueuedConnection
+    );
+    
+    engine.load(url);
+    
+    return app.exec();
 }
