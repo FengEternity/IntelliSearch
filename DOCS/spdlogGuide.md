@@ -33,11 +33,17 @@ find_package(spdlog REQUIRED)
 target_link_libraries(your_target PRIVATE spdlog::spdlog)
 ```
 
+
+### 编译问题
+
+在编译的过程中遇到 fmt 库链接失败的问题，最终发现是因为 fmt 是由 conda 安装，但是   spdlog 是由 homebrew 安装导致的冲突。
+
 ## 基本使用
 
 ### 1. 日志级别
 
 spdlog 提供以下日志级别（从低到高）：
+
 - trace
 - debug
 - info
