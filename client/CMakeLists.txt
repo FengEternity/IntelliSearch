@@ -12,6 +12,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick QuickControls2)
 # 定义源文件和资源文件
 set(SOURCES
     src/main.cpp
+    ${CMAKE_SOURCE_DIR}/../log/Logger.cpp 
 )
 
 set(RESOURCE_FILES
@@ -24,12 +25,24 @@ add_executable(IntellsSearchClient
     ${RESOURCE_FILES}
 )
 
+find_package(spdlog REQUIRED)
+find_package(fmt REQUIRED)
+message(STATUS "spdlog found: ${spdlog_DIR}")
+message(STATUS "fmt found: ${fmt_DIR}")
+
 # 添加 include 路径
-target_include_directories(IntellsSearchClient PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(IntellsSearchClient 
+    PRIVATE 
+    ${CMAKE_SOURCE_DIR}/src 
+    ${CMAKE_SOURCE_DIR}/..
+    ${CMAKE_SOURCE_DIR}/../log
+)
 
 # 链接 Qt6 库
 target_link_libraries(IntellsSearchClient
     PRIVATE
+    fmt::fmt
+    spdlog::spdlog
     Qt6::Core
     Qt6::Gui
     Qt6::Quick
@@ -40,3 +53,4 @@ target_link_libraries(IntellsSearchClient
 message(STATUS "Project: ${PROJECT_NAME}")
 message(STATUS "CMake Build Type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "C++ Standard: ${CMAKE_CXX_STANDARD}")
+message(STATUS "CMake Source Dir: ${CMAKE_SOURCE_DIR}")
