@@ -3,3 +3,4 @@ mydocs/
 .vscode/
 .DS_store
 build/
+API.md
