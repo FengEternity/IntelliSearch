@@ -8,5 +8,6 @@
         <file>icons/toggle-left.svg</file>
         <file>icons/toggle-right.svg</file>
         <file>icons/clear.svg</file>
+        <file>icons/logo.svg</file>
     </qresource>
 </RCC>

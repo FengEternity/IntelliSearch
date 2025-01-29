@@ -141,35 +141,80 @@ ApplicationWindow {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 20
                 spacing: 20
 
-                SearchBar {
-                    id: searchBar
+                Item { Layout.fillHeight: true }  // 顶部弹性空间
+
+                // 欢迎内容
+                ColumnLayout {
+                    Layout.alignment: Qt.AlignHCenter
+                    spacing: 20
+                    visible: !searchResults.model || searchResults.model.count === 0
+
+                    Image {
+                        Layout.alignment: Qt.AlignHCenter
+                        source: "qrc:/icons/logo.svg"
+                        width: 80
+                        height: 80
+                    }
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: "我是 IntelliSearch，很高兴见到你！"
+                        font.pixelSize: 24
+                        color: "#1a1a1a"
+                    }
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: "我可以帮你搜索各种内容，请把你的任务交给我吧～"
+                        font.pixelSize: 14
+                        color: "#666666"
+                    }
+
+                    Item { height: 40 }  // 搜索框上方的间距
+                }
+
+                // 搜索区域
+                ColumnLayout {
                     Layout.fillWidth: true
-                    onSearch: function(query) {
-                        // 模拟搜索结果数据
-                        searchResults.model.clear()
-                        searchResults.model.append({
-                            title: "IntelliSearch：基于AI的智能搜索引擎",
-                            description: "一个现代化的搜索引擎，结合了AI大语言模型，提供智能对话式搜索体验。"
-                        })
-                        searchResults.model.append({
-                            title: "搜索引擎的工作原理",
-                            description: "深入探讨搜索引擎的核心技术，包括索引、排序算法和相关性计算等关键概念。"
-                        })
-                        searchResults.model.append({
-                            title: "AI技术在搜索中的应用",
-                            description: "探索人工智能如何改变传统搜索方式，提升搜索准确性和用户体验。"
-                        })
+                    Layout.margins: searchResults.model && searchResults.model.count > 0 ? 20 : 0
+                    Layout.alignment: Qt.AlignHCenter
+                    spacing: 20
+
+                    SearchBar {
+                        id: searchBar
+                        Layout.preferredWidth: searchResults.model && searchResults.model.count > 0 ? parent.width : 600
+                        Layout.alignment: Qt.AlignHCenter
+                        onSearch: function(query) {
+                            if (!searchResults.model) {
+                                searchResults.model = Qt.createQmlObject('import QtQml; ListModel {}', searchResults)
+                            }
+                            searchResults.model.clear()
+                            searchResults.model.append({
+                                title: "IntelliSearch：基于AI的智能搜索引擎",
+                                description: "一个现代化的搜索引擎，结合了AI大语言模型，提供智能对话式搜索体验。"
+                            })
+                            searchResults.model.append({
+                                title: "搜索引擎的工作原理",
+                                description: "深入探讨搜索引擎的核心技术，包括索引、排序算法和相关性计算等关键概念。"
+                            })
+                            searchResults.model.append({
+                                title: "AI技术在搜索中的应用",
+                                description: "探索人工智能如何改变传统搜索方式，提升搜索准确性和用户体验。"
+                            })
+                        }
+                    }
+
+                    SearchResults {
+                        id: searchResults
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        visible: model && model.count > 0
                     }
                 }
 
-                SearchResults {
-                    id: searchResults
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                }
+                Item { Layout.fillHeight: true }  // 底部弹性空间
             }
         }
     }
