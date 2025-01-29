@@ -6,7 +6,6 @@ Rectangle {
     id: searchBar
     Layout.fillWidth: true
     Layout.preferredHeight: 60
-    Layout.alignment: Qt.AlignHCenter
     Layout.maximumWidth: 800
     radius: height / 2
     color: "#f5f5f5"
@@ -34,23 +33,6 @@ Rectangle {
             Keys.onReturnPressed: {
                 if (text.length > 0) {
                     searchBar.search(text)
-                }
-            }
-
-            // 添加清空按钮
-            RoundButton {
-                visible: parent.text.length > 0
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                width: 24
-                height: 24
-                flat: true
-                icon.source: "qrc:/icons/clear.svg"
-                icon.color: Material.foreground
-                onClicked: parent.text = ""
-                
-                Behavior on opacity {
-                    NumberAnimation { duration: 150 }
                 }
             }
         }

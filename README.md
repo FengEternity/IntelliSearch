@@ -1,10 +1,10 @@
 # IntelliSearch：基于AI大语言模型的对话式搜索引擎
 
-##  项目简介
+## 项目简介
 
 本项目是一个基于AI大语言模型的对话式搜索引擎，旨在通过自然语言交互提升用户的信息检索体验。项目结合了大语言模型、搜索引擎和数据管理技术，开发了一个支持跨平台的智能搜索系统。
 
-##  核心功能
+## 核心功能
 
 * 对话式搜索：支持用户以自然语言输入查询，提供智能检索结果。
 * 多模态交互：支持文本和图像搜索。
@@ -13,16 +13,20 @@
 
 ## 项目特点
 
-1.	模型支持：
-   * 集成主流大语言模型（如GPT-4、星火、通义千问）。
-   * 本地化部署，保护用户数据隐私。
-2.	搜索优化：
+1. 模型支持：
 
-   * 结合语义搜索与传统索引，提高检索效率。
-   * 使用ElasticSearch进行倒排索引管理。
-3.	高效架构：
-   * 模块化设计，易于扩展和维护。
-   * 使用Docker容器化部署，支持多环境运行。
+* 集成主流大语言模型（如GPT-4、星火、通义千问）。
+* 本地化部署，保护用户数据隐私。
+
+2. 搜索优化：
+
+* 结合语义搜索与传统索引，提高检索效率。
+* 使用ElasticSearch进行倒排索引管理。
+
+3. 高效架构：
+
+* 模块化设计，易于扩展和维护。
+* 使用Docker容器化部署，支持多环境运行。
 
 ## 项目结构
 
@@ -64,20 +68,18 @@
 1. 环境准备
 
    * 操作系统：支持Windows、Linux、macOS
-
    * 必备工具：
+
      * Docker
      * C++编译器（支持C++17及以上）
      * Qt框架
      * Python 3.8+
-
 2. 克隆项目
 
    ```shell
    git clone https://github.com/your_username/IntelliSearch.git
    cd IntelliSearch
    ```
-
 3. 安装依赖
 
 使用Docker运行：
@@ -89,24 +91,25 @@ docker run -p 8080:8080 ai-search-engine
 
 本地运行：
 
-1.	安装 Qt 框架和必要依赖。
-2.	配置数据库和 ElasticSearch。
-3.	编译并运行客户端：
+1. 安装 Qt 框架和必要依赖。
+2. 配置数据库和 ElasticSearch。
+3. 编译并运行客户端：
 
 ```shell
 cd client/
-cmake && make
+mkdir build && cd build
+cmake .. && make
 ./IntelliSearch
 ```
-
 
 ## 使用说明
 
 1. 用户功能
+
    * 启动应用后，在搜索框输入自然语言查询，点击“搜索”按钮。
    * 通过对话界面查看推荐结果并进行进一步查询。
-
 2. 开发者指南
+
    * 修改大语言模型接口：编辑 core/api/model_interface.cpp。
    * 增加数据爬取规则：更新 data/crawler/rules.py。
 
@@ -124,12 +127,11 @@ cmake && make
 
 欢迎对本项目贡献代码、文档或提出改进建议：
 
-1.	Fork 本项目。
-2.	创建特性分支 (git checkout -b feature/AmazingFeature)。
-3.	提交修改 (git commit -m 'Add some AmazingFeature')。
-4.	推送到分支 (git push origin feature/AmazingFeature)。
-5.	创建 Pull Request。
-
+1. Fork 本项目。
+2. 创建特性分支 (git checkout -b feature/AmazingFeature)。
+3. 提交修改 (git commit -m 'Add some AmazingFeature')。
+4. 推送到分支 (git push origin feature/AmazingFeature)。
+5. 创建 Pull Request。
 
 ## 开源协议
 

@@ -14,11 +14,11 @@ ScrollView {
     
     ListView {
         id: resultsList
-        width: parent.width
+        anchors.fill: parent
         model: ListModel {}
         delegate: ItemDelegate {
             id: resultDelegate
-            width: parent.width
+            width: resultsList.width
             height: 80
             padding: 10
             
