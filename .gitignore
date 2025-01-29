@@ -1,4 +1,5 @@
 mydocs/
 .idea
 .vscode/
+.DS_store
 build/
