@@ -12,28 +12,7 @@ ApplicationWindow {
     Material.accent: Material.Blue
     Material.primary: Material.Blue
 
-    flags: Qt.Window
-    color: "white"
-
-    // 顶部工具栏
-    Rectangle {
-        id: toolbar
-        anchors.top: parent.top
-        anchors.right: parent.right
-        width: 50
-        height: 50
-        color: "transparent"
-
-        RoundButton {
-            anchors.centerIn: parent
-            width: 32
-            height: 32
-            flat: true
-            icon.source: historyPanel.visible ? "qrc:/icons/chevron-left.svg" : "qrc:/icons/chevron-right.svg"
-            icon.color: Material.foreground
-            onClicked: historyPanel.visible = !historyPanel.visible
-        }
-    }
+    // 删除整个 header: ToolBar 部分
 
     RowLayout {
         anchors.fill: parent
@@ -42,28 +21,64 @@ ApplicationWindow {
         // 左侧历史搜索记录
         Rectangle {
             id: historyPanel
-            Layout.preferredWidth: 260
+            Layout.preferredWidth: expanded ? 260 : 48
             Layout.fillHeight: true
             color: "#f5f5f5"
+            property bool expanded: true
 
+            // 收起状态的按钮
+            RoundButton {
+                anchors {
+                    left: parent.left
+                    top: parent.top
+                    margins: 8
+                }
+                width: 40
+                height: 40
+                flat: true
+                icon.source: "qrc:/icons/toggle-right.svg"
+                icon.color: "#303030"
+                icon.width: 24
+                icon.height: 24
+                visible: !historyPanel.expanded
+                onClicked: historyPanel.expanded = !historyPanel.expanded
+            }
+            
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 10
+                anchors.margins: expanded ? 10 : 0
                 spacing: 20
+                visible: historyPanel.expanded  // 展开时才显示内容
 
-                // 历史记录标题栏
-                Text {
+                RowLayout {
                     Layout.fillWidth: true
-                    text: "历史搜索"
-                    color: Material.foreground
-                    font.pixelSize: 20
-                    font.weight: Font.Medium
+                    spacing: 15
+
+                    Text {
+                        text: "  历史搜索"
+                        color: Material.foreground
+                        font.pixelSize: 20
+                        font.weight: Font.Medium
+                    }
+
+                    Item { Layout.fillWidth: true }
+
+                    RoundButton {
+                        width: 32
+                        height: 32
+                        flat: true
+                        icon.source: "qrc:/icons/toggle-left.svg"
+                        icon.color: "#303030"
+                        icon.width: 20
+                        icon.height: 20
+                        onClicked: historyPanel.expanded = !historyPanel.expanded
+                    }
                 }
 
-                // 历史搜索记录列表
                 ListView {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    visible: historyPanel.expanded
                     spacing: 8
                     clip: true
                     model: ListModel {
@@ -131,6 +146,7 @@ ApplicationWindow {
 
                 SearchBar {
                     id: searchBar
+                    Layout.fillWidth: true
                     onSearch: function(query) {
                         // 模拟搜索结果数据
                         searchResults.model.clear()
@@ -151,6 +167,8 @@ ApplicationWindow {
 
                 SearchResults {
                     id: searchResults
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
                 }
             }
         }

@@ -5,5 +5,8 @@
         <file>qml/SearchBar.qml</file>
         <file>qml/SearchResults.qml</file>
         <file>icons/search.svg</file>
+        <file>icons/toggle-left.svg</file>
+        <file>icons/toggle-right.svg</file>
+        <file>icons/clear.svg</file>
     </qresource>
 </RCC>
