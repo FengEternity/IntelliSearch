@@ -7,7 +7,7 @@ ApplicationWindow {
     width: 1024
     height: 768
     visible: true
-    title: "IntelliSearch"
+    //title: "IntelliSearch"
 
     Material.accent: Material.Blue
     Material.primary: Material.Blue
@@ -21,17 +21,17 @@ ApplicationWindow {
         // 左侧历史搜索记录
         Rectangle {
             id: historyPanel
-            Layout.preferredWidth: expanded ? 260 : 48
+            Layout.preferredWidth: expanded ? 260 : 45
             Layout.fillHeight: true
             color: "#f5f5f5"
-            property bool expanded: true
+            property bool expanded: false
 
             // 收起状态的按钮
             RoundButton {
                 anchors {
                     left: parent.left
                     top: parent.top
-                    margins: 8
+                    margins: 5
                 }
                 width: 40
                 height: 40
