@@ -6,13 +6,22 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-# 查找 Qt6 包
+# 设置Homebrew安装的库路径
+# list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/lib/cmake")
+
+# 查找所需的包
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick QuickControls2)
+find_package(CURL REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(spdlog REQUIRED)
+find_package(fmt REQUIRED)
 
 # 定义源文件和资源文件
 set(SOURCES
     src/main.cpp
-    ${CMAKE_SOURCE_DIR}/../log/Logger.cpp 
+    src/SearchBridge.cpp
+    ${CMAKE_SOURCE_DIR}/../core/src/IntentParser.cpp
+    ${CMAKE_SOURCE_DIR}/../log/Logger.cpp
 )
 
 set(RESOURCE_FILES
@@ -25,20 +34,17 @@ add_executable(IntellsSearchClient
     ${RESOURCE_FILES}
 )
 
-find_package(spdlog REQUIRED)
-find_package(fmt REQUIRED)
-message(STATUS "spdlog found: ${spdlog_DIR}")
-message(STATUS "fmt found: ${fmt_DIR}")
-
 # 添加 include 路径
 target_include_directories(IntellsSearchClient 
     PRIVATE 
     ${CMAKE_SOURCE_DIR}/src 
     ${CMAKE_SOURCE_DIR}/..
     ${CMAKE_SOURCE_DIR}/../log
+    ${CMAKE_SOURCE_DIR}/../core/src
+    ${CURL_INCLUDE_DIRS}
 )
 
-# 链接 Qt6 库
+# 链接所有依赖库
 target_link_libraries(IntellsSearchClient
     PRIVATE
     fmt::fmt
@@ -47,6 +53,8 @@ target_link_libraries(IntellsSearchClient
     Qt6::Gui
     Qt6::Quick
     Qt6::QuickControls2
+    CURL::libcurl
+    nlohmann_json::nlohmann_json
 )
 
 # 显示构建信息
