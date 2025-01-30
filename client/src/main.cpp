@@ -16,13 +16,13 @@ int main(int argc, char *argv[]) {
 
     // 初始化日志
     INITLOG(config);
-    INFOLOG("程序启动");
+    INFOLOG("Application started");
 
     QGuiApplication app(argc, argv);
     
     // 设置Material风格
     QQuickStyle::setStyle("Material");
-    DEBUGLOG("设置UI风格为Material");
+    DEBUGLOG("UI style set to Material");
     
     QQmlApplicationEngine engine;
     
@@ -40,13 +40,13 @@ int main(int argc, char *argv[]) {
         &QQmlApplicationEngine::objectCreationFailed,
         &app,
         []() { 
-            ERRORLOG("QML对象创建失败");
+            ERRORLOG("QML object creation failed");
             QCoreApplication::exit(-1); 
         },
         Qt::QueuedConnection
     );
     
-    DEBUGLOG("开始加载QML文件: {}", url.toString().toStdString());
+    DEBUGLOG("Starting to load QML file: {}", url.toString().toStdString());
     engine.load(url);
     
     return app.exec();
