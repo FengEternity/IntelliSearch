@@ -22,6 +22,7 @@ set(SOURCES
     src/SearchBridge.cpp
     ${CMAKE_SOURCE_DIR}/../core/src/IntentParser.cpp
     ${CMAKE_SOURCE_DIR}/../log/Logger.cpp
+    ${CMAKE_SOURCE_DIR}/../config/ConfigManager.cpp
 )
 
 set(RESOURCE_FILES
@@ -41,6 +42,7 @@ target_include_directories(IntellsSearchClient
     ${CMAKE_SOURCE_DIR}/..
     ${CMAKE_SOURCE_DIR}/../log
     ${CMAKE_SOURCE_DIR}/../core/src
+    ${CMAKE_SOURCE_DIR}/../config
     ${CURL_INCLUDE_DIRS}
 )
 

@@ -3,26 +3,37 @@
 //
 
 #include "Logger.h"
+#include "../config/ConfigManager.h"
+#include <iostream>
 
 void Logger::Init(const LogConfig& conf)
 {
-    //自定义的sink
-    loggerPtr = spdlog::rotating_logger_mt("base_logger", conf.path.c_str(), conf.size, conf.count);
-    //设置格式
-    //参见文档 https://github.com/gabime/spdlog/wiki/3.-Custom-formatting
-    //[%Y-%m-%d %H:%M:%S.%e] 时间
-    //[%l] 日志级别
-    //[%t] 线程
-    //[%s] 文件
-    //[%#] 行号
-    //[%!] 函数
-    //[%v] 实际文本
-    loggerPtr->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [thread %t] [%s %!:%#] %v");
+    try {
+        // 确保日志目录存在
+        std::filesystem::path logPath(conf.logPath);
+        std::filesystem::create_directories(logPath.parent_path());
+        
+        //自定义的sink
+        loggerPtr = spdlog::rotating_logger_mt("base_logger", conf.logPath.c_str(), conf.maxFileSize, conf.maxFiles);
+        //设置格式
+        //参见文档 https://github.com/gabime/spdlog/wiki/3.-Custom-formatting
+        //[%Y-%m-%d %H:%M:%S.%e] 时间
+        //[%l] 日志级别
+        //[%t] 线程
+        //[%s] 文件
+        //[%#] 行号
+        //[%!] 函数
+        //[%v] 实际文本
+        loggerPtr->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [thread %t] [%s %!:%#] %v");
 
-    // 设置日志级别
-    loggerPtr->set_level(spdlog::level::from_str(conf.level));
-    // 设置刷新日志的日志级别，当出现level或更高级别日志时，立刻刷新日志到  disk
-    loggerPtr->flush_on(spdlog::level::from_str(conf.level));
+        // 设置日志级别
+        loggerPtr->set_level(spdlog::level::from_str(conf.logLevel));
+        // 设置刷新日志的日志级别，当出现level或更高级别日志时，立刻刷新日志到  disk
+        loggerPtr->flush_on(spdlog::level::from_str(conf.logLevel));
+    } catch (const std::exception& e) {
+        // 记录初始化过程中的错误
+        std::cerr << "Logger initialization failed: " << e.what() << std::endl;
+    }
 }
 
 /*
@@ -36,21 +47,30 @@ void Logger::Init(const LogConfig& conf)
  */
 std::string Logger::GetLogLevel()
 {
-    auto level = loggerPtr->level();
-    return spdlog::level::to_string_view(level).data();
+    try {
+        auto level = loggerPtr->level();
+        return spdlog::level::to_string_view(level).data();
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to get log level: " << e.what() << std::endl;
+        return "unknown";
+    }
 }
 
 void Logger::SetLogLevel(const std::string& log_level)
 {
-    auto level = spdlog::level::from_str(log_level);
-    if (level == spdlog::level::off)
-    {
-        WARNLOG("Given invalid log level {}", log_level);
-    }
-    else
-    {
-        loggerPtr->set_level(level);
-        loggerPtr->flush_on(level);
+    try {
+        auto level = spdlog::level::from_str(log_level);
+        if (level == spdlog::level::off)
+        {
+            WARNLOG("Given invalid log level {}", log_level);
+        }
+        else
+        {
+            loggerPtr->set_level(level);
+            loggerPtr->flush_on(level);
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to set log level: " << e.what() << std::endl;
     }
 }
 

@@ -12,14 +12,7 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/rotating_file_sink.h"
 
-// 日志的配置项
-struct LogConfig
-{
-    std::string level;
-    std::string path;
-    int64_t size;
-    int count;
-};
+#include "../config/ConfigManager.h"
 
 // 日志的单例模式
 class Logger

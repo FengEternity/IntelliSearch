@@ -23,14 +23,26 @@ private:
     // 处理 API 响应
     nlohmann::json processApiResponse(const std::string& response);
 
+    // 处理API请求重试
+    nlohmann::json retryApiCall(const std::string& query, int attempt = 0);
+
     // CURL 写回调函数
     static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* userp);
+
+    // 获取当前时间戳（毫秒）
+    static int64_t getCurrentTimeMs();
 
     // CURL 句柄
     CURL* curl;
     
     // API 密钥
     std::string apiKey;
+
+    // API请求计数器
+    int requestCount;
+    
+    // 上次重置计数器的时间
+    int64_t lastResetTime;
 };
 
 } // namespace IntelliSearch

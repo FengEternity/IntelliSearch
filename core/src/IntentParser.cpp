@@ -1,5 +1,6 @@
 #include "IntentParser.h"
 #include "../../log/Logger.h"
+#include "../../config/ConfigManager.h"
 #include <stdexcept>
 #include <sstream>
 #include <fstream>
@@ -15,22 +16,11 @@ IntentParser::IntentParser() {
         throw std::runtime_error("Failed to initialize CURL");
     }
     
-    // Try to read API key from config file
-    try {
-        std::ifstream configFile("config.json");
-        if (configFile.is_open()) {
-            nlohmann::json config = nlohmann::json::parse(configFile);
-            if (config.contains("api_key")) {
-                apiKey = config["api_key"];
-            }
-        }
-    } catch (const std::exception& e) {
-        WARNLOG("Failed to read config file: {}", e.what());
-        // If config file reading fails, log error and try environment variable
-    }
+    // 从 ConfigManager 获取 API 密钥
+    apiKey = ConfigManager::getInstance()->getStringValue("api_key");
     
-    // If API key not found in config file, try to get from environment variable
     if (apiKey.empty()) {
+        // 如果配置文件中没有，尝试从环境变量获取
         apiKey = std::getenv("KIMI_API_KEY") ? std::getenv("KIMI_API_KEY") : "";
     }
     
@@ -38,6 +28,10 @@ IntentParser::IntentParser() {
         CRITICALLOG("KIMI API key not found, please check config file or environment variables");
         throw std::runtime_error("KIMI API key not found in config.json or environment variable");
     }
+
+    // 初始化API请求计数器
+    requestCount = 0;
+    lastResetTime = getCurrentTimeMs();
 }
 
 IntentParser::~IntentParser() {
@@ -48,19 +42,51 @@ IntentParser::~IntentParser() {
 
 nlohmann::json IntentParser::parseSearchIntent(const std::string& userInput) {
     DEBUGLOG("Received search request: {}", userInput);
-    if (userInput.empty()) {
-        ERRORLOG("Search input is empty");
-        throw std::invalid_argument("User input cannot be empty");
+    return retryApiCall(userInput);
+}
+
+int64_t IntentParser::getCurrentTimeMs() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()
+    ).count();
+}
+
+nlohmann::json IntentParser::retryApiCall(const std::string& query, int attempt) {
+    auto config = ConfigManager::getInstance();
+    int maxAttempts = config->getIntValue("api/retry/max_attempts", 3);
+    int initialDelay = config->getIntValue("api/retry/initial_delay_ms", 1000);
+    int maxDelay = config->getIntValue("api/retry/max_delay_ms", 5000);
+    int maxRequestsPerMinute = config->getIntValue("api/max_requests_per_minute", 3);
+
+    // 检查并重置请求计数器
+    int64_t currentTime = getCurrentTimeMs();
+    if (currentTime - lastResetTime >= 60000) { // 1分钟
+        requestCount = 0;
+        lastResetTime = currentTime;
     }
-    
+
+    // 检查请求速率限制
+    if (requestCount >= maxRequestsPerMinute) {
+        int64_t waitTime = 60000 - (currentTime - lastResetTime);
+        if (waitTime > 0) {
+            WARNLOG("Rate limit reached, waiting for {} ms", waitTime);
+            std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
+            requestCount = 0;
+            lastResetTime = getCurrentTimeMs();
+        }
+    }
+
     try {
-        INFOLOG("Starting to call Kimi API to parse search intent");
-        auto result = callKimiAPI(userInput);
-        INFOLOG("Successfully parsed search intent");
-        return result;
+        requestCount++;
+        return callKimiAPI(query);
     } catch (const std::exception& e) {
-        ERRORLOG("Failed to parse search intent: {}", e.what());
-        throw std::runtime_error(std::string("Failed to parse search intent: ") + e.what());
+        if (attempt < maxAttempts) {
+            int delay = std::min(initialDelay * (1 << attempt), maxDelay);
+            WARNLOG("API call failed, retrying in {} ms (attempt {}/{}): {}", delay, attempt + 1, maxAttempts, e.what());
+            std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+            return retryApiCall(query, attempt + 1);
+        }
+        throw;
     }
 }
 
@@ -130,7 +156,7 @@ nlohmann::json IntentParser::processApiResponse(const std::string& response) {
         }
         
         std::string content = jsonResponse["choices"][0]["message"]["content"];
-        DEBUGLOG("Successfully extracted API response content: {}", content);
+        INFOLOG("Successfully extracted API response content: {}", content);
         
         // 创建一个包含解析结果的 JSON 对象
         nlohmann::json result = {

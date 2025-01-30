@@ -4,18 +4,15 @@
 #include <QQmlContext>
 
 #include "log/Logger.h"
+#include "config/ConfigManager.h"
 #include "SearchBridge.h"
 
 int main(int argc, char *argv[]) {
-    // 配置日志
-    LogConfig config;
-    config.level = "debug";
-    config.path = "logs/app.log";
-    config.size = 1024 * 1024; // 1MB
-    config.count = 3;
+    // 初始化配置管理器
+    ConfigManager::getInstance()->init("config/config.json");
 
     // 初始化日志
-    INITLOG(config);
+    INITLOG(ConfigManager::getInstance()->getLogConfig());
     INFOLOG("Application started");
 
     QGuiApplication app(argc, argv);
@@ -48,6 +45,6 @@ int main(int argc, char *argv[]) {
     
     DEBUGLOG("Starting to load QML file: {}", url.toString().toStdString());
     engine.load(url);
-    
+
     return app.exec();
 }

@@ -1,8 +1,8 @@
-#ifndef INTELLISEARCH_SEARCHBRIDGE_H
-#define INTELLISEARCH_SEARCHBRIDGE_H
+#pragma once
 
 #include <QObject>
 #include <QString>
+#include <memory>
 #include "../../core/src/IntentParser.h"
 
 namespace IntelliSearch {
@@ -15,11 +15,9 @@ public:
     ~SearchBridge();
 
 public slots:
-    // 处理来自 QML 的搜索请求
     void handleSearch(const QString& query);
 
 signals:
-    // 向 QML 发送搜索结果
     void searchResultsReady(const QString& results);
 
 private:
@@ -27,5 +25,3 @@ private:
 };
 
 } // namespace IntelliSearch
-
-#endif // INTELLISEARCH_SEARCHBRIDGE_H

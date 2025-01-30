@@ -1,0 +1,17 @@
+{
+    "api_key": "sk-rj7f3gi0QO8P5nibqbB3dzhoentKRjIpk4cf8WgVNDM8FNoB",
+    "api": {
+        "max_requests_per_minute": 3,
+        "retry": {
+            "max_attempts": 3,
+            "initial_delay_ms": 1000,
+            "max_delay_ms": 5000
+        }
+    },
+    "log": {
+        "level": "info",
+        "path": "logs/app.log",
+        "size": 1048576,
+        "count": 3
+    }
+}
