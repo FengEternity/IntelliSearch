@@ -115,6 +115,30 @@ LogConfig ConfigManager::getLogConfig() const {
     return logConfig;
 }
 
+nlohmann::json ConfigManager::getApiProviderConfig(const std::string& provider) const {
+    try {
+        if (config_.contains("api_providers") && config_["api_providers"].contains(provider)) {
+            return config_["api_providers"][provider];
+        }
+        throw std::runtime_error("API provider '" + provider + "' not found in config.json");
+    } catch (const std::exception& e) {
+        WARNLOG("获取API提供商 {} 的配置失败: {}", provider, e.what());
+        throw;
+    }
+    return nlohmann::json();
+}
+
+nlohmann::json ConfigManager::getAllApiProviders() const {
+    try {
+        if (config_.contains("api_providers")) {
+            return config_["api_providers"];
+        }
+    } catch (const std::exception& e) {
+        WARNLOG("获取所有API提供商配置失败: {}", e.what());
+    }
+    return nlohmann::json();
+}
+
 void ConfigManager::reload() {
     loadConfig(configPath_);
     INFOLOG("配置文件已重新加载: {}", configPath_);

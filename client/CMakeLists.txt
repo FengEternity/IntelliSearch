@@ -20,7 +20,9 @@ find_package(fmt REQUIRED)
 set(SOURCES
     src/main.cpp
     src/SearchBridge.cpp
-    ${CMAKE_SOURCE_DIR}/../core/src/IntentParser.cpp
+    ${CMAKE_SOURCE_DIR}/../core/engine/IntentParser.cpp
+    ${CMAKE_SOURCE_DIR}/../core/api/APIServiceManager.cpp
+    ${CMAKE_SOURCE_DIR}/../core/api/KimiAPIService.cpp
     ${CMAKE_SOURCE_DIR}/../log/Logger.cpp
     ${CMAKE_SOURCE_DIR}/../config/ConfigManager.cpp
 )
@@ -41,7 +43,8 @@ target_include_directories(IntellsSearchClient
     ${CMAKE_SOURCE_DIR}/src 
     ${CMAKE_SOURCE_DIR}/..
     ${CMAKE_SOURCE_DIR}/../log
-    ${CMAKE_SOURCE_DIR}/../core/src
+    ${CMAKE_SOURCE_DIR}/../core/engine
+    ${CMAKE_SOURCE_DIR}/../core/api
     ${CMAKE_SOURCE_DIR}/../config
     ${CURL_INCLUDE_DIRS}
 )

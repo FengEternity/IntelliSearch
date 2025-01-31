@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QString>
 #include <memory>
-#include "../../core/src/IntentParser.h"
+#include "core/engine/IntentParser.h"
 
 namespace IntelliSearch {
 

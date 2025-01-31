@@ -1,11 +1,20 @@
 {
-    "api_key": "sk-rj7f3gi0QO8P5nibqbB3dzhoentKRjIpk4cf8WgVNDM8FNoB",
-    "api": {
-        "max_requests_per_minute": 3,
-        "retry": {
-            "max_attempts": 3,
-            "initial_delay_ms": 1000,
-            "max_delay_ms": 5000
+    "api_providers": {
+        "kimi": {
+            "api_key": "sk-rj7f3gi0QO8P5nibqbB3dzhoentKRjIpk4cf8WgVNDM8FNoB",
+            "base_url": "https://api.moonshot.cn/v1",
+            "priority": 1,
+            "rate_limits": {
+                "max_requests_per_minute": 3,
+                "max_concurrent_requests": 1,
+                "requests_per_minute": 32000,
+                "requests_per_day": 1500000
+            },
+            "retry": {
+                "max_attempts": 3,
+                "initial_delay_ms": 1000,
+                "max_delay_ms": 5000
+            }
         }
     },
     "log": {

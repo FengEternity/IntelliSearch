@@ -44,6 +44,12 @@ public:
     // 获取日志配置
     LogConfig getLogConfig() const;
 
+    // 获取指定 API 提供商的配置
+    nlohmann::json getApiProviderConfig(const std::string& provider) const;
+
+    // 获取所有 API 提供商的配置
+    nlohmann::json getAllApiProviders() const;
+
     // 重新加载配置文件
     void reload();
 
