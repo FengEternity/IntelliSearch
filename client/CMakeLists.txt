@@ -62,6 +62,12 @@ target_link_libraries(IntellsSearchClient
     nlohmann_json::nlohmann_json
 )
 
+# 复制配置文件到构建目录
+file(COPY ${CMAKE_SOURCE_DIR}/../config/config.json
+     DESTINATION ${CMAKE_BINARY_DIR}/config)
+file(COPY ${CMAKE_SOURCE_DIR}/../config/IntentParserPrompt.json
+     DESTINATION ${CMAKE_BINARY_DIR}/config)
+
 # 显示构建信息
 message(STATUS "Project: ${PROJECT_NAME}")
 message(STATUS "CMake Build Type: ${CMAKE_BUILD_TYPE}")

@@ -4,6 +4,8 @@
 #include <chrono>
 #include <codecvt>
 #include <locale>
+#include <fstream>
+#include <sstream>
 
 namespace IntelliSearch {
 
@@ -121,13 +123,54 @@ nlohmann::json KimiAPIService::retryApiCall(const std::string& query, int attemp
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
         // 构建请求体
+        std::string promptsFilePath = config->getApiProviderConfig("kimi")["prompts"].get<std::string>();
+        std::vector<std::filesystem::path> searchPaths;
+        std::filesystem::path currentPath = std::filesystem::current_path();
+        std::filesystem::path configDir = std::filesystem::path(config->getConfigPath()).parent_path();
+        
+        // 添加搜索路径
+        searchPaths.push_back(promptsFilePath);  // 直接路径
+        searchPaths.push_back(currentPath / promptsFilePath);  // 当前目录
+        searchPaths.push_back(configDir / promptsFilePath);  // 配置文件目录
+        
+        // 向上查找，直到找到项目根目录（最多查找5层）
+        std::filesystem::path tempPath = currentPath;
+        for (int i = 0; i < 5 && tempPath.has_parent_path(); ++i) {
+            searchPaths.push_back(tempPath / promptsFilePath);
+            searchPaths.push_back(tempPath / "config" / "IntentParserPrompt.json");  // 项目标准位置
+            tempPath = tempPath.parent_path();
+        }
+        
+        // 尝试所有可能的路径
+        std::string triedPaths;
+        std::ifstream promptsFile;
+        for (const auto& path : searchPaths) {
+            if (std::filesystem::exists(path)) {
+                promptsFile.open(path);
+                if (promptsFile.is_open()) {
+                    break;
+                }
+            }
+            triedPaths += "\n              " + path.string();
+        }
+        
+        if (!promptsFile.is_open()) {
+            throw std::runtime_error("Failed to open prompts file: " + promptsFilePath + "\n尝试的路径: " + triedPaths);
+        }
+        std::stringstream buffer;
+        buffer << promptsFile.rdbuf();
+        auto promptsJson = nlohmann::json::parse(buffer.str());
         nlohmann::json requestBody = {
             {"model", "moonshot-v1-8k"},
             {"messages", nlohmann::json::array({
-                {{"role", "system"}, {"content", utf8_encode("你是一个智能搜索助手，负责理解用户的搜索意图。")}},
-                {{"role", "user"}, {"content", utf8_encode(query)}}
+                {{"role", "system"}, {"content", utf8_encode(promptsJson["system"].dump())}},
+                {{"role", "user"}, {"content", "示例输入：" + promptsJson["examples"]["input"].get<std::string>() + 
+                                              "\n示例输出：" + promptsJson["examples"]["output"].dump() + 
+                                              "\n\n实际输入：" + utf8_encode(query)}}
             })},
-            {"temperature", 0.3}
+            {"temperature", 0.3},
+            {"max_tokens", 800},
+            {"response_format", config->getApiProviderConfig("kimi")["response_format"]}
         };
         std::string requestBodyStr = requestBody.dump();
         INFOLOG("Sending API request with content: {}", requestBodyStr);

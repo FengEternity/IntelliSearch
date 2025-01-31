@@ -35,6 +35,19 @@ void ConfigManager::loadConfig(const std::string& configPath) {
                 if (configFile.is_open()) {
                     configFile >> config_;
                     configPath_ = path.string();  // 更新实际使用的配置文件路径
+                    
+                    // 将配置文件中的相对路径转换为绝对路径
+                    std::filesystem::path configDir = std::filesystem::path(configPath_).parent_path();
+                    if (config_.contains("api_providers")) {
+                        for (auto& [provider, config] : config_["api_providers"].items()) {
+                            if (config.contains("prompts")) {
+                                std::string promptsPath = config["prompts"].get<std::string>();
+                                if (!std::filesystem::path(promptsPath).is_absolute()) {
+                                    config["prompts"] = (configDir / promptsPath).string();
+                                }
+                            }
+                        }
+                    }
                     return;
                 }
             }

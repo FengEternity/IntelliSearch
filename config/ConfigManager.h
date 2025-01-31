@@ -53,6 +53,9 @@ public:
     // 重新加载配置文件
     void reload();
 
+    // 获取配置文件路径
+    std::string getConfigPath() const { return configPath_; }
+
 private:
     ConfigManager() = default;
     ~ConfigManager() = default;
