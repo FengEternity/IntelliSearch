@@ -4,3 +4,4 @@ mydocs/
 .DS_store
 build/
 API.md
+cmake-build-debug/
