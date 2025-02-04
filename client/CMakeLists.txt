@@ -22,7 +22,9 @@ set(SOURCES
     src/SearchBridge.cpp
     ${CMAKE_SOURCE_DIR}/../core/engine/IntentParser.cpp
     ${CMAKE_SOURCE_DIR}/../core/api/APIServiceManager.cpp
+    ${CMAKE_SOURCE_DIR}/../core/api/BaseAPIService.cpp
     ${CMAKE_SOURCE_DIR}/../core/api/KimiAPIService.cpp
+
     ${CMAKE_SOURCE_DIR}/../log/Logger.cpp
     ${CMAKE_SOURCE_DIR}/../config/ConfigManager.cpp
 )

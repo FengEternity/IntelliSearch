@@ -3,6 +3,7 @@
         "kimi": {
             "api_key": "sk-rj7f3gi0QO8P5nibqbB3dzhoentKRjIpk4cf8WgVNDM8FNoB",
             "base_url": "https://api.moonshot.cn/v1",
+            "model": "moonshot-v1-8k",
             "priority": 1,
             "rate_limits": {
                 "max_requests_per_minute": 3,
