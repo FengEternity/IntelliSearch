@@ -23,9 +23,6 @@ int main(int argc, char *argv[]) {
     
     QQmlApplicationEngine engine;
     
-    // 注册 SearchBridge 类型
-    qmlRegisterType<IntelliSearch::SearchBridge>("IntelliSearch", 1, 0, "SearchBridge");
-    
     // 创建 SearchBridge 实例并设置为上下文属性
     IntelliSearch::SearchBridge *searchBridge = new IntelliSearch::SearchBridge();
     engine.rootContext()->setContextProperty("searchBridge", searchBridge);

@@ -34,6 +34,8 @@ void SearchBridge::handleSearch(const QString& query) {
         // 保存搜索记录到数据库
         if (!dbManager->addSearchHistory(query, jsonString)) {
             WARNLOG("Failed to save search history");
+        } else {
+            emit searchHistoryChanged();
         }
         
         DEBUGLOG("Search result encoding check - JSON conversion result: {}", jsonString.toUtf8().toHex().toStdString());
@@ -44,6 +46,30 @@ void SearchBridge::handleSearch(const QString& query) {
         qWarning() << "Search failed:" << e.what();
         emit searchResultsReady(QString("{\"error\":\"%1\"}").arg(e.what()));
     }
+}
+
+QVariantList SearchBridge::getSearchHistory() {
+    INFOLOG("Getting search history records");
+    QVariantList historyList;
+    auto history = dbManager->getSearchHistory(10); // 获取最近10条记录
+    
+    if (history.isEmpty()) {
+        DEBUGLOG("No search history records found");
+        return historyList;
+    }
+    
+    for (const auto& record : history) {
+        if (!record.first.isEmpty()) {
+            QVariantMap item;
+            item["query"] = record.first;
+            historyList.append(item);
+            
+            INFOLOG("History record - Query: {}", record.first.toStdString());
+        }
+    }
+    
+    INFOLOG("Retrieved {} search history records", historyList.size());
+    return historyList;
 }
 
 } // namespace IntelliSearch

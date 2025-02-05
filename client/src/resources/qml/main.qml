@@ -81,23 +81,9 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     visible: historyPanel.expanded
-                    spacing: 8
+                    spacing: 2
                     clip: true
-                    model: ListModel {
-                        // 示例数据
-                        ListElement { 
-                            query: "智能搜索引擎的发展趋势"
-                            timestamp: "2024-01-20 15:30"
-                        }
-                        ListElement { 
-                            query: "AI在搜索中的应用"
-                            timestamp: "2024-01-20 14:20"
-                        }
-                        ListElement { 
-                            query: "搜索引擎优化技术"
-                            timestamp: "2024-01-20 11:45"
-                        }
-                    }
+                    model: searchBridge.searchHistory
                     delegate: ItemDelegate {
                         width: parent.width
                         height: 60
@@ -105,24 +91,16 @@ ApplicationWindow {
                         ColumnLayout {
                             anchors.fill: parent
                             anchors.margins: 8
-                            spacing: 4
+                            spacing: 0
 
                             Text {
                                 Layout.fillWidth: true
-                                text: model.query
+                                text: modelData.query ?? "未知查询"
                                 color: Material.foreground
                                 font.pixelSize: 14
                                 elide: Text.ElideRight
-                                maximumLineCount: 2
+                                maximumLineCount: 0
                                 wrapMode: Text.WordWrap
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: model.timestamp
-                                color: Material.foreground
-                                font.pixelSize: 12
-                                opacity: 0.7
                             }
                         }
 
