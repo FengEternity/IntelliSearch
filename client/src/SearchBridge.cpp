@@ -7,7 +7,12 @@ namespace IntelliSearch {
 SearchBridge::SearchBridge(QObject* parent)
     : QObject(parent)
     , intentParser(std::make_unique<IntentParser>())
+    , dbManager(DatabaseManagerFactory::createDatabaseManager())
 {
+    if (!dbManager || !dbManager->initialize()) {
+        ERRORLOG("Failed to initialize database manager");
+        throw std::runtime_error("Database initialization failed");
+    }
     INFOLOG("SearchBridge initialization completed");
 }
 
@@ -25,6 +30,12 @@ void SearchBridge::handleSearch(const QString& query) {
         
         // 将结果转换为 JSON 字符串并发送给 QML
         QString jsonString = QString::fromStdString(result.dump());
+        
+        // 保存搜索记录到数据库
+        if (!dbManager->addSearchHistory(query, jsonString)) {
+            WARNLOG("Failed to save search history");
+        }
+        
         DEBUGLOG("Search result encoding check - JSON conversion result: {}", jsonString.toUtf8().toHex().toStdString());
         INFOLOG("Search results ready, sending to frontend");
         emit searchResultsReady(jsonString);

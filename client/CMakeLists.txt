@@ -10,7 +10,7 @@ set(CMAKE_AUTORCC ON)
 # list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/lib/cmake")
 
 # 查找所需的包
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick QuickControls2)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick QuickControls2 Sql)
 find_package(CURL REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(spdlog REQUIRED)
@@ -27,6 +27,7 @@ set(SOURCES
 
     ${CMAKE_SOURCE_DIR}/../log/Logger.cpp
     ${CMAKE_SOURCE_DIR}/../config/ConfigManager.cpp
+    ${CMAKE_SOURCE_DIR}/../data/database/DatabaseManager.cpp
 )
 
 set(RESOURCE_FILES
@@ -48,6 +49,7 @@ target_include_directories(IntellsSearchClient
     ${CMAKE_SOURCE_DIR}/../core/engine
     ${CMAKE_SOURCE_DIR}/../core/api
     ${CMAKE_SOURCE_DIR}/../config
+    ${CMAKE_SOURCE_DIR}/../data/database
     ${CURL_INCLUDE_DIRS}
 )
 
@@ -62,6 +64,7 @@ target_link_libraries(IntellsSearchClient
     Qt6::QuickControls2
     CURL::libcurl
     nlohmann_json::nlohmann_json
+    Qt6::Sql
 )
 
 # 复制配置文件到构建目录

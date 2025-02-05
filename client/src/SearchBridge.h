@@ -4,6 +4,7 @@
 #include <QString>
 #include <memory>
 #include "core/engine/IntentParser.h"
+#include "../../data/database/DatabaseManager.h"
 
 namespace IntelliSearch {
 
@@ -22,6 +23,7 @@ signals:
 
 private:
     std::unique_ptr<IntentParser> intentParser;
+    std::unique_ptr<IDatabaseManager> dbManager;
 };
 
 } // namespace IntelliSearch
