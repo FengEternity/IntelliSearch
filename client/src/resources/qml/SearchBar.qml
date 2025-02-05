@@ -35,6 +35,7 @@ Rectangle {
                     searchBar.search(text)
                 }
             }
+            implicitWidth: parent ? parent.width - 40 : 800
         }
         
         RoundButton {

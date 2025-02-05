@@ -7,6 +7,8 @@ ApplicationWindow {
     width: 1024
     height: 768
     visible: true
+    minimumWidth: 800
+    minimumHeight: 600
     //title: "IntelliSearch"
 
     Material.accent: Material.Blue
@@ -21,7 +23,7 @@ ApplicationWindow {
         // 左侧历史搜索记录
         Rectangle {
             id: historyPanel
-            Layout.preferredWidth: expanded ? 260 : 45
+            Layout.preferredWidth: expanded ? Math.min(Math.max(window.width * 0.25, 200), 400) : Math.min(Math.max(window.width * 0.05, 45), 60)
             Layout.fillHeight: true
             color: "#f5f5f5"
             property bool expanded: false
@@ -184,7 +186,8 @@ ApplicationWindow {
 
                     SearchBar {
                         id: searchBar
-                        Layout.preferredWidth: searchResults.model && searchResults.model.count > 0 ? parent.width : 600
+                        Layout.fillWidth: true
+                        Layout.maximumWidth: searchResults.model && searchResults.model.count > 0 ? parent.width : 600
                         Layout.alignment: Qt.AlignHCenter
                         onSearch: function(query) {
                             searchBridge.handleSearch(query);
