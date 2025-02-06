@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(IntelliSearchClient)
+project(IntelliSearch)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -44,13 +44,13 @@ set(RESOURCE_FILES
 )
 
 # 添加可执行目标
-add_executable(IntellsSearchClient
+add_executable(IntelliSearch
     ${SOURCES}
     ${RESOURCE_FILES}
 )
 
 # 添加 include 路径
-target_include_directories(IntellsSearchClient 
+target_include_directories(IntelliSearch 
     PRIVATE 
     ${CMAKE_SOURCE_DIR}/src 
     ${CMAKE_SOURCE_DIR}/..
@@ -63,7 +63,7 @@ target_include_directories(IntellsSearchClient
 )
 
 # 链接所有依赖库
-target_link_libraries(IntellsSearchClient
+target_link_libraries(IntelliSearch
     PRIVATE
     fmt::fmt
     spdlog::spdlog

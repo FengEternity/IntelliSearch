@@ -63,12 +63,13 @@ ApplicationWindow {
                 icon.color: "#303030"
                 icon.width: 24
                 icon.height: 24
+                visible: !historyPanel.expanded
                 
-                ToolTip {
-                    visible: parent.hovered
-                    text: "设置"
-                    delay: 500
-                }
+                // ToolTip {
+                //     visible: parent.hovered
+                //     text: "设置"
+                //     delay: 500
+                // }
 
                 onClicked: {
                     contentArea.state = contentArea.state === "settings" ? "" : "settings"
