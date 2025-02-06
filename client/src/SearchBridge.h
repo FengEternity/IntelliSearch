@@ -6,12 +6,16 @@
 #include <memory>
 #include "core/engine/IntentParser.h"
 #include "../../data/database/DatabaseManager.h"
+#include <QFuture>
+#include <QFutureWatcher>
+#include <QtConcurrent>
 
 namespace IntelliSearch {
 
 class SearchBridge : public QObject {
     Q_OBJECT
     Q_PROPERTY(QVariantList searchHistory READ getSearchHistory NOTIFY searchHistoryChanged)
+    Q_PROPERTY(bool isSearching READ isSearching NOTIFY searchingChanged)
 
 public:
     explicit SearchBridge(QObject* parent = nullptr);
@@ -24,10 +28,15 @@ public slots:
 signals:
     void searchResultsReady(const QString& results);
     void searchHistoryChanged();
+    void searchingChanged();
 
 private:
     std::unique_ptr<IntentParser> intentParser;
     std::unique_ptr<IDatabaseManager> dbManager;
+    QFutureWatcher<QString> searchWatcher;
+    QString lastQuery;
+
+    bool isSearching() const { return searchWatcher.isRunning(); }
 };
 
 } // namespace IntelliSearch

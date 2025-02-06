@@ -10,7 +10,14 @@ set(CMAKE_AUTORCC ON)
 # list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/lib/cmake")
 
 # 查找所需的包
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick QuickControls2 Sql)
+find_package(Qt6 REQUIRED COMPONENTS 
+    Core 
+    Gui 
+    Quick 
+    QuickControls2 
+    Sql
+    Concurrent
+)
 find_package(CURL REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(spdlog REQUIRED)
@@ -62,6 +69,7 @@ target_link_libraries(IntellsSearchClient
     Qt6::Gui
     Qt6::Quick
     Qt6::QuickControls2
+    Qt6::Concurrent
     CURL::libcurl
     nlohmann_json::nlohmann_json
     Qt6::Sql
