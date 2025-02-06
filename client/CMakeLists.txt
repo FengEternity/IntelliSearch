@@ -17,6 +17,8 @@ find_package(Qt6 REQUIRED COMPONENTS
     QuickControls2 
     Sql
     Concurrent
+    Widgets
+    QuickTemplates2
 )
 find_package(CURL REQUIRED)
 find_package(nlohmann_json REQUIRED)
@@ -70,6 +72,8 @@ target_link_libraries(IntellsSearchClient
     Qt6::Quick
     Qt6::QuickControls2
     Qt6::Concurrent
+    Qt6::Widgets
+    Qt6::QuickTemplates2
     CURL::libcurl
     nlohmann_json::nlohmann_json
     Qt6::Sql

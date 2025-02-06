@@ -1,7 +1,11 @@
-#include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickStyle>
 #include <QQmlContext>
+#include <QIcon>
+#include <QFile>
+#include <QGuiApplication>
+
 
 #include "log/Logger.h"
 #include "config/ConfigManager.h"
@@ -15,7 +19,16 @@ int main(int argc, char *argv[]) {
     INITLOG(ConfigManager::getInstance()->getLogConfig());
     INFOLOG("Application started");
 
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
+    
+    // 设置应用图标时最好先确认文件是否存在
+    QString iconPath = ":/icons/logo.svg";
+    if (QFile::exists(iconPath)) {
+        QApplication::setWindowIcon(QIcon(iconPath));
+        DEBUGLOG("Window icon set successfully");
+    } else {
+        WARNLOG("Icon file not found: {}", iconPath.toStdString());
+    }
     
     // 设置Material风格
     QQuickStyle::setStyle("Material");
