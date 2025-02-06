@@ -31,25 +31,8 @@ SearchBridge::SearchBridge(QObject* parent)
         throw std::runtime_error("Database initialization failed");
     }
 
-    // 连接异步完成信号
-    connect(&searchWatcher, &QFutureWatcher<QString>::finished, this, [this]() {
-        try {
-            QString result = searchWatcher.result();
-            
-            // 保存搜索记录到数据库
-            if (!dbManager->addSearchHistory(lastQuery, result)) {
-                WARNLOG("Failed to save search history");
-            } else {
-                emit searchHistoryChanged();
-            }
-            
-            INFOLOG("Async search completed, sending results");
-            emit searchResultsReady(result);
-        } catch (const std::exception& e) {
-            ERRORLOG("Error processing search results: {}", e.what());
-            emit searchResultsReady(QString("{\"error\":\"%1\"}").arg(e.what()));
-        }
-    });
+    // 在构造函数中连接信号
+    connect(&searchWatcher, &QFutureWatcher<QString>::finished, this, &SearchBridge::handleSearchComplete);
 
     INFOLOG("SearchBridge initialization completed");
 }
@@ -85,28 +68,34 @@ void SearchBridge::handleSearch(const QString& query) {
             return QString("{\"error\":\"%1\"}").arg(e.what());
         }
     });
-
-    connect(&searchWatcher, &QFutureWatcher<QString>::finished, this, [this]() {
-        emit searchingChanged();  // 搜索完成时发出信号
-        try {
-            QString result = searchWatcher.result();
-            
-            // 保存搜索记录到数据库
-            if (!dbManager->addSearchHistory(lastQuery, result)) {
-                WARNLOG("Failed to save search history");
-            } else {
-                emit searchHistoryChanged();
-            }
-            
-            INFOLOG("Async search completed, sending results");
-            emit searchResultsReady(result);
-        } catch (const std::exception& e) {
-            ERRORLOG("Error processing search results: {}", e.what());
-            emit searchResultsReady(QString("{\"error\":\"%1\"}").arg(e.what()));
-        }
-    });
     
     searchWatcher.setFuture(future);
+}
+
+/*
+ * Summary: 处理搜索完成事件
+ * Parameters: 无
+ * Return: void
+ * Description: 处理搜索完成事件，保存搜索记录到数据库并发出信号
+ */
+void SearchBridge::handleSearchComplete() {
+    emit searchingChanged();  // 搜索完成时发出信号
+    try {
+        QString result = searchWatcher.result();
+        
+        // 保存搜索记录到数据库
+        if (!dbManager->addSearchHistory(lastQuery, result)) {
+            WARNLOG("Failed to save search history");
+        } else {
+            emit searchHistoryChanged();
+        }
+        
+        INFOLOG("Async search completed, sending results");
+        emit searchResultsReady(result);
+    } catch (const std::exception& e) {
+        ERRORLOG("Error processing search results: {}", e.what());
+        emit searchResultsReady(QString("{\"error\":\"%1\"}").arg(e.what()));
+    }
 }
 
 /*

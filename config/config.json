@@ -23,7 +23,7 @@
         }
     },
     "log": {
-        "level": "info",
+        "level": "debug",
         "path": "logs/app.log",
         "size": 1048576,
         "count": 3

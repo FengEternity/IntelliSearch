@@ -30,6 +30,9 @@ signals:
     void searchHistoryChanged();
     void searchingChanged();
 
+private slots:
+    void handleSearchComplete();
+
 private:
     std::unique_ptr<IntentParser> intentParser;
     std::unique_ptr<IDatabaseManager> dbManager;
