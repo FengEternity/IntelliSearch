@@ -16,8 +16,20 @@ public:
     nlohmann::json parseSearchIntent(const std::string& userInput);
 
 private:
+    // 本地意图解析
+    nlohmann::json localIntentParsing(const std::string& input);
+    
+    // 混合意图解析结果
+    nlohmann::json mergeIntentResults(const nlohmann::json& localResult, const nlohmann::json& apiResult);
+    
+    // 加载意图解析配置
+    void loadIntentConfig();
+
     // API服务管理器
     class APIServiceManager* apiServiceManager;
+    
+    // 意图解析配置
+    nlohmann::json intentConfig;
 };
 
 } // namespace IntelliSearch

@@ -20,7 +20,17 @@
             "response_format": {
                 "type": "json_object"
             }
+        },
+        "bing": {
+            "api_key": "your_bing_api_key_here",
+            "endpoint": "https://api.bing.microsoft.com/v7.0/search",
+            "priority": 2
         }
+    },
+    "search_settings": {
+        "result_merge_strategy": "weighted_score",
+        "max_results_per_provider": 10,
+        "timeout_ms": 5000
     },
     "log": {
         "level": "debug",
