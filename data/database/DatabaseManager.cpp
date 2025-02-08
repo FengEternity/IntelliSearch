@@ -103,7 +103,7 @@ QVector<QPair<QString, QString>> SQLiteDatabaseManager::getSearchHistory(int lim
     QSqlQuery query;
     
     // 按时间倒序获取最近的搜索记录
-    query.prepare("SELECT query, intent_result FROM " + TABLE_NAME + 
+    query.prepare("SELECT id, query FROM " + TABLE_NAME + 
                  " ORDER BY timestamp DESC LIMIT ?");
     query.addBindValue(limit);
     
@@ -111,8 +111,8 @@ QVector<QPair<QString, QString>> SQLiteDatabaseManager::getSearchHistory(int lim
         DEBUGLOG("Retrieving {} most recent search history records", limit);
         while (query.next()) {
             history.append(qMakePair(
-                query.value(0).toString(),
-                query.value(1).toString()
+                query.value(0).toString(),  // 返回记录ID
+                query.value(1).toString()   // 返回查询内容
             ));
         }
     } else {
@@ -120,6 +120,20 @@ QVector<QPair<QString, QString>> SQLiteDatabaseManager::getSearchHistory(int lim
     }
     
     return history;
+}
+
+bool SQLiteDatabaseManager::deleteSearchHistory(const QString& recordId) {
+    INFOLOG("Deleting search history record with ID: {}", recordId.toStdString());
+    QSqlQuery sqlQuery;
+    sqlQuery.prepare("DELETE FROM " + TABLE_NAME + " WHERE id = ?");
+    sqlQuery.addBindValue(recordId);
+    bool success = sqlQuery.exec();
+    if (!success) {
+        ERRORLOG("Failed to delete search history: {}", sqlQuery.lastError().text().toStdString());
+    } else {
+        DEBUGLOG("Deleted search history record with ID: {}", recordId.toStdString());
+    }
+    return success;
 }
 
 bool SQLiteDatabaseManager::clearSearchHistory() {

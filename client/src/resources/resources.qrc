@@ -16,5 +16,6 @@
         <file>icons/chat.svg</file>
         <file>icons/more.svg</file>
         <file>icons/back.svg</file>
+        <file>icons/delete.svg</file>
     </qresource>
 </RCC>

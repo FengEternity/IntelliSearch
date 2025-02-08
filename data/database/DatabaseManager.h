@@ -27,6 +27,9 @@ public:
     
     // 清除搜索历史记录
     virtual bool clearSearchHistory() = 0;
+    
+    // 删除指定的搜索历史记录
+    virtual bool deleteSearchHistory(const QString& recordId) = 0;
 };
 
 // SQLite实现类
@@ -39,6 +42,7 @@ public:
 
     bool initialize() override;
     bool addSearchHistory(const QString& query, const QString& result) override;
+    bool deleteSearchHistory(const QString& query) override;
     QVector<QPair<QString, QString>> getSearchHistory(int limit = 10) override;
     bool clearSearchHistory() override;
 

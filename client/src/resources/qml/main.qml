@@ -138,6 +138,54 @@ ApplicationWindow {
                             color: parent.hovered ? Qt.rgba(0, 0, 0, 0.05) : "transparent"
                             Behavior on color { ColorAnimation { duration: 150 } }
                         }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            acceptedButtons: Qt.RightButton
+
+                            onClicked: function(event) {
+                                if(event.button == Qt.RightButton) {
+                                    contextMenu.recordId = modelData.id;
+                                    contextMenu.popup();
+                                }
+                            }
+                        }
+                    }
+
+                    Menu {
+                        id: contextMenu
+                        property string recordId: ""
+                        Material.elevation: 8
+                        Material.background: Material.dialogColor
+                        closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape
+                        width: historyPanel.Layout.preferredWidth / 2
+                        Timer {
+                            id: hideTimer
+                            interval: 1000
+                            onTriggered: contextMenu.close()
+                        }
+                        onClosed: hideTimer.stop()
+                        onOpened: hideTimer.stop()
+                        MenuItem {
+                            text: "删除搜索记录"
+                            icon.source: "qrc:/icons/delete.svg"
+                            icon.color: Material.foreground
+                            icon.width: 16
+                            icon.height: 16
+                            height: 40
+                            padding: 4
+                            font.pixelSize: 13  // 设置文字大小
+                            onTriggered: {
+                                searchBridge.deleteSearchHistory(contextMenu.recordId);
+                            }
+                            onHoveredChanged: {
+                                if (hovered) {
+                                    hideTimer.stop()
+                                } else {
+                                    hideTimer.start()
+                                }
+                            }
+                        }
                     }
                 }
             }

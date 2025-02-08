@@ -2,7 +2,7 @@
  * Author: Montee
  * CreateDate: 2025-01-30
  * UpdateDate: 2025-02-06
- * UpdateReason: 实现异步搜索支持，以避免主线程阻塞
+ * UpdateReason: 新增删除搜索历史记录功能
  * Description: 搜索桥接类的实现，用于处理搜索请求和管理搜索历史
  */
 
@@ -117,15 +117,32 @@ QVariantList SearchBridge::getSearchHistory() {
     for (const auto& record : history) {
         if (!record.first.isEmpty()) {
             QVariantMap item;
-            item["query"] = record.first;
+            item["id"] = record.first;  // 第一个字段现在是记录ID
+            item["query"] = record.second;  // 第二个字段是查询内容
             historyList.append(item);
-            
-            // INFOLOG("History record - Query: {}", record.first.toStdString());
         }
     }
     
     INFOLOG("Retrieved {} search history records", historyList.size());
     return historyList;
+}
+
+
+/*
+ * Summary: 删除搜索历史记录
+ * Parameters:
+ *   const QString& query - 要删除的搜索记录内容
+ * Return: void
+ * Description: 根据搜索内容从数据库删除对应的历史记录
+ */
+void SearchBridge::deleteSearchHistory(const QString& recordId) {
+    INFOLOG("Starting to delete search history record with ID: {}", recordId.toStdString());
+    if(dbManager->deleteSearchHistory(recordId)) {
+        emit searchHistoryChanged();
+        INFOLOG("Successfully deleted search history record with ID: {}", recordId.toStdString());
+    } else {
+        WARNLOG("Failed to delete search history record with ID: {}", recordId.toStdString());
+    }
 }
 
 } // namespace IntelliSearch

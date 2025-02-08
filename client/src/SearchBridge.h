@@ -23,6 +23,7 @@ public:
 
 public slots:
     void handleSearch(const QString& query);
+    void deleteSearchHistory(const QString& query);
     QVariantList getSearchHistory();
 
 signals:
