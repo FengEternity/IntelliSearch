@@ -5,3 +5,5 @@ mydocs/
 build/
 API.md
 cmake-build-debug/
+docs/google.txt
+docs/project_structure.md
