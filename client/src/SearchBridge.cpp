@@ -1,7 +1,7 @@
 /*
  * Author: Montee
  * CreateDate: 2025-01-30
- * UpdateDate: 2025-02-06
+ * UpdateDate: 2025-02-09
  * UpdateReason: 新增删除搜索历史记录功能
  * Description: 搜索桥接类的实现，用于处理搜索请求和管理搜索历史
  */

@@ -167,6 +167,26 @@ ApplicationWindow {
                         onClosed: hideTimer.stop()
                         onOpened: hideTimer.stop()
                         MenuItem {
+                            text: "显示详细信息"
+                            icon.source: "qrc:/icons/info.svg"
+                            icon.color: Material.foreground
+                            icon.width: 16
+                            icon.height: 16
+                            height: 40
+                            padding: 4
+                            font.pixelSize: 13  // 设置文字大小
+                            // onTriggered: {
+                            //     searchBridge.deleteSearchHistory(contextMenu.recordId);
+                            // }
+                            onHoveredChanged: {
+                                if (hovered) {
+                                    hideTimer.stop()
+                                } else {
+                                    hideTimer.start()
+                                }
+                            }
+                        }
+                        MenuItem {
                             text: "删除搜索记录"
                             icon.source: "qrc:/icons/delete.svg"
                             icon.color: Material.foreground

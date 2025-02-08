@@ -17,5 +17,6 @@
         <file>icons/more.svg</file>
         <file>icons/back.svg</file>
         <file>icons/delete.svg</file>
+        <file>icons/info.svg</file>
     </qresource>
 </RCC>
