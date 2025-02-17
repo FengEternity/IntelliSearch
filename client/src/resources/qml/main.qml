@@ -223,6 +223,13 @@ ApplicationWindow {
                     name: "settings"
                     PropertyChanges { target: welcomeContent; visible: false }
                     PropertyChanges { target: settingsPage; visible: true }
+                    PropertyChanges { target: chatPage; visible: false }
+                },
+                State {
+                    name: "chat"
+                    PropertyChanges { target: welcomeContent; visible: false }
+                    PropertyChanges { target: settingsPage; visible: false }
+                    PropertyChanges { target: chatPage; visible: true }
                 }
             ]
 
@@ -281,7 +288,9 @@ ApplicationWindow {
                         Layout.alignment: Qt.AlignHCenter
                         // 搜索信号处理
                         onSearch: function(query) {
-                            searchBridge.handleSearch(query);
+                            searchBridge.handleSearch(query)  // 处理搜索
+                            chatPage.initialQuery = query     // 设置初始查询消息
+                            contentArea.state = "chat"        // 切换到聊天页面
                         }
                     }
 
@@ -300,6 +309,13 @@ ApplicationWindow {
             // 设置页面
             SettingsPage {
                 id: settingsPage
+                anchors.fill: parent
+                visible: false
+            }
+
+            // 添加聊天页面
+            ChatPage {
+                id: chatPage
                 anchors.fill: parent
                 visible: false
             }

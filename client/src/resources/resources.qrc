@@ -5,6 +5,7 @@
         <file>qml/SearchBar.qml</file>
         <file>qml/SearchResults.qml</file>
         <file>qml/SettingsPage.qml</file>
+        <file>qml/ChatPage.qml</file>
         <file>icons/search.svg</file>
         <file>icons/toggle-left.svg</file>
         <file>icons/toggle-right.svg</file>
