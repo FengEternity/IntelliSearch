@@ -46,7 +46,13 @@ void SearchEngine::loadConfig() {
 
 nlohmann::json SearchEngine::performSearch(const nlohmann::json& intentResult) {
     try {
-        std::string query = intentResult["entities"][0]["value"].get<std::string>();
+        INFOLOG("Performing Bocha search for intentResult: {}", intentResult.dump());
+        
+        // 从 intentResult 中正确提取 query 字段
+        if (!intentResult.contains("query")) {
+            throw std::runtime_error("Missing 'query' field in intentResult");
+        }
+        std::string query = intentResult["query"].get<std::string>();
         std::string freshness = "oneYear";  // 默认值
         
         // 根据意图调整搜索参数

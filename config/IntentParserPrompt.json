@@ -5,7 +5,8 @@
         "1. 输出合法JSON，字符串用双引号，布尔值true/false，时间用ISO 8601。",
         "2. 意图分类（intent）：product_search, service_query, knowledge_query, navigation, comparison, recommendation。",
         "3. 实体识别（entities）：brand, product, feature, location, time, price。",
-        "4. 错误类型：E001到E005，输出格式 {\"error\": {\"code\": \"EXXX\", \"detail\": \"错误描述\", \"suggestion\": \"修正建议\"}}"
+        "4. 最后的 query 字段用于存放“intent”“entities”“filters”三个字段的总结，并且深度解读用户的搜索意图，其中关键词使用英文\"编注。",
+        "5. 错误类型：E001到E005，输出格式 {\"error\": {\"code\": \"EXXX\", \"detail\": \"错误描述\", \"suggestion\": \"修正建议\"}}"
     ],
     "examples": {
         "input": "找预算5000以内的华为5G手机",
@@ -16,7 +17,8 @@
                 { "text": "5G", "type": "功能特性" },
                 { "text": "手机", "type": "商品类型" }
             ],
-            "filters": [{ "field": "price", "operator": "lte", "value": 5000 }]
+            "filters": [{ "field": "price", "operator": "lte", "value": 5000 }],
+            "query": "品牌为\"华为\"，具有\"5G\"功能特性，类型为\"手机\"，并且预算不超过5000元"
         }
     }
 }

@@ -22,6 +22,26 @@ Rectangle {
         }
     }
     
+    // 添加 Connections 来监听搜索结果
+    Connections {
+        target: searchBridge
+        
+        function onSearchResultsReady(results) {
+            // 添加搜索结果到消息列表
+            messageList.model.append({
+                "message": results,
+                "isUser": false
+            })
+            
+            // 滚动到底部
+            messageList.positionViewAtEnd()
+        }
+        
+        function onSearchingChanged() {
+            chatSearchBar.loading = searchBridge.searching
+        }
+    }
+    
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
@@ -54,15 +74,25 @@ Rectangle {
 
                     Text {
                         id: messageContent
-                        anchors.centerIn: parent
-                        width: bubble.width - 24
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                            margins: 12
+                            verticalCenter: parent.verticalCenter
+                        }
                         text: message
                         wrapMode: Text.Wrap
                         font.pixelSize: 14
                         color: "#303030"
-                        horizontalAlignment: Text.AlignLeft
+                        textFormat: Text.StyledText
+                        onLinkActivated: Qt.openUrlExternally(link)
                     }
                 }
+            }
+
+            // 添加滚动条
+            ScrollBar.vertical: ScrollBar {
+                active: true
             }
         }
 
@@ -73,13 +103,30 @@ Rectangle {
             Layout.margins: 16
             Layout.alignment: Qt.AlignHCenter
             
+            property bool loading: false
+            
             onSearch: function(query) {
-                messageList.model.append({
-                    "message": query,
-                    "isUser": true
-                })
-                // TODO: 处理消息发送逻辑
-                searchBridge.handleSearch(query) 
+                if (!loading) {
+                    messageList.model.append({
+                        "message": query,
+                        "isUser": true
+                    })
+                    searchBridge.handleSearch(query)
+                    messageList.positionViewAtEnd()
+                }
+            }
+            
+            // 添加加载状态指示器
+            BusyIndicator {
+                visible: parent.loading
+                running: visible
+                anchors {
+                    right: parent.right
+                    verticalCenter: parent.verticalCenter
+                    rightMargin: 8
+                }
+                width: 24
+                height: 24
             }
         }
     }

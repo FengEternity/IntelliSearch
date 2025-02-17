@@ -92,16 +92,31 @@ void SearchBridge::handleSearchComplete() {
             emit searchHistoryChanged();
         }
         
-        // 如果有搜索结果，发送到聊天界面
+        // 格式化搜索结果为可读文本
+        QString formattedResult;
         if (jsonResult.contains("search_results")) {
-            emit searchResultsReady(QString::fromStdString(jsonResult["search_results"].dump()));
-        } else {
-            emit searchResultsReady(result);
+            auto searchResults = jsonResult["search_results"];
+            if (searchResults.is_array()) {
+                for (const auto& result : searchResults) {
+                    if (result.contains("title") && result.contains("snippet")) {
+                        formattedResult += QString("标题: %1\n%2\n\n")
+                            .arg(QString::fromStdString(result["title"].get<std::string>()))
+                            .arg(QString::fromStdString(result["snippet"].get<std::string>()));
+                    }
+                }
+            }
         }
+        
+        // 如果没有格式化结果，使用原始结果
+        if (formattedResult.isEmpty()) {
+            formattedResult = result;
+        }
+        
+        emit searchResultsReady(formattedResult);
         
     } catch (const std::exception& e) {
         ERRORLOG("Error processing search results: {}", e.what());
-        emit searchResultsReady(QString("{\"error\":\"%1\"}").arg(e.what()));
+        emit searchResultsReady(QString("搜索出错: %1").arg(e.what()));
     }
 }
 
