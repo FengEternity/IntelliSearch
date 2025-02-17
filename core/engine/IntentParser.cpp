@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <fstream>
 #include <sstream>
+#include "SearchEngine.h"
 
 namespace IntelliSearch {
 
@@ -33,7 +34,15 @@ nlohmann::json IntentParser::parseSearchIntent(const std::string& userInput) {
     auto apiResult = apiServiceManager->parseIntent(userInput);
     
     // 合并本地和API的解析结果
-    return mergeIntentResults(localResult, apiResult);
+    auto mergedResult = mergeIntentResults(localResult, apiResult);
+    
+    // 使用搜索引擎执行搜索
+    auto searchResults = SearchEngine::getInstance()->performSearch(mergedResult);
+    
+    // 将搜索结果添加到意图解析结果中
+    mergedResult["search_results"] = searchResults;
+    
+    return mergedResult;
 }
 
 nlohmann::json IntentParser::localIntentParsing(const std::string& input) {

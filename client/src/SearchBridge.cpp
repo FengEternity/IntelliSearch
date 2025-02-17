@@ -12,6 +12,7 @@
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QtConcurrent>
+#include <nlohmann/json.hpp>
 
 namespace IntelliSearch {
 
@@ -79,9 +80,10 @@ void SearchBridge::handleSearch(const QString& query) {
  * Description: 处理搜索完成事件，保存搜索记录到数据库并发出信号
  */
 void SearchBridge::handleSearchComplete() {
-    emit searchingChanged();  // 搜索完成时发出信号
+    emit searchingChanged();
     try {
         QString result = searchWatcher.result();
+        auto jsonResult = nlohmann::json::parse(result.toStdString());
         
         // 保存搜索记录到数据库
         if (!dbManager->addSearchHistory(lastQuery, result)) {
@@ -90,8 +92,13 @@ void SearchBridge::handleSearchComplete() {
             emit searchHistoryChanged();
         }
         
-        INFOLOG("Async search completed, sending results");
-        emit searchResultsReady(result);
+        // 如果有搜索结果，发送到聊天界面
+        if (jsonResult.contains("search_results")) {
+            emit searchResultsReady(QString::fromStdString(jsonResult["search_results"].dump()));
+        } else {
+            emit searchResultsReady(result);
+        }
+        
     } catch (const std::exception& e) {
         ERRORLOG("Error processing search results: {}", e.what());
         emit searchResultsReady(QString("{\"error\":\"%1\"}").arg(e.what()));

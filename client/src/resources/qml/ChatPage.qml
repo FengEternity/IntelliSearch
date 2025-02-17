@@ -79,7 +79,7 @@ Rectangle {
                     "isUser": true
                 })
                 // TODO: 处理消息发送逻辑
-                searchBridge.handleChatMessage(query)
+                searchBridge.handleSearch(query) 
             }
         }
     }

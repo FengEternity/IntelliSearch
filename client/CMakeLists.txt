@@ -30,6 +30,7 @@ set(SOURCES
     src/main.cpp
     src/SearchBridge.cpp
     ${CMAKE_SOURCE_DIR}/../core/engine/IntentParser.cpp
+    ${CMAKE_SOURCE_DIR}/../core/engine/SearchEngine.cpp
     ${CMAKE_SOURCE_DIR}/../core/api/APIServiceManager.cpp
     ${CMAKE_SOURCE_DIR}/../core/api/BaseAPIService.cpp
     ${CMAKE_SOURCE_DIR}/../core/api/KimiAPIService.cpp

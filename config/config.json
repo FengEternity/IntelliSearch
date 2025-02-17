@@ -25,6 +25,13 @@
             "api_key": "your_bing_api_key_here",
             "endpoint": "https://api.bing.microsoft.com/v7.0/search",
             "priority": 2
+        },
+        "bocha": {
+            "api_key": "sk-7fca202ff9d14d5f953b5999b158aa77",
+            "base_url": "https://api.bochaai.com/v1",
+            "max_results": 8,
+            "timeout_ms": 5000,
+            "priority": 1
         }
     },
     "search_settings": {
