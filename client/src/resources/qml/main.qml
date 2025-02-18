@@ -29,24 +29,47 @@ ApplicationWindow {
             Layout.fillHeight: true
             color: "#f5f5f5"
             property bool expanded: false
+            
 
-            // 收起状态的按钮
-            RoundButton {
+            // 未展开状态的按钮组
+            Column {
                 anchors {
                     left: parent.left
                     top: parent.top
                     margins: 5
                 }
-                width: 40
-                height: 40
-                flat: true
-                icon.source: "qrc:/icons/toggle-right.svg"
-                icon.color: "#303030"
-                icon.width: 24
-                icon.height: 24
+                spacing: 5
                 visible: !historyPanel.expanded
-                onClicked: historyPanel.expanded = !historyPanel.expanded
+
+                // 收起状态的按钮
+                RoundButton {
+                    id: toggleButton
+                    width: 40
+                    height: 40
+                    flat: true
+                    icon.source: "qrc:/icons/toggle-right.svg"
+                    icon.color: "#303030"
+                    icon.width: 24
+                    icon.height: 24
+                    onClicked: historyPanel.expanded = !historyPanel.expanded
+                }
+
+                // 添加按钮
+                RoundButton {
+                    width: 38
+                    height: 38
+                    flat: true
+                    icon.source: "qrc:/icons/add.svg"
+                    icon.color: "#707070"
+                    icon.width: 24
+                    icon.height: 24
+
+                    onClicked: {
+                        // TODO: 处理添加按钮的点击事件
+                    }
+                }
             }
+            
             
             // 添加设置按钮
             RoundButton {
@@ -95,15 +118,47 @@ ApplicationWindow {
 
                     Item { Layout.fillWidth: true }
 
-                    RoundButton {
-                        width: 32
-                        height: 32
-                        flat: true
-                        icon.source: "qrc:/icons/toggle-left.svg"
-                        icon.color: "#303030"
-                        icon.width: 20
-                        icon.height: 20
-                        onClicked: historyPanel.expanded = !historyPanel.expanded
+                    // 添加按钮区域容器
+                    Row {
+                        spacing: 8
+                        visible: historyPanel.expanded
+
+                        // 添加按钮
+                        RoundButton {
+                            width: 38
+                            height: 38
+                            flat: true
+                            icon.source: "qrc:/icons/add.svg"
+                            icon.color: "#707070"
+                            icon.width: 20
+                            icon.height: 20
+                            onClicked: {
+                                // TODO: 处理添加按钮的点击事件
+                            }
+                        }
+
+                        // 这里可以继续添加其他按钮
+                        // RoundButton {
+                        //     width: 32
+                        //     height: 32
+                        //     flat: true
+                        //     icon.source: "qrc:/icons/your-icon.svg"
+                        //     icon.color: "#707070"
+                        //     icon.width: 20
+                        //     icon.height: 20
+                        // }
+
+                        // 收起按钮放在最右边
+                        RoundButton {
+                            width: 40
+                            height: 40
+                            flat: true
+                            icon.source: "qrc:/icons/toggle-left.svg"
+                            icon.color: "#303030"
+                            icon.width: 20
+                            icon.height: 20
+                            onClicked: historyPanel.expanded = !historyPanel.expanded
+                        }
                     }
                 }
 
