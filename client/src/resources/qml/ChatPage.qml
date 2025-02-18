@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls.Material
 import QtQuick.Layouts
+import QtQuick.Controls
 
 Rectangle {
     id: chatPage
@@ -33,7 +34,8 @@ Rectangle {
                 "message": results,
                 "isUser": false
             })
-            messageList.positionViewAtEnd()
+            // 使用 Timer 确保在内容渲染后再滚动
+            scrollTimer.restart()
         }
         
         function onSearchingChanged() {
@@ -71,6 +73,13 @@ Rectangle {
                 spacing: 8
                 property alias statusTextOpacity: statusText.opacity  // 添加属性别名
 
+                // 添加计时器到 delegate 中
+                Timer {
+                    id: statusTimer
+                    interval: 800
+                    onTriggered: parent.statusTextOpacity = 0
+                }
+
                 Row {
                     id: messageRow
                     width: parent.width
@@ -84,7 +93,7 @@ Rectangle {
                         color: isUser ? "#e3f2fd" : "#f5f5f5"
                         radius: 8
 
-                        TextEdit {
+                        Text {
                             id: messageText
                             anchors {
                                 left: parent.left
@@ -93,13 +102,32 @@ Rectangle {
                                 verticalCenter: parent.verticalCenter
                             }
                             text: message
-                            wrapMode: TextEdit.Wrap
+                            wrapMode: Text.Wrap
                             font.pixelSize: 14
                             color: "#303030"
-                            readOnly: true
-                            selectByMouse: true
-                            textFormat: TextEdit.RichText
+                            textFormat: Text.RichText
                             onLinkActivated: Qt.openUrlExternally(link)
+
+                            // 使用 TextEdit 作为选择层
+                            TextEdit {
+                                anchors.fill: parent
+                                text: parent.text
+                                readOnly: true
+                                selectByMouse: true
+                                selectedTextColor: parent.color
+                                selectionColor: "#b3d4fc"
+                                color: "transparent"
+                                font: parent.font
+                                wrapMode: parent.wrapMode
+                                textFormat: parent.textFormat
+                                
+                                // 防止鼠标事件穿透到底层Text
+                                MouseArea {
+                                    anchors.fill: parent
+                                    acceptedButtons: Qt.NoButton
+                                    cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.IBeamCursor
+                                }
+                            }
                         }
                     }
                 }
@@ -132,11 +160,13 @@ Rectangle {
                             }
 
                             onClicked: {
-                                messageText.selectAll()
-                                messageText.copy()
-                                messageText.deselect()
-                                parent.parent.parent.statusTextOpacity = 1  // 使用属性别名
-                                statusTimer.restart()
+                                // 找到对应的 TextEdit
+                                let textEdit = messageText.children[0]
+                                textEdit.selectAll()
+                                textEdit.copy()
+                                textEdit.deselect()
+                                parent.parent.parent.statusTextOpacity = 1
+                                statusTimer.restart()  // 使用当前消息的计时器
                             }
                         }
 
@@ -218,19 +248,16 @@ Rectangle {
         }
     }
 
-    // 修改计时器的处理
+    // 添加一个计时器来处理滚动
     Timer {
-        id: statusTimer
-        interval: 800
+        id: scrollTimer
+        interval: 100  // 100ms 延迟
         onTriggered: {
-            // 找到当前激活的状态文本并重置其不透明度
-            for (let i = 0; i < messageList.count; i++) {
-                let item = messageList.itemAtIndex(i)
-                if (item && item.statusTextOpacity > 0) {
-                    item.statusTextOpacity = 0
-                    break
-                }
-            }
+            messageList.positionViewAtEnd()
+            // 再次检查并滚动，以处理可能的内容动态调整
+            Qt.callLater(function() {
+                messageList.positionViewAtEnd()
+            })
         }
     }
 } 
