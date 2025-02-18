@@ -30,6 +30,7 @@ signals:
     void searchResultsReady(const QString& results);
     void searchHistoryChanged();
     void searchingChanged();
+    void searchStatusChanged(const QString &status);
 
 private slots:
     void handleSearchComplete();
