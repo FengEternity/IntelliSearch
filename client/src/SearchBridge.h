@@ -15,6 +15,7 @@ namespace IntelliSearch {
 class SearchBridge : public QObject {
     Q_OBJECT
     Q_PROPERTY(bool isSearching READ isSearching NOTIFY searchingChanged)
+    Q_PROPERTY(QVariantList sessionHistory READ getSessionsList NOTIFY sessionHistoryChanged)
 
 public:
     explicit SearchBridge(QObject* parent = nullptr);
@@ -44,6 +45,7 @@ signals:
     void searchStatusChanged(const QString &status);
     void sessionCreated(const QString& sessionId);
     void sessionUpdated(const QString& sessionId);
+    void sessionHistoryChanged();
 
 private slots:
     void handleSearchComplete();
@@ -57,6 +59,7 @@ private:
     int currentTurnNumber;
 
     bool isSearching() const { return searchWatcher.isRunning(); }
+    void updateSessionHistory();
 };
 
 } // namespace IntelliSearch

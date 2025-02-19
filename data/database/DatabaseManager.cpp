@@ -190,25 +190,38 @@ bool SQLiteDatabaseManager::addDialogueRecord(
 
 QVector<QPair<QString, QVariantMap>> SQLiteDatabaseManager::getSessionHistory(int limit) {
     QVector<QPair<QString, QVariantMap>> sessions;
-    QSqlQuery query;
+    QSqlQuery query(db);
     
-    query.prepare("SELECT session_id, title, created_at, last_updated, "
-                 "(SELECT COUNT(*) FROM " + DIALOGUES_TABLE + " WHERE session_id = s.session_id) as message_count "
-                 "FROM " + SESSIONS_TABLE + " s "
-                 "ORDER BY last_updated DESC LIMIT ?");
+    // 修改查询以只获取有对话记录的会话
+    query.prepare(
+        "SELECT s.session_id, s.title, s.created_at, s.last_updated, "
+        "COUNT(d.id) as message_count, "
+        "MAX(d.user_query) as last_query "
+        "FROM " + SESSIONS_TABLE + " s "
+        "INNER JOIN " + DIALOGUES_TABLE + " d ON s.session_id = d.session_id "  // 改为 INNER JOIN
+        "GROUP BY s.session_id "
+        "HAVING COUNT(d.id) > 0 "  // 确保只返回有对话记录的会话
+        "ORDER BY s.last_updated DESC LIMIT ?"
+    );
+    
     query.addBindValue(limit);
     
     if (query.exec()) {
         while (query.next()) {
             QVariantMap sessionInfo;
-            QString sessionId = query.value(0).toString();
-            sessionInfo["title"] = query.value(1).toString();
-            sessionInfo["created_at"] = query.value(2).toString();
-            sessionInfo["last_updated"] = query.value(3).toString();
-            sessionInfo["message_count"] = query.value(4).toInt();
+            QString sessionId = query.value("session_id").toString();
+            
+            sessionInfo["id"] = sessionId;
+            sessionInfo["title"] = query.value("title").toString();
+            sessionInfo["created_at"] = query.value("created_at").toString();
+            sessionInfo["last_updated"] = query.value("last_updated").toString();
+            sessionInfo["message_count"] = query.value("message_count").toInt();
+            sessionInfo["last_query"] = query.value("last_query").toString();
             
             sessions.append(qMakePair(sessionId, sessionInfo));
         }
+    } else {
+        ERRORLOG("Failed to fetch session history: {}", query.lastError().text().toStdString());
     }
     
     return sessions;

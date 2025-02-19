@@ -44,16 +44,6 @@ SearchBridge::SearchBridge(QObject* parent)
     connect(&searchWatcher, &QFutureWatcher<QString>::finished, 
             this, &SearchBridge::handleSearchComplete);
 
-    // 4. 创建初始会话
-    QString sessionId = startNewSession();
-    if (!sessionId.isEmpty()) {
-        setCurrentSession(sessionId);
-        INFOLOG("Created and set initial session: {}", sessionId.toStdString());
-    } else {
-        CRITICALLOG("Failed to create initial session");
-        throw std::runtime_error("Initial session creation failed");
-    }
-
     INFOLOG("SearchBridge initialization completed");
 }
 
@@ -96,8 +86,8 @@ void SearchBridge::handleSearch(const QString& query) {
             // 将结果转换为 JSON 字符串
             QString jsonString = QString::fromStdString(combinedResult.dump());
             
-            // 获取当前活动的会话ID（这里需要添加一个成员变量来跟踪当前会话）
-            if (!currentSessionId.isEmpty()) {
+            // 只有在搜索成功时才保存对话记录
+            if (!searchResult.empty() && !currentSessionId.isEmpty()) {
                 // 增加对话轮次
                 currentTurnNumber++;
                 
@@ -108,11 +98,12 @@ void SearchBridge::handleSearch(const QString& query) {
                     intentParserResult.contains("intent") ? intentParserResult["intent"].get<std::string>() : "",
                     intentParserResult.contains("query") ? QString::fromStdString(intentParserResult["query"].get<std::string>()) : lastQuery,
                     QString::fromStdString(searchResult.dump()),
-                    currentTurnNumber  // 使用累加的轮次号
+                    currentTurnNumber
                 )) {
                     WARNLOG("Failed to save dialogue record");
                 } else {
                     emit sessionUpdated(currentSessionId);
+                    emit sessionHistoryChanged();
                 }
             }
             
@@ -152,11 +143,16 @@ void SearchBridge::handleSearchComplete() {
         ERRORLOG("Error processing search results: {}", e.what());
         emit searchResultsReady(QString("{\"error\":\"搜索出错: %1\"}").arg(e.what()));
     }
+
+    // 在搜索完成后更新会话历史
+    emit sessionHistoryChanged();
 }
 
 QString SearchBridge::startNewSession() {
     INFOLOG("Creating new chat session");
     QString sessionId = dbManager->createSession();
+    // 不再在这里发送 sessionHistoryChanged 信号，
+    // 因为新会话在有搜索记录之前不应该显示
     if (!sessionId.isEmpty()) {
         emit sessionCreated(sessionId);
         INFOLOG("Created new session with ID: {}", sessionId.toStdString());

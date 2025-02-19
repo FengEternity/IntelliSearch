@@ -169,7 +169,7 @@ ApplicationWindow {
                     visible: historyPanel.expanded
                     spacing: 2
                     clip: true
-                    model: searchBridge.searchHistory
+                    model: searchBridge.sessionHistory
                     delegate: ItemDelegate {
                         width: parent.width
                         height: 60
@@ -181,12 +181,25 @@ ApplicationWindow {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: modelData.query ?? "未知查询"
+                                text: modelData.title || "新对话"  // 使用会话标题或默认文本
                                 color: Material.foreground
                                 font.pixelSize: 14
+                                font.weight: Font.Medium
                                 elide: Text.ElideRight
-                                maximumLineCount: 0
-                                wrapMode: Text.WordWrap
+                            }
+
+                            // Text {
+                            //     Layout.fillWidth: true
+                            //     text: "消息数: " + modelData.message_count  // 显示消息数量
+                            //     color: "#666666"
+                            //     font.pixelSize: 12
+                            // }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: Qt.formatDateTime(new Date(modelData.last_updated), "yyyy-MM-dd HH:mm")  // 格式化时间
+                                color: "#666666"
+                                font.pixelSize: 12
                             }
                         }
 
@@ -195,16 +208,9 @@ ApplicationWindow {
                             Behavior on color { ColorAnimation { duration: 150 } }
                         }
 
-                        MouseArea {
-                            anchors.fill: parent
-                            acceptedButtons: Qt.RightButton
-
-                            onClicked: function(event) {
-                                if(event.button == Qt.RightButton) {
-                                    contextMenu.recordId = modelData.id;
-                                    contextMenu.popup();
-                                }
-                            }
+                        onClicked: {
+                            searchBridge.setCurrentSession(modelData.id)  // 切换到选中的会话
+                            contentArea.state = "chat"  // 切换到聊天界面
                         }
                     }
 
