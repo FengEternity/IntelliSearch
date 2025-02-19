@@ -210,6 +210,7 @@ ApplicationWindow {
 
                         onClicked: {
                             searchBridge.setCurrentSession(modelData.id)  // 切换到选中的会话
+                            chatPage.loadSessionDialogues(modelData.id)   // 加载会话对话历史
                             contentArea.state = "chat"  // 切换到聊天界面
                         }
                     }

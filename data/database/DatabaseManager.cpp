@@ -229,7 +229,7 @@ QVector<QPair<QString, QVariantMap>> SQLiteDatabaseManager::getSessionHistory(in
 
 QVector<QVariantMap> SQLiteDatabaseManager::getDialogueHistory(const QString& sessionId) {
     QVector<QVariantMap> dialogues;
-    QSqlQuery query;
+    QSqlQuery query(db);  // 使用正确的数据库连接
     
     query.prepare("SELECT * FROM " + DIALOGUES_TABLE + 
                  " WHERE session_id = ? ORDER BY turn_number ASC");
@@ -247,6 +247,8 @@ QVector<QVariantMap> SQLiteDatabaseManager::getDialogueHistory(const QString& se
             
             dialogues.append(dialogue);
         }
+    } else {
+        ERRORLOG("Failed to fetch dialogue history: {}", query.lastError().text().toStdString());
     }
     
     return dialogues;

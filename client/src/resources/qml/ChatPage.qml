@@ -12,6 +12,35 @@ Rectangle {
     // 添加状态属性
     property string currentStatus: ""
     
+    // 添加加载会话对话历史的方法
+    function loadSessionDialogues(sessionId) {
+        // 清空现有消息
+        messageList.model.clear()
+        
+        // 获取会话的对话历史
+        let dialogues = searchBridge.getSessionDialogues(sessionId)
+        
+        // 添加每条对话记录
+        for (let i = 0; i < dialogues.length; i++) {
+            let dialogue = dialogues[i]
+            
+            // 添加用户查询
+            messageList.model.append({
+                "message": dialogue.user_query,
+                "isUser": true
+            })
+            
+            // 添加搜索结果
+            messageList.model.append({
+                "message": dialogue.search_result,
+                "isUser": false
+            })
+        }
+        
+        // 滚动到底部
+        scrollTimer.restart()
+    }
+    
     // 监听 initialQuery 的变化
     onInitialQueryChanged: {
         if (initialQuery !== "") {
