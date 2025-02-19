@@ -2,14 +2,12 @@
 #include <QDir>
 #include <QStandardPaths>
 #include "../../log/Logger.h"
+#include <QUuid>
 
 namespace IntelliSearch {
 
 SQLiteDatabaseManager::SQLiteDatabaseManager(QObject* parent) : QObject(parent) {
     try {
-        // 在应用数据目录下创建数据库文件
-        // QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-        // 在构建目录下创建数据库文件
         QString dataPath = QDir::currentPath();
         DEBUGLOG("Current working directory: {}", dataPath.toStdString());
 
@@ -21,140 +19,224 @@ SQLiteDatabaseManager::SQLiteDatabaseManager(QObject* parent) : QObject(parent) 
             INFOLOG("Created database directory at: {}", dataPath.toStdString());
         }
 
-        // 检查目录权限
-        QFileInfo dirInfo(dataPath);
-        if (!dirInfo.isWritable()) {
-            throw std::runtime_error("Database directory is not writable");
-        }
-        DEBUGLOG("Database directory permissions check passed");
+        // 1. 给数据库连接一个唯一的名称
+        QString connectionName = "SQLiteConnection_" + QString::number(reinterpret_cast<qulonglong>(this));
         
-        // 初始化数据库连接
+        // 2. 检查驱动并创建连接
         if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
+            CRITICALLOG("SQLite driver is not available");
             throw std::runtime_error("SQLite driver is not available");
         }
         
-        db = QSqlDatabase::addDatabase("QSQLITE");
+        // 3. 创建新的数据库连接
+        db = QSqlDatabase::addDatabase("QSQLITE", connectionName);
         QString dbPath = dir.filePath(DATABASE_NAME);
         db.setDatabaseName(dbPath);
         
-        // 检查数据库文件权限
-        QFileInfo dbInfo(dbPath);
-        if (dbInfo.exists() && !dbInfo.isWritable()) {
-            throw std::runtime_error("Database file exists but is not writable");
-        }
-        
         INFOLOG("Database initialized at: {}", dbPath.toStdString());
+        
     } catch (const std::exception& e) {
-        ERRORLOG("Database initialization error: {}", e.what());
-        throw; // 重新抛出异常以便上层处理
+        CRITICALLOG("Database initialization error: {}", e.what());
+        throw;
     }
 }
 
 SQLiteDatabaseManager::~SQLiteDatabaseManager() {
+    QString connectionName = db.connectionName();
     if (db.isOpen()) {
         db.close();
-        DEBUGLOG("Database connection closed");
     }
+    db = QSqlDatabase(); // 清除连接
+    QSqlDatabase::removeDatabase(connectionName); // 移除连接
+    DEBUGLOG("Database connection {} closed and removed", connectionName.toStdString());
 }
 
 bool SQLiteDatabaseManager::initialize() {
-    if (!db.open()) {
+    // 1. 首先确保数据库连接是打开的
+    if (!db.isOpen() && !db.open()) {
         ERRORLOG("Failed to open database: {}", db.lastError().text().toStdString());
         return false;
     }
-    INFOLOG("Database connection opened successfully");
 
-    // 创建搜索历史表
-    QSqlQuery query;
-    bool success = query.exec(
-        "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " ("
-        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-        "user_query TEXT NOT NULL,"
-        "intent_type TEXT NOT NULL,"
-        "intent_result TEXT NOT NULL,"
-        "search_result TEXT NOT NULL,"
-        "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP"
-        ")"
-    );
-
-    if (!success) {
-        ERRORLOG("Failed to create table {}: {}", TABLE_NAME.toStdString(), query.lastError().text().toStdString());
-    } else {
-        INFOLOG("Table {} created or already exists", TABLE_NAME.toStdString());
+    // 2. 开始事务
+    if (!db.transaction()) {
+        ERRORLOG("Failed to start transaction: {}", db.lastError().text().toStdString());
+        return false;
     }
-    return success;
+
+    try {
+        // 3. 创建会话表
+        QSqlQuery query(db);  // 使用当前数据库连接
+        bool success = query.exec(
+            "CREATE TABLE IF NOT EXISTS " + SESSIONS_TABLE + " ("
+            "session_id TEXT PRIMARY KEY,"
+            "created_at DATETIME DEFAULT CURRENT_TIMESTAMP,"
+            "last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,"
+            "title TEXT,"
+            "status TEXT DEFAULT 'active'"
+            ")"
+        );
+
+        if (!success) {
+            ERRORLOG("Failed to create sessions table: {}", query.lastError().text().toStdString());
+            db.rollback();
+            return false;
+        }
+
+        // 4. 创建对话记录表
+        success = query.exec(
+            "CREATE TABLE IF NOT EXISTS " + DIALOGUES_TABLE + " ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "session_id TEXT NOT NULL,"
+            "turn_number INTEGER NOT NULL,"
+            "user_query TEXT NOT NULL,"
+            "intent_type TEXT NOT NULL,"
+            "intent_result TEXT NOT NULL,"
+            "search_result TEXT NOT NULL,"
+            "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,"
+            "FOREIGN KEY(session_id) REFERENCES " + SESSIONS_TABLE + "(session_id)"
+            ")"
+        );
+
+        if (!success) {
+            ERRORLOG("Failed to create dialogues table: {}", query.lastError().text().toStdString());
+            db.rollback();
+            return false;
+        }
+
+        // 6. 提交事务
+        if (!db.commit()) {
+            ERRORLOG("Failed to commit transaction: {}", db.lastError().text().toStdString());
+            db.rollback();
+            return false;
+        }
+
+        INFOLOG("Database tables initialized successfully");
+        return true;
+
+    } catch (const std::exception& e) {
+        ERRORLOG("Exception during database initialization: {}", e.what());
+        db.rollback();
+        return false;
+    }
 }
 
-bool SQLiteDatabaseManager::addSearchHistory(
-    const QString& user_query = "",
-    std::basic_string<char> intent_type = "",
-    const QString& intent_result = "",
-    const QString& search_result= "")
-{
-    QSqlQuery sqlQuery;
-    sqlQuery.prepare("INSERT INTO " + TABLE_NAME + " (user_query, intent_type, intent_result, search_result) "
-                    "VALUES (?, ?, ?, ?)");
-    sqlQuery.addBindValue(user_query);
-    sqlQuery.addBindValue(QString::fromStdString(intent_type));
-    sqlQuery.addBindValue(intent_result);
-    sqlQuery.addBindValue(search_result);
-    bool success = sqlQuery.exec();
-
-    if (!success) {
-        ERRORLOG("Failed to add search history: {}", sqlQuery.lastError().text().toStdString());
-    } else {
-        DEBUGLOG("Added search history - Query: {}", user_query.toStdString());
+QString SQLiteDatabaseManager::createSession() {
+    // 1. 检查数据库连接
+    if (!db.isOpen() && !db.open()) {
+        ERRORLOG("Database connection is not open");
+        return QString();
     }
-    return success;
-}
 
-QVector<QPair<QString, QString>> SQLiteDatabaseManager::getSearchHistory(int limit) {
-    QVector<QPair<QString, QString>> history;
-    QSqlQuery query;
+    QString sessionId = QUuid::createUuid().toString(QUuid::WithoutBraces);
     
-    query.prepare("SELECT id, user_query FROM " + TABLE_NAME + 
-                 " ORDER BY timestamp DESC LIMIT ?");
-    query.addBindValue(limit);
+    // 2. 使用正确的数据库连接创建查询
+    QSqlQuery query(db);  // 显式指定数据库连接
+    query.prepare("INSERT INTO " + SESSIONS_TABLE + " (session_id) VALUES (?)");
+    query.addBindValue(sessionId);
     
     if (!query.exec()) {
-        ERRORLOG("Failed to retrieve search history: {}", query.lastError().text().toStdString());
-        return history;
+        ERRORLOG("Failed to create session: {}", query.lastError().text().toStdString());
+        return QString();
     }
     
-    while (query.next()) {
-        QString id = query.value(0).toString();
-        QString userQuery = query.value(1).toString();
-        history.append(qMakePair(id, userQuery));
-    }
-    
-    DEBUGLOG("Retrieved {} search history records", history.size());
-    return history;
+    return sessionId;
 }
 
-bool SQLiteDatabaseManager::deleteSearchHistory(const QString& recordId) {
-    INFOLOG("Deleting search history record with ID: {}", recordId.toStdString());
-    QSqlQuery sqlQuery;
-    sqlQuery.prepare("DELETE FROM " + TABLE_NAME + " WHERE id = ?");
-    sqlQuery.addBindValue(recordId);
-    bool success = sqlQuery.exec();
-    if (!success) {
-        ERRORLOG("Failed to delete search history: {}", sqlQuery.lastError().text().toStdString());
-    } else {
-        DEBUGLOG("Deleted search history record with ID: {}", recordId.toStdString());
+bool SQLiteDatabaseManager::addDialogueRecord(
+    const QString& sessionId,
+    const QString& user_query,
+    std::basic_string<char> intent_type,
+    const QString& intent_result,
+    const QString& search_result,
+    int turn_number = 0)
+{
+    if (!db.isOpen() && !db.open()) {
+        ERRORLOG("Database connection is not open");
+        return false;
     }
+
+    QSqlQuery query(db);  // 显式指定数据库连接
+    query.prepare("INSERT INTO " + DIALOGUES_TABLE + 
+                 " (session_id, turn_number, user_query, intent_type, intent_result, search_result) "
+                 "VALUES (?, ?, ?, ?, ?, ?)");
+    query.addBindValue(sessionId);
+    query.addBindValue(turn_number);
+    query.addBindValue(user_query);
+    query.addBindValue(QString::fromStdString(intent_type));
+    query.addBindValue(intent_result);
+    query.addBindValue(search_result);
+    
+    bool success = query.exec();
+    
+    if (success) {
+        // 更新会话的最后更新时间
+        query.prepare("UPDATE " + SESSIONS_TABLE + 
+                     " SET last_updated = CURRENT_TIMESTAMP, title = COALESCE(title, ?) "
+                     "WHERE session_id = ?");
+        query.addBindValue(user_query);  // 如果标题为空，使用第一条用户查询作为标题
+        query.addBindValue(sessionId);
+        success = query.exec();
+    }
+
+    if (!success) {
+        ERRORLOG("Failed to add dialogue record: {}", query.lastError().text().toStdString());
+    } else {
+        DEBUGLOG("Added dialogue record - Session: {}, Turn: {}", sessionId.toStdString(), turn_number);
+    }
+
     return success;
 }
 
-bool SQLiteDatabaseManager::clearSearchHistory() {
+QVector<QPair<QString, QVariantMap>> SQLiteDatabaseManager::getSessionHistory(int limit) {
+    QVector<QPair<QString, QVariantMap>> sessions;
     QSqlQuery query;
-    bool success = query.exec("DELETE FROM " + TABLE_NAME);
-
-    if (!success) {
-        ERRORLOG("Failed to clear search history: {}", query.lastError().text().toStdString());
-    } else {
-        INFOLOG("Search history cleared successfully");
+    
+    query.prepare("SELECT session_id, title, created_at, last_updated, "
+                 "(SELECT COUNT(*) FROM " + DIALOGUES_TABLE + " WHERE session_id = s.session_id) as message_count "
+                 "FROM " + SESSIONS_TABLE + " s "
+                 "ORDER BY last_updated DESC LIMIT ?");
+    query.addBindValue(limit);
+    
+    if (query.exec()) {
+        while (query.next()) {
+            QVariantMap sessionInfo;
+            QString sessionId = query.value(0).toString();
+            sessionInfo["title"] = query.value(1).toString();
+            sessionInfo["created_at"] = query.value(2).toString();
+            sessionInfo["last_updated"] = query.value(3).toString();
+            sessionInfo["message_count"] = query.value(4).toInt();
+            
+            sessions.append(qMakePair(sessionId, sessionInfo));
+        }
     }
-    return success;
+    
+    return sessions;
+}
+
+QVector<QVariantMap> SQLiteDatabaseManager::getDialogueHistory(const QString& sessionId) {
+    QVector<QVariantMap> dialogues;
+    QSqlQuery query;
+    
+    query.prepare("SELECT * FROM " + DIALOGUES_TABLE + 
+                 " WHERE session_id = ? ORDER BY turn_number ASC");
+    query.addBindValue(sessionId);
+    
+    if (query.exec()) {
+        while (query.next()) {
+            QVariantMap dialogue;
+            dialogue["turn_number"] = query.value("turn_number").toInt();
+            dialogue["user_query"] = query.value("user_query").toString();
+            dialogue["intent_type"] = query.value("intent_type").toString();
+            dialogue["intent_result"] = query.value("intent_result").toString();
+            dialogue["search_result"] = query.value("search_result").toString();
+            dialogue["timestamp"] = query.value("timestamp").toString();
+            
+            dialogues.append(dialogue);
+        }
+    }
+    
+    return dialogues;
 }
 
 } // namespace IntelliSearch

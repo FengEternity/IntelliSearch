@@ -7,6 +7,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDateTime>
+#include <QVariantMap>
 #include <memory>
 
 namespace IntelliSearch {
@@ -19,21 +20,18 @@ public:
     // 初始化数据库连接和表结构
     virtual bool initialize() = 0;
     
-    // 添加搜索历史记录
-    virtual bool addSearchHistory(
+    // 新增会话相关方法
+    virtual QString createSession() = 0;  // 创建新会话，返回会话ID
+    virtual bool addDialogueRecord(
+        const QString& sessionId,
         const QString& user_query,
         std::basic_string<char> intent_type,
         const QString& intent_result,
-        const QString& search_result) = 0;
-    
-    // 获取搜索历史记录
-    virtual QVector<QPair<QString, QString>> getSearchHistory(int limit = 10) = 0;
-    
-    // 清除搜索历史记录
-    virtual bool clearSearchHistory() = 0;
-    
-    // 删除指定的搜索历史记录
-    virtual bool deleteSearchHistory(const QString& recordId) = 0;
+        const QString& search_result,
+        int turn_number) = 0;  // 添加对话记录
+        
+    virtual QVector<QPair<QString, QVariantMap>> getSessionHistory(int limit = 10) = 0;  // 获取会话历史
+    virtual QVector<QVariantMap> getDialogueHistory(const QString& sessionId) = 0;  // 获取特定会话的对话历史
 };
 
 // SQLite实现类
@@ -45,19 +43,22 @@ public:
     ~SQLiteDatabaseManager() override;
 
     bool initialize() override;
-    bool addSearchHistory(
+    QString createSession() override;
+    bool addDialogueRecord(
+        const QString& sessionId,
         const QString& user_query,
         std::basic_string<char> intent_type,
         const QString& intent_result,
-        const QString& search_result) override;
-    bool deleteSearchHistory(const QString& query) override;
-    QVector<QPair<QString, QString>> getSearchHistory(int limit = 10) override;
-    bool clearSearchHistory() override;
+        const QString& search_result,
+        int turn_number) override;
+    QVector<QPair<QString, QVariantMap>> getSessionHistory(int limit = 10) override;
+    QVector<QVariantMap> getDialogueHistory(const QString& sessionId) override;
 
 private:
     QSqlDatabase db;
     const QString DATABASE_NAME = "intellisearch.db";
-    const QString TABLE_NAME = "search_history";
+    const QString SESSIONS_TABLE = "dialogue_sessions";
+    const QString DIALOGUES_TABLE = "dialogue_records";
 };
 
 // 数据库管理器工厂

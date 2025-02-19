@@ -26,14 +26,33 @@ SearchBridge::SearchBridge(QObject* parent)
     : QObject(parent)
     , intentParser(std::make_unique<IntentParser>())
     , dbManager(DatabaseManagerFactory::createDatabaseManager())
+    , currentTurnNumber(0)
 {
-    if (!dbManager || !dbManager->initialize()) {
-        ERRORLOG("Failed to initialize database manager");
+    // 1. 检查数据库管理器创建是否成功
+    if (!dbManager) {
+        CRITICALLOG("Failed to create database manager");
+        throw std::runtime_error("Database manager creation failed");
+    }
+
+    // 2. 初始化数据库
+    if (!dbManager->initialize()) {
+        CRITICALLOG("Failed to initialize database");
         throw std::runtime_error("Database initialization failed");
     }
 
-    // 在构造函数中连接信号
-    connect(&searchWatcher, &QFutureWatcher<QString>::finished, this, &SearchBridge::handleSearchComplete);
+    // 3. 连接信号
+    connect(&searchWatcher, &QFutureWatcher<QString>::finished, 
+            this, &SearchBridge::handleSearchComplete);
+
+    // 4. 创建初始会话
+    QString sessionId = startNewSession();
+    if (!sessionId.isEmpty()) {
+        setCurrentSession(sessionId);
+        INFOLOG("Created and set initial session: {}", sessionId.toStdString());
+    } else {
+        CRITICALLOG("Failed to create initial session");
+        throw std::runtime_error("Initial session creation failed");
+    }
 
     INFOLOG("SearchBridge initialization completed");
 }
@@ -49,9 +68,18 @@ SearchBridge::~SearchBridge() = default;
  */
 void SearchBridge::handleSearch(const QString& query) {
     INFOLOG("Received search request: {}", query.toStdString());
-    lastQuery = query;  // 保存查询字符串供后续使用
+    lastQuery = query;
 
-    emit searchingChanged();  // 开始搜索时发出信号
+    // 如果没有活动会话，创建新会话
+    if (currentSessionId.isEmpty()) {
+        QString sessionId = startNewSession();
+        if (!sessionId.isEmpty()) {
+            setCurrentSession(sessionId);
+            INFOLOG("Created new session for search: {}", sessionId.toStdString());
+        }
+    }
+
+    emit searchingChanged();
     QFuture<QString> future = QtConcurrent::run([this, query]() {
         try {
             DEBUGLOG("Starting async search for query: {}", query.toStdString());
@@ -60,16 +88,37 @@ void SearchBridge::handleSearch(const QString& query) {
             auto intentParserResult = intentParser->parseSearchIntent(stdQuery);
             auto searchResult = intentParser->bochaSearch(intentParserResult["query"]);
 
-            // 合并意图解析结果和搜索结果（仅用于数据库存储）
+            // 合并意图解析结果和搜索结果
             nlohmann::json combinedResult;
             combinedResult["intent_parser"] = intentParserResult;
             combinedResult["search_result"] = searchResult;
 
             // 将结果转换为 JSON 字符串
             QString jsonString = QString::fromStdString(combinedResult.dump());
-            DEBUGLOG("Search completed successfully, combined result: {}", jsonString.toStdString());
             
+            // 获取当前活动的会话ID（这里需要添加一个成员变量来跟踪当前会话）
+            if (!currentSessionId.isEmpty()) {
+                // 增加对话轮次
+                currentTurnNumber++;
+                
+                // 保存对话记录
+                if (!dbManager->addDialogueRecord(
+                    currentSessionId,
+                    lastQuery,
+                    intentParserResult.contains("intent") ? intentParserResult["intent"].get<std::string>() : "",
+                    intentParserResult.contains("query") ? QString::fromStdString(intentParserResult["query"].get<std::string>()) : lastQuery,
+                    QString::fromStdString(searchResult.dump()),
+                    currentTurnNumber  // 使用累加的轮次号
+                )) {
+                    WARNLOG("Failed to save dialogue record");
+                } else {
+                    emit sessionUpdated(currentSessionId);
+                }
+            }
+            
+            DEBUGLOG("Search completed successfully");
             return jsonString;
+            
         } catch (const std::exception& e) {
             ERRORLOG("Search failed: {}", e.what());
             return QString("{\"error\":\"%1\"}").arg(e.what());
@@ -96,19 +145,7 @@ void SearchBridge::handleSearchComplete() {
         auto intentResult = jsonResult["intent_parser"];
         auto searchResult = jsonResult["search_result"];
         
-        // 保存搜索记录到数据库
-        if (!dbManager->addSearchHistory(
-                lastQuery,                                      // user_query
-                intentResult.contains("intent") ? intentResult["intent"].get<std::string>() : "",  // intent_type
-                intentResult.contains("query") ? QString::fromStdString(intentResult["query"].get<std::string>()) : lastQuery,  // intent_result
-                QString::fromStdString(searchResult.dump())    // search_result
-            )) {
-            WARNLOG("Failed to save search history");
-        } else {
-            emit searchHistoryChanged();
-        }
-        
-        // 直接使用搜索结果部分，后续需要进行处理
+        // 直接发送搜索结果
         emit searchResultsReady(QString::fromStdString(searchResult.dump()));
         
     } catch (const std::exception& e) {
@@ -117,51 +154,53 @@ void SearchBridge::handleSearchComplete() {
     }
 }
 
-/*
- * Summary: 获取搜索历史记录
- * Parameters: 无
- * Return: QVariantList - 包含搜索历史记录的列表
- * Description: 从数据库获取最近10条搜索历史记录
- */
-QVariantList SearchBridge::getSearchHistory() {
-    INFOLOG("Getting search history records");
-    QVariantList historyList;
-    auto history = dbManager->getSearchHistory(10); // 获取最近10条记录
-    
-    if (history.isEmpty()) {
-        DEBUGLOG("No search history records found");
-        return historyList;
-    }
-    
-    for (const auto& record : history) {
-        if (!record.first.isEmpty()) {
-            QVariantMap item;
-            item["id"] = record.first;  // 第一个字段现在是记录ID
-            item["query"] = record.second;  // 第二个字段是查询内容
-            historyList.append(item);
-        }
-    }
-    
-    INFOLOG("Retrieved {} search history records", historyList.size());
-    return historyList;
-}
-
-
-/*
- * Summary: 删除搜索历史记录
- * Parameters:
- *   const QString& query - 要删除的搜索记录内容
- * Return: void
- * Description: 根据搜索内容从数据库删除对应的历史记录
- */
-void SearchBridge::deleteSearchHistory(const QString& recordId) {
-    INFOLOG("Starting to delete search history record with ID: {}", recordId.toStdString());
-    if(dbManager->deleteSearchHistory(recordId)) {
-        emit searchHistoryChanged();
-        INFOLOG("Successfully deleted search history record with ID: {}", recordId.toStdString());
+QString SearchBridge::startNewSession() {
+    INFOLOG("Creating new chat session");
+    QString sessionId = dbManager->createSession();
+    if (!sessionId.isEmpty()) {
+        emit sessionCreated(sessionId);
+        INFOLOG("Created new session with ID: {}", sessionId.toStdString());
     } else {
-        WARNLOG("Failed to delete search history record with ID: {}", recordId.toStdString());
+        ERRORLOG("Failed to create new session");
     }
+    return sessionId;
 }
 
+QVariantList SearchBridge::getSessionsList(int limit) {
+    DEBUGLOG("Retrieving sessions list with limit: {}", limit);
+    QVariantList sessionsList;
+    
+    auto sessions = dbManager->getSessionHistory(limit);
+    for (const auto& session : sessions) {
+        QVariantMap sessionMap;
+        sessionMap["id"] = session.first;  // session_id
+        // 将 session.second 中的所有键值对添加到 sessionMap
+        for (auto it = session.second.begin(); it != session.second.end(); ++it) {
+            sessionMap[it.key()] = it.value();
+        }
+        sessionsList.append(sessionMap);
+    }
+    
+    return sessionsList;
+}
+
+QVariantList SearchBridge::getSessionDialogues(const QString& sessionId) {
+    DEBUGLOG("Retrieving dialogues for session: {}", sessionId.toStdString());
+    QVariantList dialoguesList;
+    
+    auto dialogues = dbManager->getDialogueHistory(sessionId);
+    for (const auto& dialogue : dialogues) {
+        dialoguesList.append(dialogue);
+    }
+    
+    return dialoguesList;
+}
+
+void SearchBridge::setCurrentSession(const QString& sessionId) {
+    if (currentSessionId != sessionId) {
+        currentSessionId = sessionId;
+        currentTurnNumber = 0;  // 重置对话轮次
+        INFOLOG("Set current session to: {}", sessionId.toStdString());
+    }
+}
 } // namespace IntelliSearch
