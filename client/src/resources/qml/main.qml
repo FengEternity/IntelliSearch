@@ -24,8 +24,21 @@ ApplicationWindow {
         // 左侧历史搜索记录面板
         Rectangle {
             id: historyPanel
-            // 动态计算面板宽度：展开时25%（200-400px），收起时5%（45-60px）
-            Layout.preferredWidth: expanded ? Math.min(Math.max(window.width * 0.25, 200), 400) : Math.min(Math.max(window.width * 0.05, 45), 60)
+            
+            // 缓存计算结果
+            property real expandedWidth: Math.min(Math.max(window.width * 0.25, 200), 400)
+            property real collapsedWidth: Math.min(Math.max(window.width * 0.05, 45), 60)
+            
+            Layout.preferredWidth: expanded ? expandedWidth : collapsedWidth
+            
+            // 只在窗口大小改变时更新缓存值
+            Connections {
+                target: window
+                function onWidthChanged() {
+                    historyPanel.expandedWidth = Math.min(Math.max(window.width * 0.25, 200), 400)
+                    historyPanel.collapsedWidth = Math.min(Math.max(window.width * 0.05, 45), 60)
+                }
+            }
             Layout.fillHeight: true
             color: "#f5f5f5"
             property bool expanded: false
@@ -170,42 +183,50 @@ ApplicationWindow {
                     spacing: 2
                     clip: true
                     model: searchBridge.sessionHistory
+                    cacheBuffer: 200  // 增加缓存buffer
+                    reuseItems: true  // 启用项目重用
+                    
                     delegate: ItemDelegate {
                         width: parent.width
                         height: 60
                         
-                        ColumnLayout {
+                        // 使用Row替代ColumnLayout以提高性能
+                        Row {
                             anchors.fill: parent
                             anchors.margins: 8
-                            spacing: 0
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: modelData.title || "新对话"  // 使用会话标题或默认文本
-                                color: Material.foreground
-                                font.pixelSize: 14
-                                font.weight: Font.Medium
-                                elide: Text.ElideRight
-                            }
-
-                            // Text {
-                            //     Layout.fillWidth: true
-                            //     text: "消息数: " + modelData.message_count  // 显示消息数量
-                            //     color: "#666666"
-                            //     font.pixelSize: 12
-                            // }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: Qt.formatDateTime(new Date(modelData.last_updated), "yyyy-MM-dd HH:mm")  // 格式化时间
-                                color: "#666666"
-                                font.pixelSize: 12
+                            spacing: 4
+                            
+                            Column {
+                                width: parent.width
+                                spacing: 4
+                                
+                                Text {
+                                    width: parent.width
+                                    text: modelData.title || "新对话"
+                                    color: Material.foreground
+                                    font.pixelSize: 14
+                                    font.weight: Font.Medium
+                                    elide: Text.ElideRight
+                                }
+                                
+                                Text {
+                                    width: parent.width
+                                    text: Qt.formatDateTime(new Date(modelData.last_updated), "yyyy-MM-dd HH:mm")
+                                    color: "#666666"
+                                    font.pixelSize: 12
+                                }
                             }
                         }
-
+                        
+                        // 简化background的动画
                         background: Rectangle {
                             color: parent.hovered ? Qt.rgba(0, 0, 0, 0.05) : "transparent"
-                            Behavior on color { ColorAnimation { duration: 150 } }
+                            Behavior on color { 
+                                ColorAnimation { 
+                                    duration: 100  // 减少动画时长
+                                    easing.type: Easing.OutQuad 
+                                } 
+                            }
                         }
 
                         onClicked: {
@@ -269,6 +290,12 @@ ApplicationWindow {
                                 }
                             }
                         }
+                    }
+
+                    // 添加异步加载
+                    ScrollBar.vertical: ScrollBar {
+                        active: true
+                        interactive: true
                     }
                 }
             }

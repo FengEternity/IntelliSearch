@@ -14,31 +14,30 @@ Rectangle {
     
     // 添加加载会话对话历史的方法
     function loadSessionDialogues(sessionId) {
-        // 清空现有消息
         messageList.model.clear()
-        
-        // 获取会话的对话历史
         let dialogues = searchBridge.getSessionDialogues(sessionId)
         
-        // 添加每条对话记录
+        // 批量添加消息以减少重绘
+        let messages = []
         for (let i = 0; i < dialogues.length; i++) {
             let dialogue = dialogues[i]
-            
-            // 添加用户查询
-            messageList.model.append({
+            messages.push({
                 "message": dialogue.user_query,
                 "isUser": true
             })
-            
-            // 添加搜索结果
-            messageList.model.append({
+            messages.push({
                 "message": dialogue.search_result,
                 "isUser": false
             })
         }
         
-        // 滚动到底部
-        scrollTimer.restart()
+        // 批量添加
+        for (let msg of messages) {
+            messageList.model.append(msg)
+        }
+        
+        // 使用positionViewAtEnd
+        Qt.callLater(messageList.positionViewAtEnd)
     }
     
     // 监听 initialQuery 的变化
@@ -63,8 +62,7 @@ Rectangle {
                 "message": results,
                 "isUser": false
             })
-            // 使用 Timer 确保在内容渲染后再滚动
-            scrollTimer.restart()
+            Qt.callLater(messageList.positionViewAtEnd)
         }
         
         function onSearchingChanged() {
@@ -92,11 +90,34 @@ Rectangle {
             Layout.margins: 16
             spacing: 16
             clip: true
-
+            
+            // 增加缓存和性能优化
+            cacheBuffer: 400  // 增加缓存大小
+            reuseItems: true
+            displayMarginBeginning: 40  // 增加顶部边距缓存
+            displayMarginEnd: 40        // 增加底部边距缓存
+            
+            // 添加boundsBehavior以改善滚动体验
+            boundsBehavior: Flickable.StopAtBounds
+            
+            // 添加滚动模式
+            flickDeceleration: 2500  // 增加减速度
+            maximumFlickVelocity: 2500  // 限制最大滑动速度
+            
             model: ListModel {
                 id: messageModel
             }
-
+            
+            // 优化onCountChanged处理
+            onCountChanged: {
+                if (atYEnd || count === 1) {
+                    Qt.callLater(function() {
+                        // 使用positionViewAtEnd替代直接设置contentY
+                        positionViewAtEnd()
+                    })
+                }
+            }
+            
             delegate: Column {
                 width: parent.width
                 spacing: 8
@@ -236,9 +257,18 @@ Rectangle {
                 }
             }
 
-            // 添加滚动条
+            // 优化滚动条
             ScrollBar.vertical: ScrollBar {
+                id: vScrollBar
                 active: true
+                interactive: true
+                policy: ScrollBar.AsNeeded
+                
+                // 添加渐隐效果
+                opacity: messageList.moving || messageList.dragging ? 1 : 0
+                Behavior on opacity {
+                    NumberAnimation { duration: 200 }
+                }
             }
         }
 
@@ -258,7 +288,10 @@ Rectangle {
                         "isUser": true
                     })
                     searchBridge.handleSearch(query)
-                    messageList.positionViewAtEnd()
+                    // 修改：使用Qt.callLater替代messageList.positionViewAtEnd()
+                    Qt.callLater(function() {
+                        messageList.contentY = messageList.contentHeight - messageList.height
+                    })
                 }
             }
             
@@ -274,19 +307,6 @@ Rectangle {
                 width: 24
                 height: 24
             }
-        }
-    }
-
-    // 添加一个计时器来处理滚动
-    Timer {
-        id: scrollTimer
-        interval: 100  // 100ms 延迟
-        onTriggered: {
-            messageList.positionViewAtEnd()
-            // 再次检查并滚动，以处理可能的内容动态调整
-            Qt.callLater(function() {
-                messageList.positionViewAtEnd()
-            })
         }
     }
 } 
