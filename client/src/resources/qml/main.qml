@@ -134,6 +134,7 @@ ApplicationWindow {
                             icon.height: 20
                             onClicked: {
                                 // TODO: 处理添加按钮的点击事件
+                                contentArea.state = ""
                             }
                         }
 

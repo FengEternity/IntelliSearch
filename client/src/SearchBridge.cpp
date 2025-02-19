@@ -57,11 +57,17 @@ void SearchBridge::handleSearch(const QString& query) {
             DEBUGLOG("Starting async search for query: {}", query.toStdString());
             
             std::string stdQuery = query.toStdString();
-            auto result = intentParser->parseSearchIntent(stdQuery);
-            
+            auto intentParserResult = intentParser->parseSearchIntent(stdQuery);
+            auto searchResult = intentParser->bochaSearch(intentParserResult["query"]);
+
+            // 合并意图解析结果和搜索结果（仅用于数据库存储）
+            nlohmann::json combinedResult;
+            combinedResult["intent_parser"] = intentParserResult;
+            combinedResult["search_result"] = searchResult;
+
             // 将结果转换为 JSON 字符串
-            QString jsonString = QString::fromStdString(result.dump());
-            DEBUGLOG("Search completed successfully");
+            QString jsonString = QString::fromStdString(combinedResult.dump());
+            DEBUGLOG("Search completed successfully, combined result: {}", jsonString.toStdString());
             
             return jsonString;
         } catch (const std::exception& e) {
@@ -84,39 +90,30 @@ void SearchBridge::handleSearchComplete() {
     try {
         QString result = searchWatcher.result();
         auto jsonResult = nlohmann::json::parse(result.toStdString());
+        DEBUGLOG("Search results parsed: {}", jsonResult.dump().c_str());
+        
+        // 获取意图解析结果和搜索结果
+        auto intentResult = jsonResult["intent_parser"];
+        auto searchResult = jsonResult["search_result"];
         
         // 保存搜索记录到数据库
-        if (!dbManager->addSearchHistory(lastQuery, result)) {
+        if (!dbManager->addSearchHistory(
+                lastQuery,                                      // user_query
+                intentResult.contains("intent") ? intentResult["intent"].get<std::string>() : "",  // intent_type
+                intentResult.contains("query") ? QString::fromStdString(intentResult["query"].get<std::string>()) : lastQuery,  // intent_result
+                QString::fromStdString(searchResult.dump())    // search_result
+            )) {
             WARNLOG("Failed to save search history");
         } else {
             emit searchHistoryChanged();
         }
         
-        // 格式化搜索结果为可读文本
-        QString formattedResult;
-        if (jsonResult.contains("search_results")) {
-            auto searchResults = jsonResult["search_results"];
-            if (searchResults.is_array()) {
-                for (const auto& result : searchResults) {
-                    if (result.contains("title") && result.contains("snippet")) {
-                        formattedResult += QString("标题: %1\n%2\n\n")
-                            .arg(QString::fromStdString(result["title"].get<std::string>()))
-                            .arg(QString::fromStdString(result["snippet"].get<std::string>()));
-                    }
-                }
-            }
-        }
-        
-        // 如果没有格式化结果，使用原始结果
-        if (formattedResult.isEmpty()) {
-            formattedResult = result;
-        }
-        
-        emit searchResultsReady(formattedResult);
+        // 直接使用搜索结果部分，后续需要进行处理
+        emit searchResultsReady(QString::fromStdString(searchResult.dump()));
         
     } catch (const std::exception& e) {
         ERRORLOG("Error processing search results: {}", e.what());
-        emit searchResultsReady(QString("搜索出错: %1").arg(e.what()));
+        emit searchResultsReady(QString("{\"error\":\"搜索出错: %1\"}").arg(e.what()));
     }
 }
 

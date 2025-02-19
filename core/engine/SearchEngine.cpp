@@ -44,21 +44,21 @@ void SearchEngine::loadConfig() {
     }
 }
 
-nlohmann::json SearchEngine::performSearch(const nlohmann::json& intentResult) {
+nlohmann::json SearchEngine::performSearch(const std::string& intentResult) {
     try {
-        INFOLOG("Performing Bocha search for intentResult: {}", intentResult.dump());
+        INFOLOG("Performing Bocha search for intentResult: {}", intentResult);
         
         // 从 intentResult 中正确提取 query 字段
-        if (!intentResult.contains("query")) {
-            throw std::runtime_error("Missing 'query' field in intentResult");
-        }
-        std::string query = intentResult["query"].get<std::string>();
+//        if (!intentResult.contains("query")) {
+//            throw std::runtime_error("Missing 'query' field in intentResult");
+//        }
+        std::string query = intentResult;
         std::string freshness = "oneYear";  // 默认值
         
         // 根据意图调整搜索参数
-        if (intentResult["intent"] == "time_sensitive_query") {
-            freshness = "day";
-        }
+//        if (intentResult["intent"] == "time_sensitive_query") {
+//            freshness = "day";
+//        }
         
         return searchWithBocha(query, freshness);
     } catch (const std::exception& e) {

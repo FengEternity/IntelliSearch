@@ -69,8 +69,10 @@ bool SQLiteDatabaseManager::initialize() {
     bool success = query.exec(
         "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-        "query TEXT NOT NULL,"
-        "intent_result TEXT NOT NULL," /* 存储搜索意图解析的JSON结果 */
+        "user_query TEXT NOT NULL,"
+        "intent_type TEXT NOT NULL,"
+        "intent_result TEXT NOT NULL,"
+        "search_result TEXT NOT NULL,"
         "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP"
         ")"
     );
@@ -83,17 +85,25 @@ bool SQLiteDatabaseManager::initialize() {
     return success;
 }
 
-bool SQLiteDatabaseManager::addSearchHistory(const QString& query, const QString& result) {
+bool SQLiteDatabaseManager::addSearchHistory(
+    const QString& user_query = "",
+    std::basic_string<char> intent_type = "",
+    const QString& intent_result = "",
+    const QString& search_result= "")
+{
     QSqlQuery sqlQuery;
-    sqlQuery.prepare("INSERT INTO " + TABLE_NAME + " (query, intent_result) VALUES (?, ?)");
-    sqlQuery.addBindValue(query);
-    sqlQuery.addBindValue(result);
+    sqlQuery.prepare("INSERT INTO " + TABLE_NAME + " (user_query, intent_type, intent_result, search_result) "
+                    "VALUES (?, ?, ?, ?)");
+    sqlQuery.addBindValue(user_query);
+    sqlQuery.addBindValue(QString::fromStdString(intent_type));
+    sqlQuery.addBindValue(intent_result);
+    sqlQuery.addBindValue(search_result);
     bool success = sqlQuery.exec();
 
     if (!success) {
         ERRORLOG("Failed to add search history: {}", sqlQuery.lastError().text().toStdString());
     } else {
-        DEBUGLOG("Added search history - Query: {}", query.toStdString());
+        DEBUGLOG("Added search history - Query: {}", user_query.toStdString());
     }
     return success;
 }
@@ -102,23 +112,22 @@ QVector<QPair<QString, QString>> SQLiteDatabaseManager::getSearchHistory(int lim
     QVector<QPair<QString, QString>> history;
     QSqlQuery query;
     
-    // 按时间倒序获取最近的搜索记录
-    query.prepare("SELECT id, query FROM " + TABLE_NAME + 
+    query.prepare("SELECT id, user_query FROM " + TABLE_NAME + 
                  " ORDER BY timestamp DESC LIMIT ?");
     query.addBindValue(limit);
     
-    if (query.exec()) {
-        DEBUGLOG("Retrieving {} most recent search history records", limit);
-        while (query.next()) {
-            history.append(qMakePair(
-                query.value(0).toString(),  // 返回记录ID
-                query.value(1).toString()   // 返回查询内容
-            ));
-        }
-    } else {
+    if (!query.exec()) {
         ERRORLOG("Failed to retrieve search history: {}", query.lastError().text().toStdString());
+        return history;
     }
     
+    while (query.next()) {
+        QString id = query.value(0).toString();
+        QString userQuery = query.value(1).toString();
+        history.append(qMakePair(id, userQuery));
+    }
+    
+    DEBUGLOG("Retrieved {} search history records", history.size());
     return history;
 }
 

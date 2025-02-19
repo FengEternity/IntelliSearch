@@ -10,7 +10,7 @@ namespace IntelliSearch {
 class SearchEngine {
 public:
     static SearchEngine* getInstance();
-    nlohmann::json performSearch(const nlohmann::json& intentResult);
+    nlohmann::json performSearch(const std::string& intentResult);
     ~SearchEngine();
 
 private:

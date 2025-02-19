@@ -20,7 +20,11 @@ public:
     virtual bool initialize() = 0;
     
     // 添加搜索历史记录
-    virtual bool addSearchHistory(const QString& query, const QString& result) = 0;
+    virtual bool addSearchHistory(
+        const QString& user_query,
+        std::basic_string<char> intent_type,
+        const QString& intent_result,
+        const QString& search_result) = 0;
     
     // 获取搜索历史记录
     virtual QVector<QPair<QString, QString>> getSearchHistory(int limit = 10) = 0;
@@ -41,7 +45,11 @@ public:
     ~SQLiteDatabaseManager() override;
 
     bool initialize() override;
-    bool addSearchHistory(const QString& query, const QString& result) override;
+    bool addSearchHistory(
+        const QString& user_query,
+        std::basic_string<char> intent_type,
+        const QString& intent_result,
+        const QString& search_result) override;
     bool deleteSearchHistory(const QString& query) override;
     QVector<QPair<QString, QString>> getSearchHistory(int limit = 10) override;
     bool clearSearchHistory() override;
