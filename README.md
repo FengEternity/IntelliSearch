@@ -32,7 +32,6 @@ IntelliSearch 是一个基于AI大语言模型的对话式搜索引擎，旨在�
 * **容器化部署** ：使用Docker支持多环境运行。
 * **高性能存储** ：结合SQLite和Redis，实现高效数据管理。
 
-
 ## 项目结构
 
 ```plaintext
@@ -77,14 +76,10 @@ IntelliSearch/
 
 ```
 
-## 检索流程
-
-![1739022416307](image/README/1739022416307.png)
-
 ## 技术栈
 
 * 编程语言：C++、Python
-* 前端框架：Qt
+* 前端框架：Qt、QML
 * 数据库：SQLite、Redis
 
 ## 安装与运行
@@ -115,6 +110,16 @@ IntelliSearch/
 ## 演示截图
 
 ![1739021061202](image/README/1739021061202.png)
+
+## TODO
+
+* [ ] 支持更多的 API 服务
+  * [ ] AI：openai, deepseek, qwen...
+  * [ ] search: exa.ai,
+* [ ] 优化客户端体验
+* [ ] 结合 RAG 架构，对搜索到的的内容进行 AI 分析读取
+* [ ] 参考 MindSearch，实现搜索意图深度分析，并实时搜索反馈根据反馈结果判断是否进行下一轮搜索分析
+* [ ] 支持多轮对话搜索
 
 ## 开源协议
 
