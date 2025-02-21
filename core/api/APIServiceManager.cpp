@@ -1,5 +1,5 @@
 #include "APIServiceManager.h"
-#include "KimiAPIService.h"
+#include "AIService/Kimi.h"
 #include "../../log/Logger.h"
 
 namespace IntelliSearch {
@@ -12,8 +12,8 @@ APIServiceManager* APIServiceManager::getInstance() {
     if (instance == nullptr) {
         instance = new APIServiceManager();
         // 初始化时注册KimiAPIService
-        instance->registerService(std::make_unique<KimiAPIService>());
-        INFOLOG("APIServiceManager initialized with KimiAPIService");
+        instance->registerService(std::make_unique<Kimi>());
+        INFOLOG("APIServiceManager initialized with Kimi");
     }
     return instance;
 }

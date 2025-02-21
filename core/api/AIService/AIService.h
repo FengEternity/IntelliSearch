@@ -1,19 +1,45 @@
-#ifndef INTELLISEARCH_BASEAPISERVICE_H
-#define INTELLISEARCH_BASEAPISERVICE_H
+#ifndef INTELLISEARCH_AISERVICE_H
+#define INTELLISEARCH_AISERVICE_H
 
-#include "APIService.h"
+#include "../APIService.h"
+#include "../../../log/Logger.h"
 #include <curl/curl.h>
-#include <chrono>
-#include <string>
-#include <filesystem>
 #include <nlohmann/json.hpp>
+#include <string>
+#include <vector>
+#include <filesystem>
+#include <chrono>
 
 namespace IntelliSearch {
 
-class BaseAPIService : public APIService {
+class AIService : public APIService {
+public:
+    // 构造函数
+    AIService();
+
+    // 析构函数
+    virtual ~AIService();
+
+    // 解析用户输入的意图
+    virtual nlohmann::json parseIntent(const std::string& userInput) = 0;
+
+    // 获取服务名称
+    virtual std::string getServiceName() const = 0;
+
+    // 检查服务是否可用
+    virtual bool isAvailable() const = 0;
+
+    // 获取服务优先级（用于负载均衡和故障转移）
+    virtual int getPriority() const = 0;
+
 protected:
-    BaseAPIService();
-    virtual ~BaseAPIService();
+    // API调用的通用错误处理
+    virtual void handleError(const std::string& error) {
+        ERRORLOG("AIService error: {}", error);
+    }
+
+    // 验证API密钥
+    virtual bool validateApiKey() const = 0;
 
     // 通用的API调用重试逻辑
     nlohmann::json retryApiCall(const std::string& query, int attempt = 0);
@@ -30,10 +56,10 @@ protected:
     // 检查字符串是否为有效的UTF-8编码
     bool is_valid_utf8(const std::string& str);
 
-    // 处理API响应
-    virtual nlohmann::json processApiResponse(const std::string& response);
+    // 处理API响应, 子类必须实现
+    virtual nlohmann::json processApiResponse(const std::string& response) = 0;
 
-    // 执行实际的API调用
+    // 执行实际的API调用, 子类必须实现
     virtual nlohmann::json executeApiCall(const std::string& query) = 0;
 
     // 设置基本的CURL参数
@@ -60,4 +86,4 @@ protected:
 
 } // namespace IntelliSearch
 
-#endif // INTELLISEARCH_BASEAPISERVICE_H
+#endif // INTELLISEARCH_AISERVICE_H

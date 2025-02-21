@@ -1,7 +1,7 @@
 #ifndef INTELLISEARCH_APISERVICEMANAGER_H
 #define INTELLISEARCH_APISERVICEMANAGER_H
 
-#include "APIService.h"
+#include "AIService/AIService.h"
 #include <memory>
 #include <vector>
 #include <mutex>

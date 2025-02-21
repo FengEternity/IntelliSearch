@@ -1,12 +1,12 @@
-#include "KimiAPIService.h"
-#include "../../config/ConfigManager.h"
-#include "../../log/Logger.h"
+#include "Kimi.h"
+#include "../../../config/ConfigManager.h"
+#include "../../../log/Logger.h"
 #include <fstream>
 #include <sstream>
 
 namespace IntelliSearch {
 
-KimiAPIService::KimiAPIService() {
+Kimi::Kimi() {
     // 从配置文件获取API密钥
     auto* config = ConfigManager::getInstance();
     apiKey = config->getApiProviderConfig("kimi")["api_key"].get<std::string>();
@@ -26,9 +26,9 @@ KimiAPIService::KimiAPIService() {
     }
 }
 
-KimiAPIService::~KimiAPIService() = default;
+Kimi::~Kimi() = default;
 
-nlohmann::json KimiAPIService::parseIntent(const std::string& userInput) {
+nlohmann::json Kimi::parseIntent(const std::string& userInput) {
     // 验证API密钥
     if (!validateApiKey()) {
         handleError("Invalid API key");
@@ -43,23 +43,23 @@ nlohmann::json KimiAPIService::parseIntent(const std::string& userInput) {
     }
 }
 
-void KimiAPIService::handleError(const std::string& error) {
+void Kimi::handleError(const std::string& error) {
     ERRORLOG("KimiAPIService error: {}", error);
 }
 
-bool KimiAPIService::isAvailable() const {
+bool Kimi::isAvailable() const {
     return curl != nullptr && !apiKey.empty();
 }
 
-bool KimiAPIService::validateApiKey() const {
+bool Kimi::validateApiKey() const {
     return !apiKey.empty();
 }
 
-nlohmann::json KimiAPIService::callAPI(const std::string& query) {
+nlohmann::json Kimi::callAPI(const std::string& query) {
     return retryApiCall(query);
 }
 
-nlohmann::json KimiAPIService::executeApiCall(const std::string& query) {
+nlohmann::json Kimi::executeApiCall(const std::string& query) {
     try {
         requestCount++;
         const std::string apiUrl = baseUrl +  "/chat/completions";
@@ -113,7 +113,7 @@ nlohmann::json KimiAPIService::executeApiCall(const std::string& query) {
     }
 }
 
-nlohmann::json KimiAPIService::processApiResponse(const std::string& response) {
+nlohmann::json Kimi::processApiResponse(const std::string& response) {
     try {
         DEBUGLOG("Processing API response: {}", response);
         

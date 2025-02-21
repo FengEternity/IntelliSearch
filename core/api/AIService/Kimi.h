@@ -1,14 +1,14 @@
-#ifndef INTELLISEARCH_KIMIAPISERVICE_H
-#define INTELLISEARCH_KIMIAPISERVICE_H
+#ifndef INTELLISEARCH_KIMI_H
+#define INTELLISEARCH_KIMI_H
 
-#include "BaseAPIService.h"
+#include "AIService.h"
 
 namespace IntelliSearch {
 
-class KimiAPIService : public BaseAPIService {
+class Kimi : public AIService {
 public:
-    KimiAPIService();
-    ~KimiAPIService();
+    Kimi();
+    ~Kimi();
 
     // 实现 APIService 接口
     nlohmann::json parseIntent(const std::string& userInput) override;
@@ -40,4 +40,4 @@ private:
 
 } // namespace IntelliSearch
 
-#endif // INTELLISEARCH_KIMIAPISERVICE_H
+#endif // INTELLISEARCH_KIMI_H

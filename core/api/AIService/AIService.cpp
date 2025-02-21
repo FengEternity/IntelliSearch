@@ -1,39 +1,73 @@
-#include "BaseAPIService.h"
-#include "../../config/ConfigManager.h"
-#include "../../log/Logger.h"
+#include "AIService.h"
+#include "../../../log/Logger.h"
+#include "../../../config/ConfigManager.h"
+#include <nlohmann/json.hpp>
+#include <string>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
+#include <thread>
+#include <chrono>
 
 namespace IntelliSearch {
 
-BaseAPIService::BaseAPIService() : curl(nullptr), requestCount(0), lastResetTime(getCurrentTimeMs()) {
+/*
+ * Summary: AIService构造函数
+ * Parameters:
+ *   QObject* parent - 父对象指针
+ * Description: 初始化AIService，设置CURL句柄，并检查初始化是否成功
+ */
+AIService::AIService() : curl(nullptr), requestCount(0), lastResetTime(getCurrentTimeMs()) {
     curl = curl_easy_init();
     if (!curl) {
-        ERRORLOG("Failed to initialize CURL in BaseAPIService");
+        ERRORLOG("Failed to initialize CURL in AIService");
         throw std::runtime_error("CURL initialization failed");
     }
 }
-
-BaseAPIService::~BaseAPIService() {
+/*
+* Summary: AIService析构函数
+* Description: 释放CURL句柄
+*/
+AIService::~AIService() {
     if (curl) {
         curl_easy_cleanup(curl);
         curl = nullptr;
     }
 }
 
-size_t BaseAPIService::WriteCallback(void* contents, size_t size, size_t nmemb, std::string* userp) {
+/*
+* Summary: CURL写回调函数
+* Parameters:
+*   void* contents - 回调数据
+*   size_t size - 数据大小
+*   size_t nmemb - 数据数量
+*   std::string* userp - 用户数据指针
+*/
+size_t AIService::WriteCallback(void* contents, size_t size, size_t nmemb, std::string* userp) {
     size_t totalSize = size * nmemb;
     userp->append((char*)contents, totalSize);
     return totalSize;
 }
 
-int64_t BaseAPIService::getCurrentTimeMs() {
+/*
+* Summary: 获取当前时间戳（毫秒）
+* Returns:
+*   int64_t - 当前时间戳（毫秒）
+*/
+int64_t AIService::getCurrentTimeMs() {
     return std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::system_clock::now().time_since_epoch()
     ).count();
 }
 
-std::string BaseAPIService::utf8_encode(const std::string& str) {
+/*
+* Summary: 将字符串编码为UTF-8
+* Parameters:
+*   const std::string& str - 需要编码的字符串
+* Returns:
+*   std::string - 编码后的字符串
+*/
+std::string AIService::utf8_encode(const std::string& str) {
     try {
         if (is_valid_utf8(str)) {
             return str;
@@ -58,7 +92,14 @@ std::string BaseAPIService::utf8_encode(const std::string& str) {
     }
 }
 
-bool BaseAPIService::is_valid_utf8(const std::string& str) {
+/*
+* Summary: 检查字符串是否为UTF-8编码
+* Parameters:
+*   const std::string& str - 需要检查的字符串
+* Returns:
+*   bool - 如果字符串为UTF-8编码，返回true，否则返回false
+*/
+bool AIService::is_valid_utf8(const std::string& str) {
     const unsigned char* bytes = (const unsigned char*)str.c_str();
     size_t len = str.length();
     
@@ -68,7 +109,7 @@ bool BaseAPIService::is_valid_utf8(const std::string& str) {
         } else if (bytes[i] >= 0xC2 && bytes[i] <= 0xDF) { // 2字节序列
             if (i + 1 >= len || (bytes[i + 1] & 0xC0) != 0x80) return false;
             i += 1;
-        } else if (bytes[i] >= 0xE0 && bytes[i] <= 0xEF) { // 3字节序列
+        } else if (bytes[i] >= 0xE0 && bytes[i] <= 0xEF) { // 3字节序列 
             if (i + 2 >= len || (bytes[i + 1] & 0xC0) != 0x80 || 
                 (bytes[i + 2] & 0xC0) != 0x80) return false;
             i += 2;
@@ -84,7 +125,15 @@ bool BaseAPIService::is_valid_utf8(const std::string& str) {
     return true;
 }
 
-nlohmann::json BaseAPIService::retryApiCall(const std::string& query, int attempt) {
+/*
+* Summary: 重试API调用
+* Parameters:
+*   const std::string& query - API查询字符串
+*   int attempt - 当前重试次数
+* Returns:
+*   nlohmann::json - API响应
+*/
+nlohmann::json AIService::retryApiCall(const std::string& query, int attempt) {
     auto config = ConfigManager::getInstance();
     int maxAttempts = config->getIntValue("api/retry/max_attempts", 3);
     int initialDelay = config->getIntValue("api/retry/initial_delay_ms", 1000);
@@ -123,36 +172,13 @@ nlohmann::json BaseAPIService::retryApiCall(const std::string& query, int attemp
     }
 }
 
-nlohmann::json BaseAPIService::processApiResponse(const std::string& response) {
-    try {
-        DEBUGLOG("Processing API response: {}", response);
-        
-        if (response.empty()) {
-            ERRORLOG("Empty API response received");
-            throw std::runtime_error("Empty API response");
-        }
-    
-        // 确保响应是有效的UTF-8编码
-        if (!is_valid_utf8(response)) {
-            ERRORLOG("Invalid UTF-8 encoding in API response");
-            throw std::runtime_error("Invalid UTF-8 encoding in API response");
-        }
-    
-        // 解析API响应的JSON
-        nlohmann::json jsonResponse = nlohmann::json::parse(response);
-        DEBUGLOG("Parsed JSON response: {}", jsonResponse.dump());
-        
-        return jsonResponse;
-    } catch (const nlohmann::json::exception& e) {
-        ERRORLOG("Failed to parse API response: {}", e.what());
-        throw std::runtime_error(std::string("Failed to parse API response: ") + e.what());
-    } catch (const std::exception& e) {
-        ERRORLOG("Error processing API response: {}", e.what());
-        throw;
-    }
-}
-
-void BaseAPIService::setupBasicCurlOptions(const std::string& url, std::string* response) {
+/*
+* Summary: 设置基本的CURL选项
+* Parameters:
+*   const std::string& url - API URL
+*   std::string* response - 存储API响应的指针
+*/
+void AIService::setupBasicCurlOptions(const std::string& url, std::string* response) {
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, response);
@@ -163,7 +189,15 @@ void BaseAPIService::setupBasicCurlOptions(const std::string& url, std::string* 
     curl_easy_setopt(curl, CURLOPT_ENCODING, "UTF-8");
 }
 
-curl_slist* BaseAPIService::setupRequestHeaders(const std::string& contentType, const std::string& authToken) {
+/*
+* Summary: 设置请求头
+* Parameters:
+*   const std::string& contentType - 内容类型
+*   const std::string& authToken - 认证令牌
+* Returns:
+*   curl_slist* - 请求头列表
+*/
+curl_slist* AIService::setupRequestHeaders(const std::string& contentType, const std::string& authToken) {
     struct curl_slist* headers = nullptr;
     headers = curl_slist_append(headers, contentType.c_str());
     if (!authToken.empty()) {
@@ -173,27 +207,14 @@ curl_slist* BaseAPIService::setupRequestHeaders(const std::string& contentType, 
     return headers;
 }
 
-std::vector<std::filesystem::path> BaseAPIService::buildSearchPaths(const std::string& promptsFilePath) {
-    std::vector<std::filesystem::path> searchPaths;
-    auto* config = ConfigManager::getInstance();
-    std::filesystem::path currentPath = std::filesystem::current_path();
-    std::filesystem::path configDir = std::filesystem::path(config->getConfigPath()).parent_path();
-    
-    searchPaths.push_back(promptsFilePath);
-    searchPaths.push_back(currentPath / promptsFilePath);
-    searchPaths.push_back(configDir / promptsFilePath);
-    
-    std::filesystem::path tempPath = currentPath;
-    for (int i = 0; i < 5 && tempPath.has_parent_path(); ++i) {
-        searchPaths.push_back(tempPath / promptsFilePath);
-        searchPaths.push_back(tempPath / "config" / "IntentParserPrompt.json");
-        tempPath = tempPath.parent_path();
-    }
-    
-    return searchPaths;
-}
-
-nlohmann::json BaseAPIService::loadPromptsFile(const std::string& promptsFilePath) {
+/*
+* Summary: 查找并读取提示文件
+* Parameters:
+*   const std::string& promptsFilePath - 提示文件路径
+* Returns:
+*   nlohmann::json - 提示文件内容
+*/
+nlohmann::json AIService::loadPromptsFile(const std::string& promptsFilePath) {
     auto searchPaths = buildSearchPaths(promptsFilePath);
     std::string triedPaths;
     std::ifstream promptsFile;
@@ -217,4 +238,30 @@ nlohmann::json BaseAPIService::loadPromptsFile(const std::string& promptsFilePat
     return nlohmann::json::parse(buffer.str());
 }
 
+/*
+* Summary: 构建搜索路径列表
+* Parameters:
+*   const std::string& promptsFilePath - 提示文件路径
+* Returns:
+*   std::vector<std::filesystem::path> - 搜索路径列表
+*/
+std::vector<std::filesystem::path> AIService::buildSearchPaths(const std::string& promptsFilePath) {
+    std::vector<std::filesystem::path> searchPaths;
+    auto* config = ConfigManager::getInstance();
+    std::filesystem::path currentPath = std::filesystem::current_path();
+    std::filesystem::path configDir = std::filesystem::path(config->getConfigPath()).parent_path();
+    
+    searchPaths.push_back(promptsFilePath);
+    searchPaths.push_back(currentPath / promptsFilePath);
+    searchPaths.push_back(configDir / promptsFilePath);
+    
+    std::filesystem::path tempPath = currentPath;
+    for (int i = 0; i < 5 && tempPath.has_parent_path(); ++i) {
+        searchPaths.push_back(tempPath / promptsFilePath);
+        searchPaths.push_back(tempPath / "config" / "IntentParserPrompt.json");
+        tempPath = tempPath.parent_path();
+    }
+    
+    return searchPaths;
+}
 } // namespace IntelliSearch
