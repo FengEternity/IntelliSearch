@@ -1,30 +1,30 @@
-#include "APIServiceManager.h"
+#include "AIServiceManager.h"
 #include "AIService/Kimi.h"
-#include "../../log/Logger.h"
+#include "../log/Logger.h"
 
 namespace IntelliSearch {
 
-APIServiceManager* APIServiceManager::instance = nullptr;
-std::mutex APIServiceManager::instanceMutex;
+AIServiceManager* AIServiceManager::instance = nullptr;
+std::mutex AIServiceManager::instanceMutex;
 
-APIServiceManager* APIServiceManager::getInstance() {
+AIServiceManager* AIServiceManager::getInstance() {
     std::lock_guard<std::mutex> lock(instanceMutex);
     if (instance == nullptr) {
-        instance = new APIServiceManager();
-        // 初始化时注册KimiAPIService
+        instance = new AIServiceManager();
+        // 初始化时注册KimiAIService
         instance->registerService(std::make_unique<Kimi>());
-        INFOLOG("APIServiceManager initialized with Kimi");
+        INFOLOG("AIServiceManager initialized with Kimi");
     }
     return instance;
 }
 
-void APIServiceManager::registerService(std::unique_ptr<APIService> service) {
+void AIServiceManager::registerService(std::unique_ptr<AIService> service) {
     std::lock_guard<std::mutex> lock(servicesMutex);
-    INFOLOG("Registering API service: {}", service->getServiceName());
+    INFOLOG("Registering AI service: {}", service->getServiceName());
     services.push_back(std::move(service));
 }
 
-APIService* APIServiceManager::getService(const std::string& serviceName) {
+AIService* AIServiceManager::getService(const std::string& serviceName) {
     std::lock_guard<std::mutex> lock(servicesMutex);
     for (const auto& service : services) {
         if (service->getServiceName() == serviceName) {
@@ -34,9 +34,9 @@ APIService* APIServiceManager::getService(const std::string& serviceName) {
     return nullptr;
 }
 
-APIService* APIServiceManager::getPreferredService() {
+AIService* AIServiceManager::getPreferredService() {
     std::lock_guard<std::mutex> lock(servicesMutex);
-    APIService* preferred = nullptr;
+    AIService* preferred = nullptr;
     int highestPriority = -1;
 
     for (const auto& service : services) {
@@ -49,7 +49,7 @@ APIService* APIServiceManager::getPreferredService() {
     return preferred;
 }
 
-APIService* APIServiceManager::selectNextAvailableService() {
+AIService* AIServiceManager::selectNextAvailableService() {
     std::lock_guard<std::mutex> lock(servicesMutex);
     if (services.empty()) {
         return nullptr;
@@ -66,21 +66,21 @@ APIService* APIServiceManager::selectNextAvailableService() {
     return nullptr;
 }
 
-nlohmann::json APIServiceManager::parseIntent(const std::string& userInput) {
+nlohmann::json AIServiceManager::parseIntent(const std::string& userInput) {
     DEBUGLOG("Parsing intent for input: {}", userInput);
     
-    APIService* service = getPreferredService();
+    AIService* service = getPreferredService();
     if (!service) {
         service = selectNextAvailableService();
     }
 
     if (!service) {
-        ERRORLOG("No available API service found");
-        throw std::runtime_error("No available API service");
+        ERRORLOG("No available AI service found");
+        throw std::runtime_error("No available AI service");
     }
 
     DEBUGLOG("Using service: {} to parse intent", service->getServiceName());
     return service->parseIntent(userInput);
 }
 
-} // namespace IntelliSearch
+} // namespace IntelliSearch 

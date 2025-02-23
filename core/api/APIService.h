@@ -10,9 +10,6 @@ class APIService {
 public:
     virtual ~APIService() = default;
 
-    // 解析用户输入的意图
-    virtual nlohmann::json parseIntent(const std::string& userInput) = 0;
-
     // 获取服务名称
     virtual std::string getServiceName() const = 0;
 

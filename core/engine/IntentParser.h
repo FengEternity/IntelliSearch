@@ -29,7 +29,7 @@ private:
     void loadIntentConfig();
 
     // API服务管理器
-    class APIServiceManager* apiServiceManager;
+    class AIServiceManager* aiServiceManager;
     
     // 意图解析配置
     nlohmann::json intentConfig;

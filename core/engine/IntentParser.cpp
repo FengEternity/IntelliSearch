@@ -1,6 +1,6 @@
 #include "IntentParser.h"
 #include "../../log/Logger.h"
-#include "../api/APIServiceManager.h"
+#include "../api/AIServiceManager.h"
 #include <stdexcept>
 #include <fstream>
 #include <sstream>
@@ -11,10 +11,10 @@ namespace IntelliSearch {
 IntentParser::IntentParser() {
     INFOLOG("Starting to initialize IntentParser");
     // 获取APIServiceManager实例
-    apiServiceManager = APIServiceManager::getInstance();
-    if (!apiServiceManager) {
-        CRITICALLOG("Failed to get APIServiceManager instance");
-        throw std::runtime_error("Failed to initialize APIServiceManager");
+    aiServiceManager = AIServiceManager::getInstance();
+    if (!aiServiceManager) {
+        CRITICALLOG("Failed to get AIServiceManager instance");
+        throw std::runtime_error("Failed to initialize AIServiceManager");
     }
 }
 
@@ -29,7 +29,7 @@ nlohmann::json IntentParser::parseSearchIntent(const std::string& userInput) {
     DEBUGLOG("Received Intent parser request: {}", userInput);
     
     // 直接使用API进行意图解析
-    auto result = apiServiceManager->parseIntent(userInput);
+    auto result = aiServiceManager->parseIntent(userInput);
     
     // 使用搜索引擎执行搜索
     // auto searchResults = SearchEngine::getInstance()->performSearch(result);
