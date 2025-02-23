@@ -1,5 +1,6 @@
 #include "AIServiceManager.h"
 #include "AIService/Kimi.h"
+#include "AIService/Qwen.h"
 #include "../log/Logger.h"
 
 namespace IntelliSearch {
@@ -12,8 +13,8 @@ AIServiceManager* AIServiceManager::getInstance() {
     if (instance == nullptr) {
         instance = new AIServiceManager();
         // 初始化时注册KimiAIService
-        instance->registerService(std::make_unique<Kimi>());
-        INFOLOG("AIServiceManager initialized with Kimi");
+        instance->registerService(std::make_unique<Qwen>());
+        INFOLOG("AIServiceManager initialized with Qwen");
     }
     return instance;
 }

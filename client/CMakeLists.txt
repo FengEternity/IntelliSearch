@@ -37,6 +37,7 @@ set(SOURCES
 
     ${CMAKE_SOURCE_DIR}/../core/api/AIService/AIService.cpp
     ${CMAKE_SOURCE_DIR}/../core/api/AIService/Kimi.cpp
+    ${CMAKE_SOURCE_DIR}/../core/api/AIService/Qwen.cpp
 
     ${CMAKE_SOURCE_DIR}/../core/api/SearchService/SearchService.cpp
     ${CMAKE_SOURCE_DIR}/../core/api/SearchService/Bocha.cpp

@@ -81,7 +81,7 @@ nlohmann::json Kimi::executeApiCall(const std::string& query) {
 
         // 构建请求体
         nlohmann::json requestBody = {
-            {"model", "moonshot-v1-8k"},
+            {"model", model},
             {"messages", nlohmann::json::array({
                 {{"role", "system"}, {"content", utf8_encode(promptsJson["system"].dump())}},
                 {{"role", "user"}, {"content", "示例输入：" + promptsJson["examples"]["input"].get<std::string>() + 

@@ -21,11 +21,18 @@
                 "type": "json_object"
             }
         },
-        "bing": {
-            "api_key": "your_bing_api_key_here",
-            "endpoint": "https://api.bing.microsoft.com/v7.0/search",
-            "priority": 2
+        "qwen": {
+            "api_key": "sk-d08df332421443b59b99397e46f03838",
+            "base_url": "https://dashscope.aliyuncs.com",
+            "model": "qwen-plus",
+            "priority": 1,
+            "prompts": "config/IntentParserPrompt.json",
+            "response_format": {
+                "type": "json_object"
+            }
         },
+
+
         "bocha": {
             "api_key": "sk-7fca202ff9d14d5f953b5999b158aa77",
             "base_url": "https://api.bochaai.com/v1",
