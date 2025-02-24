@@ -1,8 +1,9 @@
 {
+    "api_provider" : "Hunyuan",
     "api_providers": {
         "kimi": {
             "api_key": "sk-rj7f3gi0QO8P5nibqbB3dzhoentKRjIpk4cf8WgVNDM8FNoB",
-            "base_url": "https://api.moonshot.cn/v1",
+            "base_url": "https://api.moonshot.cn",
             "model": "moonshot-v1-8k",
             "priority": 1,
             "rate_limits": {
@@ -24,8 +25,19 @@
         "qwen": {
             "api_key": "sk-d08df332421443b59b99397e46f03838",
             "base_url": "https://dashscope.aliyuncs.com",
-            "model": "qwen-plus",
+            "model": "IntelliSearch",
+            "is_custom_model": true,
+            "app_id": "34059399d6ca4727b4a0f8074a74bdf5",
             "priority": 1,
+            "prompts": "config/IntentParserPrompt.json",
+            "response_format": {
+                "type": "json_object"
+            }
+        },
+        "hunyuan": {
+            "api_key": "sk-xzmfowTvl9MeWund0dAmv4CN9f52FBudH9Rf6wnwMTreAM2x",
+            "base_url": "https://hunyuan.tencentcloudapi.com",
+            "model": "huanyuan-lite",
             "prompts": "config/IntentParserPrompt.json",
             "response_format": {
                 "type": "json_object"

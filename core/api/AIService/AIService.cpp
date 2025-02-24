@@ -264,4 +264,49 @@ std::vector<std::filesystem::path> AIService::buildSearchPaths(const std::string
     
     return searchPaths;
 }
+
+    /*
+    * Summary: 处理API响应
+    * Parameters:
+    *   const std::string& response - API响应
+    * Returns:
+    *   nlohmann::json - 处理后的API响应
+    */
+    nlohmann::json AIService::processApiResponse(const std::string& response) {
+    try {
+        DEBUGLOG("Processing API response: {}", response);
+
+        if (response.empty()) {
+            ERRORLOG("Empty API response received");
+            throw std::runtime_error("Empty API response");
+        }
+
+        auto jsonResponse = nlohmann::json::parse(response);
+
+        // 检查API响应中是否包含错误信息
+        if (jsonResponse.contains("error")) {
+            std::string errorMessage = jsonResponse["error"]["message"].get<std::string>();
+            ERRORLOG("API returned error: {}", errorMessage);
+            throw std::runtime_error("API error: " + errorMessage);
+        }
+
+        // 提取并解析助手的回复
+        if (!jsonResponse.contains("choices") || jsonResponse["choices"].empty() ||
+            !jsonResponse["choices"][0].contains("message") ||
+            !jsonResponse["choices"][0]["message"].contains("content")) {
+            ERRORLOG("Invalid API response format");
+            throw std::runtime_error("Invalid API response format");
+            }
+
+        std::string content = jsonResponse["choices"][0]["message"]["content"].get<std::string>();
+        return nlohmann::json::parse(content);
+
+    } catch (const nlohmann::json::exception& e) {
+        ERRORLOG("JSON parsing error: {}", e.what());
+        throw std::runtime_error(std::string("JSON parsing error: ") + e.what());
+    } catch (const std::exception& e) {
+        ERRORLOG("Error processing API response: {}", e.what());
+        throw;
+    }
+}
 } // namespace IntelliSearch

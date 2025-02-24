@@ -62,7 +62,7 @@ nlohmann::json Kimi::callAPI(const std::string& query) {
 nlohmann::json Kimi::executeApiCall(const std::string& query) {
     try {
         requestCount++;
-        const std::string apiUrl = baseUrl +  "/chat/completions";
+        const std::string apiUrl = baseUrl +  "/v1/chat/completions";
         std::string response;
 
         // 使用基类方法设置基本的CURL参数

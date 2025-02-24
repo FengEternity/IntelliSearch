@@ -56,8 +56,8 @@ protected:
     // 检查字符串是否为有效的UTF-8编码
     bool is_valid_utf8(const std::string& str);
 
-    // 处理API响应, 子类必须实现
-    virtual nlohmann::json processApiResponse(const std::string& response) = 0;
+    // 处理API响应
+    virtual nlohmann::json processApiResponse(const std::string& response);
 
     // 执行实际的API调用, 子类必须实现
     virtual nlohmann::json executeApiCall(const std::string& query) = 0;

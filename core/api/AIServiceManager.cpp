@@ -1,7 +1,9 @@
 #include "AIServiceManager.h"
 #include "AIService/Kimi.h"
 #include "AIService/Qwen.h"
+#include "AIService/Hunyuan.h"
 #include "../log/Logger.h"
+#include "../config/ConfigManager.h"
 
 namespace IntelliSearch {
 
@@ -9,14 +11,40 @@ AIServiceManager* AIServiceManager::instance = nullptr;
 std::mutex AIServiceManager::instanceMutex;
 
 AIServiceManager* AIServiceManager::getInstance() {
-    std::lock_guard<std::mutex> lock(instanceMutex);
-    if (instance == nullptr) {
-        instance = new AIServiceManager();
-        // 初始化时注册KimiAIService
-        instance->registerService(std::make_unique<Qwen>());
-        INFOLOG("AIServiceManager initialized with Qwen");
+    auto* config = ConfigManager::getInstance();
+    auto apiProvider = config->getStringValue("api_provider", "Kimi");
+    if (apiProvider == "Kimi") {
+        std::lock_guard<std::mutex> lock(instanceMutex);
+        if (instance == nullptr) {
+            instance = new AIServiceManager();
+            // 初始化时注册KimiAIService
+            instance->registerService(std::make_unique<Kimi>());
+            INFOLOG("AIServiceManager initialized with Kimi");
+        }
+        return instance;
+    } else if (apiProvider == "Qwen") {
+        std::lock_guard<std::mutex> lock(instanceMutex);
+        if (instance == nullptr) {
+            instance = new AIServiceManager();
+            // 初始化时注册QwenAIService
+            instance->registerService(std::make_unique<Qwen>());
+            INFOLOG("AIServiceManager initialized with Qwen");
+        }
+        return instance;
+    } else if (apiProvider == "Hunyuan") {
+        std::lock_guard<std::mutex> lock(instanceMutex);
+        if (instance == nullptr) {
+            instance = new AIServiceManager();
+            // 初始化时注册HunyuanAIService
+            instance->registerService(std::make_unique<Hunyuan>());
+            INFOLOG("AIServiceManager initialized with Hunyuan");
+        }
+        return instance;
     }
-    return instance;
+    else {
+        ERRORLOG("Invalid API provider: {}", apiProvider);
+        throw std::runtime_error("Invalid API provider");
+    }
 }
 
 void AIServiceManager::registerService(std::unique_ptr<AIService> service) {
