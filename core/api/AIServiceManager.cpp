@@ -2,6 +2,7 @@
 #include "AIService/Kimi.h"
 #include "AIService/Qwen.h"
 #include "AIService/Hunyuan.h"
+#include "AIService/DeepSeek.h"
 #include "../log/Logger.h"
 #include "../config/ConfigManager.h"
 
@@ -17,7 +18,9 @@ AIServiceManager* AIServiceManager::getInstance() {
     static std::map<std::string, std::function<std::unique_ptr<AIService>()>> serviceMap = {
         {"Kimi", []() {return std::make_unique<Kimi>(); }},
         {"Qwen", []() {return std::make_unique<Qwen>(); }},
-        {"Hunyuan", []() {return std::make_unique<Hunyuan>(); }}
+        {"Hunyuan", []() {return std::make_unique<Hunyuan>(); }},
+        {"DeepSeek", []() {return std::make_unique<DeepSeek>(); }}
+
     };
 
     auto it = serviceMap.find(apiProvider);
@@ -33,39 +36,6 @@ AIServiceManager* AIServiceManager::getInstance() {
         ERRORLOG("Invalid API provider: {}", apiProvider);
         throw std::runtime_error("Invalid API provider");
     }
-
-    // if (apiProvider == "Kimi") {
-    //     std::lock_guard<std::mutex> lock(instanceMutex);
-    //     if (instance == nullptr) {
-    //         instance = new AIServiceManager();
-    //         // 初始化时注册KimiAIService
-    //         instance->registerService(std::make_unique<Kimi>());
-    //         INFOLOG("AIServiceManager initialized with Kimi");
-    //     }
-    //     return instance;
-    // } else if (apiProvider == "Qwen") {
-    //     std::lock_guard<std::mutex> lock(instanceMutex);
-    //     if (instance == nullptr) {
-    //         instance = new AIServiceManager();
-    //         // 初始化时注册QwenAIService
-    //         instance->registerService(std::make_unique<Qwen>());
-    //         INFOLOG("AIServiceManager initialized with Qwen");
-    //     }
-    //     return instance;
-    // } else if (apiProvider == "Hunyuan") {
-    //     std::lock_guard<std::mutex> lock(instanceMutex);
-    //     if (instance == nullptr) {
-    //         instance = new AIServiceManager();
-    //         // 初始化时注册HunyuanAIService
-    //         instance->registerService(std::make_unique<Hunyuan>());
-    //         INFOLOG("AIServiceManager initialized with Hunyuan");
-    //     }
-    //     return instance;
-    // }
-    // else {
-    //     ERRORLOG("Invalid API provider: {}", apiProvider);
-    //     throw std::runtime_error("Invalid API provider");
-    // }
 }
 
 void AIServiceManager::registerService(std::unique_ptr<AIService> service) {

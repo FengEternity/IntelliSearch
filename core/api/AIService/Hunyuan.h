@@ -6,7 +6,6 @@
 #define HUNYUAN_H
 
 #include "AIService.h"
-#include "../../../config/ConfigManager.h"
 #include "../../../log/Logger.h"
 
 namespace IntelliSearch {
