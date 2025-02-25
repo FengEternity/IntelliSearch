@@ -8,6 +8,28 @@
 
 namespace IntelliSearch {
 
+    struct WebPageResult
+    {
+        std::string title;
+        std::string url;
+        std::string snippet;
+        std::string siteName;
+        std::string date;
+    };
+
+    struct ImageResult
+    {
+        std::string thumbnailUrl;
+        std::string contentUrl;
+    };
+
+    struct SearchResults
+    {
+        std::vector<WebPageResult> webPages;
+        std::vector<ImageResult> images;
+        bool hasFilteredResults;
+    };
+
 class SearchService : public APIService {
 public:
     // 构造函数
@@ -18,6 +40,7 @@ public:
     
     // 发送搜索请求
     virtual nlohmann::json performSearch(const std::string& intentResult) = 0;
+    virtual SearchResults processSearchResults(const nlohmann::json&) = 0;
 
 protected:
     CURL* curl;  // CURL句柄

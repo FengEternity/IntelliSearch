@@ -26,6 +26,8 @@ public:
          int count // 返回结果的条数
          );
 
+    SearchResults processSearchResults(const nlohmann::json& response);
+
 private:
     std::string apiKey; // API 密钥
     std::string baseUrl; // 基础 URL

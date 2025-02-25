@@ -140,4 +140,7 @@ namespace IntelliSearch {
         // TODO: 实现实际的API密钥验证逻辑
         return true;
     }
+
+    SearchResults Exa::processSearchResults(const nlohmann::json& response) {
+    }
 }

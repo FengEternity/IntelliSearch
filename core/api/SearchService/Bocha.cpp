@@ -53,9 +53,12 @@ nlohmann::json Bocha::performSearch(const std::string& intentResult) {
         // if (intentResult["intent"] == "time_sensitive_query") {
         //     freshness = "day";
         // }
-        
-        
-        return search(query, freshness, summary, count); // 待优化，根据意图调整搜索参数
+
+        nlohmann::json response = search(query, freshness, summary, count);
+
+        // processSearchResults(response);
+
+        return response; // 待优化，根据意图调整搜索参数
     } catch (const std::exception& e) {
         ERRORLOG("Search failed: {}", e.what());
         throw;
@@ -143,6 +146,99 @@ bool Bocha::validateApiKey() const {
         return false;
     }
     return true;
+}
+
+SearchResults Bocha::processSearchResults(const nlohmann::json& response) {
+    SearchResults results;
+
+    try {
+        // 检查响应结构有效性
+        if (!response.contains("data") || !response["data"].is_object()) {
+            throw std::runtime_error("Invalid API response structure");
+        }
+
+        const auto& data = response["data"];
+
+        // 处理网页结果
+        if (data.contains("webPages") && data["webPages"].is_object()) {
+            const auto& webPages = data["webPages"];
+
+            if (webPages.contains("value") && webPages["value"].is_array()) {
+                for (const auto& item : webPages["value"]) {
+                    WebPageResult page;
+                    if (item.contains("name")) page.title = item["name"].get<std::string>();
+                    if (item.contains("url")) page.url = item["url"].get<std::string>();
+                    if (item.contains("snippet")) page.snippet = item["snippet"].get<std::string>();
+                    if (item.contains("siteName")) page.siteName = item["siteName"].get<std::string>();
+                    if (item.contains("dateLastCrawled")) page.date = item["dateLastCrawled"].get<std::string>();
+
+                    results.webPages.push_back(page);
+                }
+            }
+
+            if (webPages.contains("someResultsRemoved")) {
+                results.hasFilteredResults = webPages["someResultsRemoved"].get<bool>();
+            }
+        }
+
+        // 处理图片结果
+        if (data.contains("images") && data["images"].is_object()) {
+            const auto& images = data["images"];
+
+            if (images.contains("value") && images["value"].is_array()) {
+                for (const auto& item : images["value"]) {
+                    ImageResult img;
+                    if (item.contains("thumbnailUrl")) img.thumbnailUrl = item["thumbnailUrl"].get<std::string>();
+                    if (item.contains("contentUrl")) img.contentUrl = item["contentUrl"].get<std::string>();
+
+                    results.images.push_back(img);
+                }
+            }
+        }
+
+        // 记录处理结果摘要
+        INFOLOG("Processed {} web results and {} image results",
+                results.webPages.size(),
+                results.images.size());
+
+        // 详细日志调试模式
+        DEBUGLOG("Search Results Details:{}{}",
+                "\nWeb Results:",
+                [&](){
+                    std::stringstream ss;
+                    for (size_t i = 0; i < std::min(results.webPages.size(), 5UL); ++i) {
+                        const auto& page = results.webPages[i];
+                        ss << "\n[" << i+1 << "] "
+                           << "Title: " << (page.title.empty() ? "[No Title]" : page.title.substr(0, 50))
+                           << "\n    URL: " << (page.url.empty() ? "[No URL]" : page.url);
+                    }
+                    return ss.str();
+                }(),
+
+                "\nImage Results:",
+                [&](){
+                    std::stringstream ss;
+                    for (size_t i = 0; i < std::min(results.images.size(), 3UL); ++i) {
+                        const auto& img = results.images[i];
+                        ss << "\n[" << i+1 << "] "
+                           << "Thumb: " << (img.thumbnailUrl.empty() ? "[No Thumb]" : img.thumbnailUrl.substr(0, 80))
+                           << "\n    Source: " << (img.contentUrl.empty() ? "[No Source]" : img.contentUrl.substr(0, 80));
+                    }
+                    return ss.str();
+                }());
+
+        // 记录过滤状态
+        if (results.hasFilteredResults) {
+            WARNLOG("Partial results filtered by search provider");
+        }
+
+
+        return results;
+
+    } catch (const std::exception& e) {
+        ERRORLOG("Result processing failed: {}", e.what());
+        throw;
+    }
 }
 
 } // namespace IntelliSearch

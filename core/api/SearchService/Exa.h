@@ -31,6 +31,8 @@ namespace IntelliSearch
                 bool text,
                 int count);
 
+            SearchResults processSearchResults(const nlohmann::json& response) override;
+
         private:
             std::string apiKey; // API 密钥
             std::string baseUrl; // 基础 URL
