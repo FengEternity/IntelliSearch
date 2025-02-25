@@ -18,10 +18,6 @@ public:
     
     // 发送搜索请求
     virtual nlohmann::json performSearch(const std::string& intentResult) = 0;
-    virtual nlohmann::json search(const std::string& query,
-                                          const std::string& freshness,
-                                          bool summary,
-                                          int count) = 0;
 
 protected:
     CURL* curl;  // CURL句柄

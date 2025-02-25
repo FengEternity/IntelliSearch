@@ -19,10 +19,12 @@ public:
 
     // 实现 SearchService 的纯虚函数
     nlohmann::json performSearch(const std::string& intentResult) override;
-    nlohmann::json search(const std::string& query,
-                         const std::string& freshness,
-                         bool summary,
-                         int count) override;
+    nlohmann::json search(
+         const std::string& query, // 用户的搜索词
+         const std::string& freshness, // 搜索指定时间范围内的网页
+         bool summary, // 是否显示文本摘要
+         int count // 返回结果的条数
+         );
 
 private:
     std::string apiKey; // API 密钥

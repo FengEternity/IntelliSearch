@@ -16,7 +16,7 @@ public:
 private:
     SearchEngine();
     
-    SearchServiceManager* serviceManager;
+    SearchServiceManager* searchServiceManager;
     
     static std::unique_ptr<SearchEngine> instance;
 };

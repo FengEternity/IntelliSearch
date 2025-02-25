@@ -15,10 +15,7 @@ SearchEngine* SearchEngine::getInstance() {
 
 SearchEngine::SearchEngine() {
     // 获取服务管理器实例
-    serviceManager = SearchServiceManager::getInstance();
-    
-    // 注册 Bocha 搜索服务
-    serviceManager->registerService(std::make_unique<Bocha>());
+    searchServiceManager = SearchServiceManager::getInstance();
 }
 
 SearchEngine::~SearchEngine() = default;
@@ -28,13 +25,13 @@ nlohmann::json SearchEngine::performSearch(const std::string& intentResult) {
         INFOLOG("Performing search for intentResult: {}", intentResult);
         
         // 获取首选搜索服务
-        auto* searchService = serviceManager->getPreferredService();
-        if (!searchService) {
-            throw std::runtime_error("No available search service found");
-        }
+        // auto* searchService = serviceManager->getPreferredService();
+        // if (!searchService) {
+        //     throw std::runtime_error("No available search service found");
+        // }
         
         // 使用选定的服务执行搜索
-        return searchService->performSearch(intentResult);
+        return searchServiceManager->performSearch(intentResult);
         
     } catch (const std::exception& e) {
         ERRORLOG("Search failed: {}", e.what());

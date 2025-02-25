@@ -45,6 +45,9 @@ nlohmann::json Bocha::performSearch(const std::string& intentResult) {
         // 从 intentResult 中正确提取 query 字段
         std::string query = intentResult;
         std::string freshness = "oneYear";  // 默认值
+        bool summary = false;
+        int count = 10;
+
 
         // // 根据意图调整搜索参数
         // if (intentResult["intent"] == "time_sensitive_query") {
@@ -52,7 +55,7 @@ nlohmann::json Bocha::performSearch(const std::string& intentResult) {
         // }
         
         
-        return search(query, freshness, false, 10); // 待优化，根据意图调整搜索参数
+        return search(query, freshness, summary, count); // 待优化，根据意图调整搜索参数
     } catch (const std::exception& e) {
         ERRORLOG("Search failed: {}", e.what());
         throw;

@@ -1,5 +1,6 @@
 {
-    "api_provider" : "DeepSeek",
+    "ai_service" : "DeepSeek",
+    "search_service" : "Bocha",
     "api_providers": {
         "kimi": {
             "api_key": "sk-rj7f3gi0QO8P5nibqbB3dzhoentKRjIpk4cf8WgVNDM8FNoB",
@@ -43,7 +44,7 @@
         },
         "deepseek": {
             "api_key": "sk-bf1df446046c415d825d294efa5a3648",
-            "base_url": "https://api.deepseek.cn",
+            "base_url": "https://api.deepseek.com",
             "model": "deepseek-chat",
             "prompts": "config/IntentParserPrompt.json",
             "response_format": "json_object"
@@ -56,6 +57,10 @@
             "max_results": 8,
             "timeout_ms": 5000,
             "priority": 1
+        },
+        "exa": {
+            "api_key": "66a77f46-4932-46be-86a1-b40ee1603179",
+            "base_url": "https://api.exa.ai"
         }
     },
     "search_settings": {

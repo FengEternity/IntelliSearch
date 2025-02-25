@@ -1,6 +1,8 @@
 #include "SearchServiceManager.h"
 #include "SearchService/Bocha.h"
+#include "SearchService/Exa.h"
 #include "../log/Logger.h"
+#include "../config/ConfigManager.h"
 
 namespace IntelliSearch {
 
@@ -8,14 +10,27 @@ SearchServiceManager* SearchServiceManager::instance = nullptr;
 std::mutex SearchServiceManager::instanceMutex;
 
 SearchServiceManager* SearchServiceManager::getInstance() {
-    std::lock_guard<std::mutex> lock(instanceMutex);
-    if (instance == nullptr) {
-        instance = new SearchServiceManager();
-        // 初始化时注册 Bocha 搜索服务
-        instance->registerService(std::make_unique<Bocha>());
-        INFOLOG("SearchServiceManager initialized with Bocha");
+    auto* config = ConfigManager::getInstance();
+    auto apiProvider = config->getStringValue("search_service", "Bocha");
+
+    static std::map<std::string, std::function<std::unique_ptr<SearchService>()>> serviceMap = {
+        {"Bocha", []() {return std::make_unique<Bocha>(); }},
+        {"Exa", []() {return std::make_unique<Exa>(); }}
+    };
+
+    auto it = serviceMap.find(apiProvider);
+    if (it != serviceMap.end()) {
+        std::lock_guard<std::mutex> lock(instanceMutex);
+        if (instance == nullptr) {
+            instance = new SearchServiceManager();
+            instance->registerService(it->second());
+            INFOLOG("SearchServiceManager initialized with {}", apiProvider);
+        }
+        return instance;
+    } else {
+        ERRORLOG("Invalid API provider: {}", apiProvider);
+        throw std::runtime_error("Invalid API provider");
     }
-    return instance;
 }
 
 void SearchServiceManager::registerService(std::unique_ptr<SearchService> service) {
@@ -34,20 +49,6 @@ SearchService* SearchServiceManager::getService(const std::string& serviceName) 
     return nullptr;
 }
 
-SearchService* SearchServiceManager::getPreferredService() {
-    std::lock_guard<std::mutex> lock(servicesMutex);
-    SearchService* preferred = nullptr;
-    int highestPriority = -1;
-
-    for (const auto& service : services) {
-        if (service->isAvailable() && service->getPriority() > highestPriority) {
-            preferred = service.get();
-            highestPriority = service->getPriority();
-        }
-    }
-
-    return preferred;
-}
 
 SearchService* SearchServiceManager::selectNextAvailableService() {
     std::lock_guard<std::mutex> lock(servicesMutex);
@@ -66,4 +67,23 @@ SearchService* SearchServiceManager::selectNextAvailableService() {
     return nullptr;
 }
 
-} // namespace IntelliSearch 
+nlohmann::json SearchServiceManager::performSearch(const std::string& intentResult) {
+    std::lock_guard<std::mutex> lock(servicesMutex);
+
+    // 直接实例化具体的搜索对象
+    auto* config = ConfigManager::getInstance();
+    auto apiProvider = config->getStringValue("search_service", "Bocha");
+
+    if (apiProvider == "Bocha") {
+        Bocha bocha;
+        return bocha.performSearch(intentResult);
+    } else if (apiProvider == "Exa") {
+        Exa exa;
+        return exa.performSearch(intentResult);
+    } else {
+        ERRORLOG("Invalid API provider: {}", apiProvider);
+        return nlohmann::json{{"error", "Invalid API provider"}};
+    }
+}
+
+} // namespace IntelliSearch

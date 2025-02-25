@@ -45,7 +45,7 @@ nlohmann::json IntentParser::parseSearchIntent(const std::string& userInput) {
  * @param query 搜索查询字符串
  * @return nlohmann::json 搜索结果
  */
-nlohmann::json IntentParser::bochaSearch(const std::string &query) {
+nlohmann::json IntentParser::search(const std::string &query) {
     DEBUGLOG("Received search request: {}", query);
 
     auto searchResults = SearchEngine::getInstance()->performSearch(query);

@@ -19,7 +19,9 @@ public:
     SearchService* getService(const std::string& serviceName);
 
     // 获取当前可用的最高优先级服务
-    SearchService* getPreferredService();
+
+    // 执行搜索
+    nlohmann::json performSearch(const std::string& intentResult);
 
 private:
     SearchServiceManager() = default;
@@ -41,4 +43,4 @@ private:
 
 } // namespace IntelliSearch
 
-#endif // INTELLISEARCH_SEARCHSERVICEMANAGER_H 
+#endif // INTELLISEARCH_SEARCHSERVICEMANAGER_H

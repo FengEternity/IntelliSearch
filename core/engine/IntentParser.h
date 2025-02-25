@@ -16,7 +16,7 @@ public:
     nlohmann::json parseSearchIntent(const std::string& userInput);
 
     // 调用博查API进行搜索
-    nlohmann::json bochaSearch(const std::string& query);
+    nlohmann::json search(const std::string& query);
 
 private:
     // 本地意图解析

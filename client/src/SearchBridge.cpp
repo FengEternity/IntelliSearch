@@ -76,7 +76,7 @@ void SearchBridge::handleSearch(const QString& query) {
             
             std::string stdQuery = query.toStdString();
             auto intentParserResult = intentParser->parseSearchIntent(stdQuery);
-            auto searchResult = intentParser->bochaSearch(intentParserResult["query"]);
+            auto searchResult = intentParser->search(intentParserResult["query"]);
 
             // 合并意图解析结果和搜索结果
             nlohmann::json combinedResult;

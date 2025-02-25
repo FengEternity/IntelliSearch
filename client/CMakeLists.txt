@@ -43,6 +43,7 @@ set(SOURCES
 
     ${CMAKE_SOURCE_DIR}/../core/api/SearchService/SearchService.cpp
     ${CMAKE_SOURCE_DIR}/../core/api/SearchService/Bocha.cpp
+    ${CMAKE_SOURCE_DIR}/../core/api/SearchService/Exa.cpp
 
     ${CMAKE_SOURCE_DIR}/../log/Logger.cpp
     ${CMAKE_SOURCE_DIR}/../config/ConfigManager.cpp
