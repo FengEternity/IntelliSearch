@@ -13,13 +13,13 @@ std::mutex AIServiceManager::instanceMutex;
 
 AIServiceManager* AIServiceManager::getInstance() {
     auto* config = ConfigManager::getInstance();
-    auto apiProvider = config->getStringValue("ai_service", "Kimi");
+    auto apiProvider = config->getStringValue("ai_service", "kimi");
 
     static std::map<std::string, std::function<std::unique_ptr<AIService>()>> serviceMap = {
-        {"Kimi", []() {return std::make_unique<Kimi>(); }},
-        {"Qwen", []() {return std::make_unique<Qwen>(); }},
-        {"Hunyuan", []() {return std::make_unique<Hunyuan>(); }},
-        {"DeepSeek", []() {return std::make_unique<DeepSeek>(); }}
+        {"kimi", []() {return std::make_unique<Kimi>(); }},
+        {"qwen", []() {return std::make_unique<Qwen>(); }},
+        {"hunyuan", []() {return std::make_unique<Hunyuan>(); }},
+        {"deepseek", []() {return std::make_unique<DeepSeek>(); }}
 
     };
 

@@ -14,8 +14,8 @@ SearchServiceManager* SearchServiceManager::getInstance() {
     auto apiProvider = config->getStringValue("search_service", "Bocha");
 
     static std::map<std::string, std::function<std::unique_ptr<SearchService>()>> serviceMap = {
-        {"Bocha", []() {return std::make_unique<Bocha>(); }},
-        {"Exa", []() {return std::make_unique<Exa>(); }}
+        {"bocha", []() {return std::make_unique<Bocha>(); }},
+        {"exa", []() {return std::make_unique<Exa>(); }}
     };
 
     auto it = serviceMap.find(apiProvider);
@@ -74,10 +74,10 @@ nlohmann::json SearchServiceManager::performSearch(const std::string& intentResu
     auto* config = ConfigManager::getInstance();
     auto apiProvider = config->getStringValue("search_service", "Bocha");
 
-    if (apiProvider == "Bocha") {
+    if (apiProvider == "bocha") {
         Bocha bocha;
         return bocha.performSearch(intentResult);
-    } else if (apiProvider == "Exa") {
+    } else if (apiProvider == "exa") {
         Exa exa;
         return exa.performSearch(intentResult);
     } else {

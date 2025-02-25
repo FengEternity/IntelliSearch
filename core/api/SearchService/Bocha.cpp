@@ -142,7 +142,6 @@ bool Bocha::validateApiKey() const {
         WARNLOG("Bocha API key is empty");
         return false;
     }
-    // TODO: 实现实际的API密钥验证逻辑
     return true;
 }
 
