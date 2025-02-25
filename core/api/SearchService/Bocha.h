@@ -26,7 +26,7 @@ public:
          int count // 返回结果的条数
          );
 
-    SearchResults processSearchResults(const nlohmann::json& response);
+    SearchResults processSearchResults(const nlohmann::json& response) override;
 
 private:
     std::string apiKey; // API 密钥

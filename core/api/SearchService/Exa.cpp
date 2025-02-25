@@ -142,5 +142,47 @@ namespace IntelliSearch {
     }
 
     SearchResults Exa::processSearchResults(const nlohmann::json& response) {
+        SearchResults results;
+        results.hasFilteredResults = false;  // 默认设置
+        
+        try {
+            // 检查响应中是否包含结果数组
+            if (response.contains("results") && response["results"].is_array()) {
+                for (const auto& item : response["results"]) {
+                    WebPageResult webResult;
+                    
+                    // 提取标题
+                    if (item.contains("title")) {
+                        webResult.title = item["title"].get<std::string>();
+                    }
+                    
+                    // 提取URL
+                    if (item.contains("url")) {
+                        webResult.url = item["url"].get<std::string>();
+                    }
+                    
+                    // 提取摘要
+                    if (item.contains("snippet")) {
+                        webResult.snippet = item["snippet"].get<std::string>();
+                    }
+
+                    // 提取网站名称（如果有）
+                    if (item.contains("siteName")) {
+                        webResult.siteName = item["siteName"].get<std::string>();
+                    }
+
+                    // 提取日期（如果有）
+                    if (item.contains("date")) {
+                        webResult.date = item["date"].get<std::string>();
+                    }
+                    
+                    results.webPages.push_back(webResult);
+                }
+            }
+        } catch (const std::exception& e) {
+            ERRORLOG("Error processing search results: {}", e.what());
+        }
+        
+        return results;
     }
 }
