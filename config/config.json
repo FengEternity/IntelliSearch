@@ -36,8 +36,8 @@
         },
         "hunyuan": {
             "api_key": "sk-xzmfowTvl9MeWund0dAmv4CN9f52FBudH9Rf6wnwMTreAM2x",
-            "base_url": "https://hunyuan.tencentcloudapi.com",
-            "model": "huanyuan-lite",
+            "base_url": "https://api.hunyuan.cloud.tencent.com",
+            "model": "hunyuan-lite",
             "prompts": "config/IntentParserPrompt.json",
             "response_format": {
                 "type": "json_object"

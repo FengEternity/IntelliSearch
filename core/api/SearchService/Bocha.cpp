@@ -42,8 +42,6 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::stri
 
 nlohmann::json Bocha::performSearch(const std::string& intentResult) {
     try {
-        INFOLOG("Performing Bocha search for intentResult: {}", intentResult);
-        
         // 从 intentResult 中正确提取 query 字段
         std::string query = intentResult;
         std::string freshness = "oneYear";  // 默认值
@@ -65,7 +63,6 @@ nlohmann::json Bocha::search(const std::string& query,
                               const std::string& freshness,
                               bool summary,
                               int count) {
-    INFOLOG("Performing Bocha search for query: {}", query);
     
     CURL* curl = curl_easy_init();
     if (!curl) {
