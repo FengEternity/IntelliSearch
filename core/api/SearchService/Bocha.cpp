@@ -56,8 +56,6 @@ nlohmann::json Bocha::performSearch(const std::string& intentResult) {
 
         nlohmann::json response = search(query, freshness, summary, count);
 
-        // processSearchResults(response);
-
         return response; // 待优化，根据意图调整搜索参数
     } catch (const std::exception& e) {
         ERRORLOG("Search failed: {}", e.what());
@@ -202,27 +200,31 @@ SearchResults Bocha::processSearchResults(const nlohmann::json& response) {
                 results.images.size());
 
         // 详细日志调试模式
-        DEBUGLOG("Search Results Details:{}{}",
-                "\nWeb Results:",
+        DEBUGLOG("Search Results Details:\n{}\n{}",
                 [&](){
                     std::stringstream ss;
-                    for (size_t i = 0; i < std::min(results.webPages.size(), 5UL); ++i) {
+                    ss << "\n=== Web Results ===";
+                    for (size_t i = 0; i < results.webPages.size(); ++i) {
                         const auto& page = results.webPages[i];
-                        ss << "\n[" << i+1 << "] "
-                           << "Title: " << (page.title.empty() ? "[No Title]" : page.title.substr(0, 50))
-                           << "\n    URL: " << (page.url.empty() ? "[No URL]" : page.url);
+                        ss << "\n[" << i+1 << "]"
+                           << "\n    Title: " << (page.title.empty() ? "[No Title]" : page.title)
+                           << "\n    URL: " << (page.url.empty() ? "[No URL]" : page.url)
+                           << "\n    Snippet: " << (page.snippet.empty() ? "[No Snippet]" : page.snippet)
+                           << "\n    Site Name: " << (page.siteName.empty() ? "[No Site Name]" : page.siteName)
+                           << "\n    Date: " << (page.date.empty() ? "[No Date]" : page.date)
+                           << "\n";
                     }
                     return ss.str();
                 }(),
-
-                "\nImage Results:",
                 [&](){
                     std::stringstream ss;
-                    for (size_t i = 0; i < std::min(results.images.size(), 3UL); ++i) {
+                    ss << "\n=== Image Results ===";
+                    for (size_t i = 0; i < results.images.size(); ++i) {
                         const auto& img = results.images[i];
-                        ss << "\n[" << i+1 << "] "
-                           << "Thumb: " << (img.thumbnailUrl.empty() ? "[No Thumb]" : img.thumbnailUrl.substr(0, 80))
-                           << "\n    Source: " << (img.contentUrl.empty() ? "[No Source]" : img.contentUrl.substr(0, 80));
+                        ss << "\n[" << i+1 << "]"
+                           << "\n    Thumbnail URL: " << (img.thumbnailUrl.empty() ? "[No Thumbnail]" : img.thumbnailUrl)
+                           << "\n    Content URL: " << (img.contentUrl.empty() ? "[No Content URL]" : img.contentUrl)
+                           << "\n";
                     }
                     return ss.str();
                 }());
