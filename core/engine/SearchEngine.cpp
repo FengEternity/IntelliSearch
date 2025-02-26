@@ -2,6 +2,7 @@
 #include "../../log/Logger.h"
 #include "../api/SearchService/Bocha.h"
 #include "../api/SearchServiceManager.h"
+#include "../api/AIServiceManager.h"
 
 namespace IntelliSearch {
 
@@ -17,6 +18,7 @@ SearchEngine* SearchEngine::getInstance() {
 SearchEngine::SearchEngine() {
     // 获取服务管理器实例
     searchServiceManager = SearchServiceManager::getInstance();
+    aiServiceManager = AIServiceManager::getInstance();
 }
 
 SearchEngine::~SearchEngine() = default;
@@ -57,6 +59,10 @@ nlohmann::json SearchEngine::performSearch(const std::string& intentResult) {
             });
         }
 
+        // 调用AI服务进行分析总结
+        nlohmann::json analysis = analyzeSearchResults(response, intentResult);
+        response["analysis"] = analysis;
+
         return response;
         
     } catch (const std::exception& e) {
@@ -65,5 +71,38 @@ nlohmann::json SearchEngine::performSearch(const std::string& intentResult) {
     }
 }
 
+nlohmann::json SearchEngine::analyzeSearchResults(const nlohmann::json& searchResults, const std::string& userQuery) {
+    try {
+        INFOLOG("Analyzing search results for query: {}", userQuery);
+
+        // 构建提示信息
+        std::string prompt = "请根据以下搜索结果，对用户查询进行分析和总结：\n\n";
+        prompt += "用户查询：" + userQuery + "\n\n";
+        prompt += "搜索结果：\n";
+
+        // 添加网页结果到提示信息
+        if (searchResults.contains("webPages") && !searchResults["webPages"].empty()) {
+            for (const auto& page : searchResults["webPages"]) {
+                prompt += "- 标题：" + page["title"].get<std::string>() + "\n";
+                prompt += "  摘要：" + page["snippet"].get<std::string>() + "\n\n";
+            }
+        }
+
+        // 获取AI服务并进行分析
+        AIService* aiService = aiServiceManager->getPreferredService();
+        if (!aiService) {
+            throw std::runtime_error("No available AI service");
+        }
+
+        // 调用AI服务进行分析
+        nlohmann::json analysis = aiService->parseIntent(prompt);
+        
+        return analysis;
+
+    } catch (const std::exception& e) {
+        ERRORLOG("Analysis failed: {}", e.what());
+        return nlohmann::json{{"error", e.what()}};
+    }
+}
 
 } // namespace IntelliSearch 
