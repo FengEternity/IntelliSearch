@@ -1,6 +1,6 @@
 {
-    "ai_service" : "DeepSeek",
-    "search_service" : "Bocha",
+    "ai_service" : "kimi",
+    "search_service" : "bocha",
     "api_providers": {
         "kimi": {
             "api_key": "sk-rj7f3gi0QO8P5nibqbB3dzhoentKRjIpk4cf8WgVNDM8FNoB",
