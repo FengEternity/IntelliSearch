@@ -15,6 +15,7 @@ namespace IntelliSearch {
         ~DeepSeek();
 
         nlohmann::json parseIntent(const std::string& userInput) override;
+        nlohmann::json searchParser(const std::string& userInput) override;
         std::string getServiceName() const override { return "DeepSeek"; }
         bool isAvailable() const override { return curl != nullptr && !apiKey.empty(); }
         int getPriority() const override { return 1; }
@@ -24,8 +25,8 @@ namespace IntelliSearch {
         bool validateApiKey() const override { return !apiKey.empty(); }
 
     private:
-        nlohmann::json callAPI(const std::string& query) { return retryApiCall(query); }
-        nlohmann::json executeApiCall(const std::string& query) override;
+        nlohmann::json callAPI(const std::string& query, const std::string& promptType = "") { return retryApiCall(query, promptType);};
+        nlohmann::json executeApiCall(const std::string& query, const std::string& promptType) override;
 
 
         std::string apiKey;

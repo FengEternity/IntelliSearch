@@ -133,7 +133,7 @@ bool AIService::is_valid_utf8(const std::string& str) {
 * Returns:
 *   nlohmann::json - API响应
 */
-nlohmann::json AIService::retryApiCall(const std::string& query, int attempt) {
+nlohmann::json AIService::retryApiCall(const std::string& query, const std::string& promptType, int attempt) {
     auto config = ConfigManager::getInstance();
     int maxAttempts = config->getIntValue("api/retry/max_attempts", 3);
     int initialDelay = config->getIntValue("api/retry/initial_delay_ms", 1000);
@@ -160,13 +160,13 @@ nlohmann::json AIService::retryApiCall(const std::string& query, int attempt) {
 
     try {
         requestCount++;
-        return executeApiCall(query);
+        return executeApiCall(query, promptType);
     } catch (const std::exception& e) {
         if (attempt < maxAttempts) {
             int delay = std::min(initialDelay * (1 << attempt), maxDelay);
             WARNLOG("API call failed, retrying in {} ms (attempt {}/{}): {}", delay, attempt + 1, maxAttempts, e.what());
             std::this_thread::sleep_for(std::chrono::milliseconds(delay));
-            return retryApiCall(query, attempt + 1);
+            return retryApiCall(query, promptType, attempt + 1);
         }
         throw;
     }

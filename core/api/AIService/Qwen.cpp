@@ -41,6 +41,22 @@ nlohmann::json Qwen::parseIntent(const std::string& userInput) {
     }
 }
 
+
+nlohmann::json Qwen::searchParser(const std::string& userInput) {
+    // 验证API密钥
+    if (!validateApiKey()) {
+        handleError("Invalid API key");
+        throw std::runtime_error("Invalid API key");
+    }
+    try {
+        // 指定使用 intent_parser prompt
+        return callAPI(userInput, "search_parser");
+    } catch (const std::exception& e) {
+        handleError(e.what());
+        throw;
+    }
+}
+
 void Qwen::handleError(const std::string& error) {
     ERRORLOG("Qwen API error: " + error);
 }
@@ -53,11 +69,7 @@ bool Qwen::validateApiKey() const {
     return !apiKey.empty();
 }
 
-nlohmann::json Qwen::callAPI(const std::string& query) {
-    return retryApiCall(query);
-}
-
-nlohmann::json Qwen::executeApiCall(const std::string& query) {
+nlohmann::json Qwen::executeApiCall(const std::string& query, const std::string& promptType) {
     try {
         requestCount++;
         const std::string apiUrl = baseUrl + "/api/v1/services/aigc/text-generation/generation";
@@ -70,28 +82,32 @@ nlohmann::json Qwen::executeApiCall(const std::string& query) {
         std::string authHeader = "Authorization: Bearer " + apiKey;
         struct curl_slist* headers = setupRequestHeaders("Content-Type: application/json", authHeader);
         
-        // 获取配置管理器实例并构建请求体
         auto* config = ConfigManager::getInstance();
-        std::string promptsFilePath = config->getProviderPromptPath("qwen", "intent_parser");
-
-        // 使用基类方法加载提示文件
-        auto promptsJson = loadPromptsFile(promptsFilePath);
-
-        // 构建请求体
-        nlohmann::json requestBody = {
+            nlohmann::json requestBody = {
             {"model", model},
-            {"input", {
-                {"messages", nlohmann::json::array({
+            {"messages", nlohmann::json::array()},
+            {"temperature", 0.3},
+            {"max_tokens", 4096},
+            {"response_format", config->getApiProviderConfig("deepseek")["response_format"]}
+            };
+
+            // 如果指定了 promptType，则加载对应的 prompt
+            if (!promptType.empty()) {
+                std::string promptsFilePath = config->getProviderPromptPath("kimi", promptType);
+                auto promptsJson = loadPromptsFile(promptsFilePath);
+                
+                requestBody["messages"] = nlohmann::json::array({
                     {{"role", "system"}, {"content", utf8_encode(promptsJson["system"].dump())}},
                     {{"role", "user"}, {"content", "示例输入：" + promptsJson["examples"]["input"].get<std::string>() + 
-                                                  "\n示例输出：" + promptsJson["examples"]["output"].dump() + 
-                                                  "\n\n实际输入：" + utf8_encode(query)}}
-                })}
-            }},
-            {"parameters", {
-                {"result_format", "message"}
-            }}
-        };
+                                                "\n示例输出：" + promptsJson["examples"]["output"].dump() + 
+                                                "\n\n实际输入：" + utf8_encode(query)}}
+                });
+            } else {
+                // 普通聊天模式
+                requestBody["messages"] = nlohmann::json::array({
+                    {{"role", "user"}, {"content", utf8_encode(query)}}
+                });
+            }
 
         std::string requestBodyStr = requestBody.dump();
         INFOLOG("Sending API request with content: {}", requestBodyStr);

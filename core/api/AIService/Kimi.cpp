@@ -12,6 +12,7 @@ Kimi::Kimi() {
     apiKey = config->getApiProviderConfig("kimi")["api_key"].get<std::string>();
     baseUrl = config->getApiProviderConfig("kimi")["base_url"].get<std::string>();
     model = config->getApiProviderConfig("kimi")["model"].get<std::string>();
+
     
     if (apiKey.empty()) {
         WARNLOG("Kimi API key not found in configuration");
@@ -36,7 +37,23 @@ nlohmann::json Kimi::parseIntent(const std::string& userInput) {
     }
 
     try {
-        return callAPI(userInput);
+        // 指定使用 intent_parser prompt
+        return callAPI(userInput, "intent_parser");
+    } catch (const std::exception& e) {
+        handleError(e.what());
+        throw;
+    }
+}
+
+nlohmann::json Kimi::searchParser(const std::string& userInput) {
+    // 验证API密钥
+    if (!validateApiKey()) {
+        handleError("Invalid API key");
+        throw std::runtime_error("Invalid API key");
+    }
+    try {
+        // 指定使用 intent_parser prompt
+        return callAPI(userInput, "search_parser");
     } catch (const std::exception& e) {
         handleError(e.what());
         throw;
@@ -55,11 +72,12 @@ bool Kimi::validateApiKey() const {
     return !apiKey.empty();
 }
 
-nlohmann::json Kimi::callAPI(const std::string& query) {
-    return retryApiCall(query);
+nlohmann::json Kimi::callAPI(const std::string& query, const std::string& promptType) {
+    return retryApiCall(query, promptType);
 }
 
-nlohmann::json Kimi::executeApiCall(const std::string& query) {
+// 修改 executeApiCall 方法
+nlohmann::json Kimi::executeApiCall(const std::string& query, const std::string& promptType) {
     try {
         requestCount++;
         const std::string apiUrl = baseUrl +  "/v1/chat/completions";
@@ -74,24 +92,31 @@ nlohmann::json Kimi::executeApiCall(const std::string& query) {
 
         // 获取配置管理器实例并构建请求体
         auto* config = ConfigManager::getInstance();
-        std::string promptsFilePath = config->getProviderPromptPath("kimi", "intent_parser");
-        
-        // 使用基类方法加载提示文件
-        auto promptsJson = loadPromptsFile(promptsFilePath);
-
-        // 构建请求体
         nlohmann::json requestBody = {
             {"model", model},
-            {"messages", nlohmann::json::array({
+            {"messages", nlohmann::json::array()},
+            {"temperature", 0.3},
+            {"max_tokens", 4096},
+            {"response_format", config->getApiProviderConfig("kimi")["response_format"]}
+        };
+
+        // 如果指定了 promptType，则加载对应的 prompt
+        if (!promptType.empty()) {
+            std::string promptsFilePath = config->getProviderPromptPath("kimi", promptType);
+            auto promptsJson = loadPromptsFile(promptsFilePath);
+            
+            requestBody["messages"] = nlohmann::json::array({
                 {{"role", "system"}, {"content", utf8_encode(promptsJson["system"].dump())}},
                 {{"role", "user"}, {"content", "示例输入：" + promptsJson["examples"]["input"].get<std::string>() + 
                                               "\n示例输出：" + promptsJson["examples"]["output"].dump() + 
                                               "\n\n实际输入：" + utf8_encode(query)}}
-            })},
-            {"temperature", 0.3},
-            {"max_tokens", 800},
-            {"response_format", config->getApiProviderConfig("kimi")["response_format"]}
-        };
+            });
+        } else {
+            // 普通聊天模式
+            requestBody["messages"] = nlohmann::json::array({
+                {{"role", "user"}, {"content", utf8_encode(query)}}
+            });
+        }
 
         std::string requestBodyStr = requestBody.dump();
         INFOLOG("Sending API request with content: {}", requestBodyStr);

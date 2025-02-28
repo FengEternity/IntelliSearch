@@ -22,6 +22,7 @@ public:
 
     // 解析用户输入的意图
     virtual nlohmann::json parseIntent(const std::string& userInput) = 0;
+    virtual nlohmann::json searchParser(const std::string& userInput) = 0;
 
     // 获取服务名称
     virtual std::string getServiceName() const = 0;
@@ -42,8 +43,10 @@ protected:
     virtual bool validateApiKey() const = 0;
 
     // 通用的API调用重试逻辑
-    nlohmann::json retryApiCall(const std::string& query, int attempt = 0);
-
+    nlohmann::json retryApiCall(const std::string& query, 
+                               const std::string& promptType = "", 
+                               int attempt = 0);
+    
     // CURL写回调函数
     static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* userp);
 
@@ -60,7 +63,7 @@ protected:
     virtual nlohmann::json processApiResponse(const std::string& response);
 
     // 执行实际的API调用, 子类必须实现
-    virtual nlohmann::json executeApiCall(const std::string& query) = 0;
+    virtual nlohmann::json executeApiCall(const std::string& query, const std::string& promptType) = 0;
 
     // 设置基本的CURL参数
     void setupBasicCurlOptions(const std::string& url, std::string* response);
