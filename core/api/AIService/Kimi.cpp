@@ -74,7 +74,7 @@ nlohmann::json Kimi::executeApiCall(const std::string& query) {
 
         // 获取配置管理器实例并构建请求体
         auto* config = ConfigManager::getInstance();
-        std::string promptsFilePath = config->getApiProviderConfig("kimi")["prompts"].get<std::string>();
+        std::string promptsFilePath = config->getProviderPromptPath("kimi", "intent_parser");
         
         // 使用基类方法加载提示文件
         auto promptsJson = loadPromptsFile(promptsFilePath);

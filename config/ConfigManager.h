@@ -50,6 +50,9 @@ public:
     // 获取所有 API 提供商的配置
     nlohmann::json getAllApiProviders() const;
 
+    // 获取特定提供商的特定类型的提示文件路径
+    std::string getProviderPromptPath(const std::string& provider, const std::string& promptType) const;
+
     // 重新加载配置文件
     void reload();
 

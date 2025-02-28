@@ -11,9 +11,8 @@ namespace IntelliSearch {
         apiKey = config->getApiProviderConfig("hunyuan")["api_key"].get<std::string>();
         baseUrl = config->getApiProviderConfig("hunyuan")["base_url"].get<std::string>();
         model = config->getApiProviderConfig("hunyuan")["model"].get<std::string>();
-        intentPrompts = config->getApiProviderConfig("hunyuan")["prompts"].get<std::string>();
+        intentPrompts = config->getProviderPromptPath("hunyuan", "intent_parser");
         // responseFormat = config->getApiProviderConfig("hunyuan")["response_format"].get<std::string>();
-
     }
 
     Hunyuan::~Hunyuan() = default;

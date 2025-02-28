@@ -41,9 +41,20 @@ void ConfigManager::loadConfig(const std::string& configPath) {
                     if (config_.contains("api_providers")) {
                         for (auto& [provider, config] : config_["api_providers"].items()) {
                             if (config.contains("prompts")) {
-                                std::string promptsPath = config["prompts"].get<std::string>();
-                                if (!std::filesystem::path(promptsPath).is_absolute()) {
-                                    config["prompts"] = (configDir / promptsPath).string();
+                                // 处理嵌套的prompts对象
+                                if (config["prompts"].is_object()) {
+                                    for (auto& [prompt_type, prompt_path] : config["prompts"].items()) {
+                                        if (prompt_path.is_string() && !std::filesystem::path(prompt_path.get<std::string>()).is_absolute()) {
+                                            config["prompts"][prompt_type] = (configDir / prompt_path.get<std::string>()).string();
+                                        }
+                                    }
+                                }
+                                // 处理单个prompts字符串
+                                else if (config["prompts"].is_string()) {
+                                    std::string promptsPath = config["prompts"].get<std::string>();
+                                    if (!std::filesystem::path(promptsPath).is_absolute()) {
+                                        config["prompts"] = (configDir / promptsPath).string();
+                                    }
                                 }
                             }
                         }
@@ -58,6 +69,26 @@ void ConfigManager::loadConfig(const std::string& configPath) {
         throw std::runtime_error("无法打开配置文件: " + configPath + "\n尝试的路径: " + triedPaths);
     } catch (const std::exception& e) {
         throw std::runtime_error("加载配置文件失败: " + std::string(e.what()));
+    }
+}
+
+// 新增方法：获取特定提供商的特定类型的提示文件路径
+std::string ConfigManager::getProviderPromptPath(const std::string& provider, const std::string& promptType) const {
+    try {
+        const auto& providerConfig = getApiProviderConfig(provider);
+        if (providerConfig.contains("prompts")) {
+            if (providerConfig["prompts"].is_object() && providerConfig["prompts"].contains(promptType)) {
+                return providerConfig["prompts"][promptType].get<std::string>();
+            }
+            // 如果prompts是字符串，则直接返回
+            if (providerConfig["prompts"].is_string()) {
+                return providerConfig["prompts"].get<std::string>();
+            }
+        }
+        throw std::runtime_error("Prompt configuration not found for provider '" + provider + "' and type '" + promptType + "'");
+    } catch (const std::exception& e) {
+        WARNLOG("获取API提供商 {} 的 {} 提示配置失败: {}", provider, promptType, e.what());
+        throw;
     }
 }
 

@@ -15,7 +15,7 @@ namespace IntelliSearch {
         apiKey = config->getApiProviderConfig("deepseek")["api_key"].get<std::string>();
         baseUrl = config->getApiProviderConfig("deepseek")["base_url"].get<std::string>();
         model = config->getApiProviderConfig("deepseek")["model"].get<std::string>();
-        intentPrompts = config->getApiProviderConfig("deepseek")["prompts"].get<std::string>();
+        intentPrompts = config->getProviderPromptPath("deepseek", "intent_parser");
 
     }
 
