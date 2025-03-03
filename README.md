@@ -83,7 +83,7 @@ IntelliSearch/
 * 已支持：Kimi、Qwen
 * 计划支持：ChatGPT、Huanyuan、DeepSeek……
 
-## 搜索
+### Search
 
 * 已支持：Bocha
 * 计划支持：EXA
@@ -139,6 +139,7 @@ IntelliSearch/
 本项目使用 GPL v3 开源协议。由于项目使用了 Qt/QML 框架，根据 Qt 的许可要求，需要遵循 GPL v3 协议。
 
 注意：
+
 1. 如果您计划将本项目用于商业用途，请确保购买 Qt 商业许可证
 2. 如果您基于本项目进行二次开发，需要同样遵循 GPL v3 协议并开源
 3. 关于 Qt 许可证的详细信息，请参考 [Qt Licensing](https://www.qt.io/licensing/)

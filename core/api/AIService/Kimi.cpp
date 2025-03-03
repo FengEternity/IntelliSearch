@@ -89,33 +89,9 @@ nlohmann::json Kimi::executeApiCall(const std::string& query, const std::string&
         std::string authHeader = "Authorization: Bearer " + apiKey;
         struct curl_slist* headers = setupRequestHeaders("Content-Type: application/json", authHeader);
 
-        // 获取配置管理器实例并构建请求体
+        // 构建请求体
         auto* config = ConfigManager::getInstance();
-        nlohmann::json requestBody = {
-            {"model", model},
-            {"messages", nlohmann::json::array()},
-            {"temperature", 0.3},
-            {"max_tokens", 4096},
-            {"response_format", config->getApiProviderConfig("kimi")["response_format"]}
-        };
-
-        // 如果指定了 promptType，则加载对应的 prompt
-        if (!promptType.empty()) {
-            std::string promptsFilePath = config->getProviderPromptPath("kimi", promptType);
-            auto promptsJson = loadPromptsFile(promptsFilePath);
-            
-            requestBody["messages"] = nlohmann::json::array({
-                {{"role", "system"}, {"content", utf8_encode(promptsJson["system"].dump())}},
-                {{"role", "user"}, {"content", "示例输入：" + promptsJson["examples"]["input"].get<std::string>() + 
-                                              "\n示例输出：" + promptsJson["examples"]["output"].dump() + 
-                                              "\n\n实际输入：" + utf8_encode(query)}}
-            });
-        } else {
-            // 普通聊天模式
-            requestBody["messages"] = nlohmann::json::array({
-                {{"role", "user"}, {"content", utf8_encode(query)}}
-            });
-        }
+        nlohmann::json requestBody = buildRequestBody(query, promptType, config);
 
         std::string requestBodyStr = requestBody.dump();
         INFOLOG("Sending API request with content: {}", requestBodyStr);
@@ -135,6 +111,55 @@ nlohmann::json Kimi::executeApiCall(const std::string& query, const std::string&
     } catch (const std::exception& e) {
         throw;
     }
+}
+
+/*
+* Summary: 构建API请求体
+* Parameters:
+*   const std::string& query - 用户查询
+*   const std::string& promptType - 提示类型
+*   ConfigManager* config - 配置管理器实例
+* Returns:
+*   nlohmann::json - 构建好的请求体
+*/
+nlohmann::json Kimi::buildRequestBody(const std::string& query, const std::string& promptType, ConfigManager* config) {
+    nlohmann::json requestBody = {
+        {"model", model},
+        {"messages", nlohmann::json::array()},
+        {"temperature", 0.3},
+        {"max_tokens", 4096},
+        {"response_format", config->getApiProviderConfig("kimi")["response_format"]}
+    };
+
+    // 如果指定了 promptType，则加载对应的 prompt
+    if (!promptType.empty()) {
+        std::string promptsFilePath = config->getProviderPromptPath("kimi", promptType);
+        DEBUGLOG("加载提示文件: {}, 提示类型: {}", promptsFilePath, promptType);
+        auto promptsJson = loadPromptsFile(promptsFilePath);
+
+        if(promptType == "intent_parser") {
+            requestBody["messages"] = nlohmann::json::array({
+                {{"role", "system"}, {"content", utf8_encode(promptsJson["system"].dump())}},
+                {{"role", "user"}, {"content", "示例输入：" + promptsJson["examples"]["input"].get<std::string>() + 
+                                              "\n示例输出：" + promptsJson["examples"]["output"].dump() + 
+                                              "\n\n实际输入：" + utf8_encode(query)}}
+            });
+        } else if(promptType == "search_parser") {
+            requestBody["messages"] = nlohmann::json::array({
+                {{"role", "system"}, {"content", utf8_encode(promptsJson["system"].dump())}},
+                {{"role", "user"}, {"content", "示例输入：" + promptsJson["examples"]["input"].dump() +
+                                              "\n示例输出：" + promptsJson["examples"]["output"].dump() +
+                                              "\n\n实际输入：" + utf8_encode(query)}}
+            });
+        }
+    } else {
+        // 普通聊天模式
+        requestBody["messages"] = nlohmann::json::array({
+            {{"role", "user"}, {"content", utf8_encode(query)}}
+        });
+    }
+    
+    return requestBody;
 }
 
 nlohmann::json Kimi::processApiResponse(const std::string& response) {

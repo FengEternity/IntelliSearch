@@ -215,14 +215,18 @@ curl_slist* AIService::setupRequestHeaders(const std::string& contentType, const
 *   nlohmann::json - 提示文件内容
 */
 nlohmann::json AIService::loadPromptsFile(const std::string& promptsFilePath) {
+    INFOLOG("尝试加载提示文件: {}", promptsFilePath);
     auto searchPaths = buildSearchPaths(promptsFilePath);
     std::string triedPaths;
     std::ifstream promptsFile;
     
     for (const auto& path : searchPaths) {
+        DEBUGLOG("尝试路径: {}", path.string());
         if (std::filesystem::exists(path)) {
+            DEBUGLOG("文件存在: {}", path.string());
             promptsFile.open(path);
             if (promptsFile.is_open()) {
+                INFOLOG("成功打开提示文件: {}", path.string());
                 break;
             }
         }
@@ -230,12 +234,15 @@ nlohmann::json AIService::loadPromptsFile(const std::string& promptsFilePath) {
     }
     
     if (!promptsFile.is_open()) {
+        ERRORLOG("无法打开提示文件: {}, 尝试的路径: {}", promptsFilePath, triedPaths);
         throw std::runtime_error("Failed to open prompts file: " + promptsFilePath + "\n尝试的路径: " + triedPaths);
     }
 
     std::stringstream buffer;
     buffer << promptsFile.rdbuf();
-    return nlohmann::json::parse(buffer.str());
+    auto jsonContent = nlohmann::json::parse(buffer.str());
+    DEBUGLOG("成功解析提示文件JSON");
+    return jsonContent;
 }
 
 /*
@@ -251,16 +258,31 @@ std::vector<std::filesystem::path> AIService::buildSearchPaths(const std::string
     std::filesystem::path currentPath = std::filesystem::current_path();
     std::filesystem::path configDir = std::filesystem::path(config->getConfigPath()).parent_path();
     
+    // 获取文件名部分
+    std::filesystem::path promptsFile(promptsFilePath);
+    std::string filename = promptsFile.filename().string();
+    
+    DEBUGLOG("构建搜索路径，原始路径: {}, 文件名: {}", promptsFilePath, filename);
+    
+    // 添加原始路径和基本路径组合
     searchPaths.push_back(promptsFilePath);
     searchPaths.push_back(currentPath / promptsFilePath);
     searchPaths.push_back(configDir / promptsFilePath);
     
+    // 向上查找目录，使用传入的文件名而不是硬编码的文件名
     std::filesystem::path tempPath = currentPath;
     for (int i = 0; i < 5 && tempPath.has_parent_path(); ++i) {
         searchPaths.push_back(tempPath / promptsFilePath);
-        searchPaths.push_back(tempPath / "config" / "IntentParserPrompt.json");
+        searchPaths.push_back(tempPath / "config" / filename);
         tempPath = tempPath.parent_path();
     }
+    
+    // 记录所有搜索路径
+//    std::string pathsLog = "搜索路径列表:";
+//    for (const auto& path : searchPaths) {
+//        pathsLog += "\n  - " + path.string();
+//    }
+//    DEBUGLOG("{}", pathsLog);
     
     return searchPaths;
 }

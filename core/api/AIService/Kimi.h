@@ -18,6 +18,7 @@ public:
     int getPriority() const override { return 1; }
 
 protected:
+    nlohmann::json buildRequestBody(const std::string& query, const std::string& promptType, ConfigManager* config);
     void handleError(const std::string& error) override;
     bool validateApiKey() const override;
 
