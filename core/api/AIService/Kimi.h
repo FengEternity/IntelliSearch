@@ -31,6 +31,8 @@ private:
     
     // 处理 API 响应
     nlohmann::json processApiResponse(const std::string& response) override;
+    nlohmann::json processApiResponse(const std::string& response, const std::string& promptType);
+    nlohmann::json processSearchParserResponse(const std::string& content);
 
     // API 密钥
     std::string apiKey;

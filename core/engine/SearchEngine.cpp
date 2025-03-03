@@ -63,7 +63,9 @@ nlohmann::json SearchEngine::performSearch(const std::string& intentResult) {
         nlohmann::json analysis = analyzeSearchResults(response, intentResult);
         response["analysis"] = analysis;
 
-        return response;
+        INFOLOG("Search completed successfully, resonse : {}" , response.dump() );
+
+        return response["analysis"]["result"];
         
     } catch (const std::exception& e) {
         ERRORLOG("Search failed: {}", e.what());

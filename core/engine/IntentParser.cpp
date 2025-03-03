@@ -41,7 +41,7 @@ nlohmann::json IntentParser::parseSearchIntent(const std::string& userInput) {
 }
 
 /*
- * Summary: 调用博查API进行搜索
+ * Summary: 调用API进行搜索
  * @param query 搜索查询字符串
  * @return nlohmann::json 搜索结果
  */

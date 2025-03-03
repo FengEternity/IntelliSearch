@@ -95,6 +95,8 @@ file(COPY ${CMAKE_SOURCE_DIR}/../config/config.json
      DESTINATION ${CMAKE_BINARY_DIR}/config)
 file(COPY ${CMAKE_SOURCE_DIR}/../config/IntentParserPrompt.json
      DESTINATION ${CMAKE_BINARY_DIR}/config)
+file(COPY ${CMAKE_SOURCE_DIR}/../config/SearchParserPrompt.json
+     DESTINATION ${CMAKE_BINARY_DIR}/config)
 
 # 显示构建信息
 message(STATUS "Project: ${PROJECT_NAME}")

@@ -221,7 +221,7 @@ nlohmann::json AIService::loadPromptsFile(const std::string& promptsFilePath) {
     std::ifstream promptsFile;
     
     for (const auto& path : searchPaths) {
-        DEBUGLOG("尝试路径: {}", path.string());
+        // DEBUGLOG("尝试路径: {}", path.string());
         if (std::filesystem::exists(path)) {
             DEBUGLOG("文件存在: {}", path.string());
             promptsFile.open(path);

@@ -107,7 +107,7 @@ nlohmann::json Kimi::executeApiCall(const std::string& query, const std::string&
         }
 
         INFOLOG("Received API response: {}", response);
-        return processApiResponse(response);
+        return processApiResponse(response, promptType);  // 添加promptType参数
     } catch (const std::exception& e) {
         throw;
     }
@@ -163,6 +163,11 @@ nlohmann::json Kimi::buildRequestBody(const std::string& query, const std::strin
 }
 
 nlohmann::json Kimi::processApiResponse(const std::string& response) {
+    // 调用双参数版本，默认使用空的promptType
+    return processApiResponse(response, "");
+}
+
+nlohmann::json Kimi::processApiResponse(const std::string& response, const std::string& promptType) {
     try {
         DEBUGLOG("Processing API response: {}", response);
         
@@ -189,14 +194,42 @@ nlohmann::json Kimi::processApiResponse(const std::string& response) {
         }
         
         std::string content = jsonResponse["choices"][0]["message"]["content"].get<std::string>();
-        return nlohmann::json::parse(content);
         
+        // 根据不同的promptType处理返回结果
+        if (promptType == "search_parser") {
+            return processSearchParserResponse(content);
+        } else {
+            // 默认处理方式（适用于intent_parser）
+            return nlohmann::json::parse(content);
+        }
     } catch (const nlohmann::json::exception& e) {
         ERRORLOG("JSON parsing error: {}", e.what());
         throw std::runtime_error(std::string("JSON parsing error: ") + e.what());
     } catch (const std::exception& e) {
         ERRORLOG("Error processing API response: {}", e.what());
         throw;
+    }
+}
+
+nlohmann::json Kimi::processSearchParserResponse(const std::string& content) {
+    try {
+        auto jsonContent = nlohmann::json::parse(content);
+        
+        // 验证搜索解析结果的必要字段
+        if (!jsonContent.contains("relevance") || 
+            !jsonContent.contains("credibility") || 
+            !jsonContent.contains("completeness") || 
+            !jsonContent.contains("parsed_data") ||
+            !jsonContent.contains("result") ||
+            !jsonContent.contains("summary")) {
+            ERRORLOG("Invalid search parser response format");
+            throw std::runtime_error("Invalid search parser response format");
+        }
+        
+        return jsonContent;
+    } catch (const nlohmann::json::exception& e) {
+        ERRORLOG("Search parser response parsing error: {}", e.what());
+        throw std::runtime_error(std::string("Search parser response parsing error: ") + e.what());
     }
 }
 
