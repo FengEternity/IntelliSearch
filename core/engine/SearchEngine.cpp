@@ -95,7 +95,7 @@ nlohmann::json SearchEngine::analyzeSearchResults(const nlohmann::json& searchRe
         }
 
         // 调用AI服务进行分析
-        nlohmann::json analysis = aiService->parseIntent(prompt);
+        nlohmann::json analysis = aiService->searchParser(prompt);
         
         return analysis;
 

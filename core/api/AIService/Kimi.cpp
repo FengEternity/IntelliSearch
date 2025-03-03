@@ -52,7 +52,6 @@ nlohmann::json Kimi::searchParser(const std::string& userInput) {
         throw std::runtime_error("Invalid API key");
     }
     try {
-        // 指定使用 intent_parser prompt
         return callAPI(userInput, "search_parser");
     } catch (const std::exception& e) {
         handleError(e.what());
