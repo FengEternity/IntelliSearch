@@ -9,13 +9,27 @@
 
         <file>components/SideBar.qml</file>
         <file>components/ChatTextField.qml</file>
+        <file>components/ModelListView.qml</file>
+        <file>components/SearchTextField.qml</file>
+        <file>components/HoverBackground.qml</file>
+
 
         <file>resources/icons/logo.svg</file>
+
         <file>resources/icons/actions/send.svg</file>
         <file>resources/icons/actions/toggle-left.svg</file>
         <file>resources/icons/actions/toggle-right.svg</file>
         <file>resources/icons/actions/search.svg</file>
         <file>resources/icons/actions/setting.svg</file>
+        <file>resources/icons/actions/model.svg</file>
 
+        <file>resources/icons/status/about.svg</file>
+
+        <file>resources/icons/navigations/back.svg</file>
+
+        <file>resources/icons/model/kimi.svg</file>
+        <file>resources/icons/model/hunyuan.svg</file>
+        <file>resources/icons/model/deepseek.svg</file>
+        <file>resources/icons/model/qwen.svg</file>
     </qresource>
 </RCC>

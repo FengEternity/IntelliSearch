@@ -8,6 +8,8 @@ ApplicationWindow {
     width: 1080
     height: 720
 
+    color: "#dddddd"
+
     visible: true
     title: "IntelliSearch"
     
@@ -25,10 +27,12 @@ ApplicationWindow {
         // 添加侧边栏
         SideBar {
             id: sideBar
+            expanded: false
             Layout.fillHeight: true
             Layout.preferredWidth: expanded ? expandedWidth : collapsedWidth
             Layout.maximumWidth: expanded ? expandedWidth : collapsedWidth
             Layout.minimumWidth: expanded ? expandedWidth : collapsedWidth
+            stackView: stackView
         }
 
         // 主内容区域
@@ -46,6 +50,12 @@ ApplicationWindow {
         onSwitchToChatPage: function(initialMessage) {
             stackView.push("qrc:/pages/ChatPage.qml", { initialMessage: initialMessage })
         }
+    }
+
+    // 添加设置页面组件
+    SettingPage {
+        id: settingPage
+        visible: false
     }
 }
 

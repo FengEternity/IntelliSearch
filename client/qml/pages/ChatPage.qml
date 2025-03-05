@@ -8,6 +8,9 @@ Rectangle {
     anchors.fill: parent
     anchors.centerIn: parent
     color: "#ffffff"
+    radius: 10
+    border.color: "#dddddd"
+    border.width: 1
     
     // 添加属性接收初始消息
     property string initialMessage: ""
