@@ -28,30 +28,30 @@ find_package(fmt REQUIRED)
 # 定义源文件和资源文件
 set(SOURCES
     src/main.cpp
-    src/SearchBridge.cpp
-    ${CMAKE_SOURCE_DIR}/../core/engine/IntentParser.cpp
-    ${CMAKE_SOURCE_DIR}/../core/engine/SearchEngine.cpp
+    # src/SearchBridge.cpp
+    # ${CMAKE_SOURCE_DIR}/../core/engine/IntentParser.cpp
+    # ${CMAKE_SOURCE_DIR}/../core/engine/SearchEngine.cpp
 
-    ${CMAKE_SOURCE_DIR}/../core/api/AIServiceManager.cpp
-    ${CMAKE_SOURCE_DIR}/../core/api/SearchServiceManager.cpp
+    # ${CMAKE_SOURCE_DIR}/../core/api/AIServiceManager.cpp
+    # ${CMAKE_SOURCE_DIR}/../core/api/SearchServiceManager.cpp
 
-    ${CMAKE_SOURCE_DIR}/../core/api/AIService/AIService.cpp
-    ${CMAKE_SOURCE_DIR}/../core/api/AIService/Kimi.cpp
-    ${CMAKE_SOURCE_DIR}/../core/api/AIService/Qwen.cpp
-    ${CMAKE_SOURCE_DIR}/../core/api/AIService/Hunyuan.cpp
-    ${CMAKE_SOURCE_DIR}/../core/api/AIService/DeepSeek.cpp
+    # ${CMAKE_SOURCE_DIR}/../core/api/AIService/AIService.cpp
+    # ${CMAKE_SOURCE_DIR}/../core/api/AIService/Kimi.cpp
+    # ${CMAKE_SOURCE_DIR}/../core/api/AIService/Qwen.cpp
+    # ${CMAKE_SOURCE_DIR}/../core/api/AIService/Hunyuan.cpp
+    # ${CMAKE_SOURCE_DIR}/../core/api/AIService/DeepSeek.cpp
 
-    ${CMAKE_SOURCE_DIR}/../core/api/SearchService/SearchService.cpp
-    ${CMAKE_SOURCE_DIR}/../core/api/SearchService/Bocha.cpp
-    ${CMAKE_SOURCE_DIR}/../core/api/SearchService/Exa.cpp
+    # ${CMAKE_SOURCE_DIR}/../core/api/SearchService/SearchService.cpp
+    # ${CMAKE_SOURCE_DIR}/../core/api/SearchService/Bocha.cpp
+    # ${CMAKE_SOURCE_DIR}/../core/api/SearchService/Exa.cpp
 
-    ${CMAKE_SOURCE_DIR}/../log/Logger.cpp
-    ${CMAKE_SOURCE_DIR}/../config/ConfigManager.cpp
-    ${CMAKE_SOURCE_DIR}/../data/database/DatabaseManager.cpp
+    # ${CMAKE_SOURCE_DIR}/../log/Logger.cpp
+    # ${CMAKE_SOURCE_DIR}/../config/ConfigManager.cpp
+    # ${CMAKE_SOURCE_DIR}/../data/database/DatabaseManager.cpp
 )
 
 set(RESOURCE_FILES
-    src/resources/resources.qrc
+    qml/resources.qrc
 )
 
 # 添加可执行目标
@@ -64,12 +64,12 @@ add_executable(IntelliSearch
 target_include_directories(IntelliSearch 
     PRIVATE 
     ${CMAKE_SOURCE_DIR}/src 
-    ${CMAKE_SOURCE_DIR}/..
-    ${CMAKE_SOURCE_DIR}/../log
-    ${CMAKE_SOURCE_DIR}/../core/engine
-    ${CMAKE_SOURCE_DIR}/../core/api
-    ${CMAKE_SOURCE_DIR}/../config
-    ${CMAKE_SOURCE_DIR}/../data/database
+    # ${CMAKE_SOURCE_DIR}/..
+    # ${CMAKE_SOURCE_DIR}/../log
+    # ${CMAKE_SOURCE_DIR}/../core/engine
+    # ${CMAKE_SOURCE_DIR}/../core/api
+    # ${CMAKE_SOURCE_DIR}/../config
+    # ${CMAKE_SOURCE_DIR}/../data/database
     ${CURL_INCLUDE_DIRS}
 )
 
@@ -91,12 +91,12 @@ target_link_libraries(IntelliSearch
 )
 
 # 复制配置文件到构建目录
-file(COPY ${CMAKE_SOURCE_DIR}/../config/config.json
-     DESTINATION ${CMAKE_BINARY_DIR}/config)
-file(COPY ${CMAKE_SOURCE_DIR}/../config/IntentParserPrompt.json
-     DESTINATION ${CMAKE_BINARY_DIR}/config)
-file(COPY ${CMAKE_SOURCE_DIR}/../config/SearchParserPrompt.json
-     DESTINATION ${CMAKE_BINARY_DIR}/config)
+# file(COPY ${CMAKE_SOURCE_DIR}/../config/config.json
+#      DESTINATION ${CMAKE_BINARY_DIR}/config)
+# file(COPY ${CMAKE_SOURCE_DIR}/../config/IntentParserPrompt.json
+#      DESTINATION ${CMAKE_BINARY_DIR}/config)
+# file(COPY ${CMAKE_SOURCE_DIR}/../config/SearchParserPrompt.json
+#      DESTINATION ${CMAKE_BINARY_DIR}/config)
 
 # 显示构建信息
 message(STATUS "Project: ${PROJECT_NAME}")
