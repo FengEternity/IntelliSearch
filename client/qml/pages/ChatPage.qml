@@ -57,7 +57,7 @@ Rectangle {
                 // 底部输入框
                 ChatTextField {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 50
+                    Layout.preferredHeight: 60
                     Layout.leftMargin: 16
                     Layout.rightMargin: 16
                     // Layout.bottomMargin: 16
