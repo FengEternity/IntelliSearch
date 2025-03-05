@@ -10,6 +10,7 @@
         <file>components/SideBar.qml</file>
         <file>components/ChatTextField.qml</file>
         <file>components/ModelListView.qml</file>
+        <file>components/SearchListView.qml</file>
         <file>components/SearchTextField.qml</file>
         <file>components/HoverBackground.qml</file>
 
@@ -31,5 +32,8 @@
         <file>resources/icons/model/hunyuan.svg</file>
         <file>resources/icons/model/deepseek.svg</file>
         <file>resources/icons/model/qwen.svg</file>
+        <file>resources/icons/model/bocha.ico</file>
+        <file>resources/icons/model/exa.png</file>
+
     </qresource>
 </RCC>

@@ -73,6 +73,14 @@ Rectangle {
                     }
                 }
 
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 1
+                    Layout.leftMargin: 16
+                    Layout.rightMargin: 16
+                    color: "#eeeeee"
+                }
+
                 // 左侧导航栏的内容
                 ListView {
                     Layout.fillWidth: true
@@ -127,7 +135,7 @@ Rectangle {
 
                         onClicked: {
                             // 更新右侧内容区域
-                            rightContent.currentIndex = model.index
+                            rightContent.currentIndex = model.index;
                         }
                     }
                 }
@@ -135,8 +143,9 @@ Rectangle {
         }
 
         Rectangle {
-            Layout.fillHeight: true
-            Layout.preferredWidth: 2
+            Layout.fillHeight: true  // 改为填充高度
+            Layout.preferredWidth: 2  // 设置固定宽度
+            color: "#eeeeee"
             opacity: 0.5
         }
 
@@ -149,17 +158,37 @@ Rectangle {
             StackLayout {
                 id: rightContent
                 anchors.fill: parent
+                anchors.margins: 24  // 添加边距
 
-                ModelListView {}  // 模型设置页面
-
-                Rectangle {  // 搜索设置页面
-                    color: "#ffffff"
+                ModelListView {
+                    Layout.alignment: Qt.AlignTop  // 内容靠上对齐
+                    Layout.fillWidth: true         // 宽度填充
+                    Layout.preferredHeight: contentHeight  // 高度自适应内容
                 }
 
-                Rectangle {  // 关于页面
+                SearchListView {
+                    Layout.alignment: Qt.AlignTop
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: contentHeight
+                }
+
+                Rectangle {
+                    // 关于页面
                     color: "#ffffff"
                 }
             }
+        }
+
+        Rectangle {
+            Layout.fillHeight: true  // 改为填充高度
+            Layout.preferredWidth: 2  // 设置固定宽度
+            color: "#eeeeee"
+            opacity: 0.5
+        }
+
+        Rectangle {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
         }
     }
 }

@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import "."
 
 ListView {
     id: modelListView
@@ -52,6 +53,10 @@ ListView {
             Item {
                 Layout.fillWidth: true
             }
+        }
+
+        background: HoverBackground {
+            isHovered: parent.hovered
         }
     }
 }
