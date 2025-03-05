@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+
+        <file>pages/ChatPage.qml</file>
+        <file>pages/StartPage.qml</file>
+        <file>pages/SettingPage.qml</file>
+
+
+        <file>components/SideBar.qml</file>
+        <file>components/ChatTextField.qml</file>
+
+        <file>resources/icons/logo.svg</file>
+        <file>resources/icons/actions/send.svg</file>
+        <file>resources/icons/actions/toggle-left.svg</file>
+        <file>resources/icons/actions/toggle-right.svg</file>
+        <file>resources/icons/actions/search.svg</file>
+        <file>resources/icons/actions/setting.svg</file>
+
+    </qresource>
+</RCC>
