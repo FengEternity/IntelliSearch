@@ -58,6 +58,7 @@ Rectangle {
                     flat: true
                     onClicked: sideBar.expanded = !sideBar.expanded
                     icon.source: sideBar.expanded ? "qrc:/resources/icons/actions/toggle-left.svg" : "qrc:/resources/icons/actions/toggle-right.svg"
+                    icon.color: "#707070"
 
                     background: null
                     icon.width: 20
@@ -154,6 +155,50 @@ Rectangle {
             Layout.fillHeight: true
         }
 
+        Button {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 40
+            Layout.margins: 8
+            flat: true
+
+            icon.source: applicationWindow.isDarkTheme ? "qrc:/resources/icons/status/dark.svg" : "qrc:/resources/icons/status/light.svg"
+            icon.color: "#333333"
+            text: sideBar.expanded? qsTr("主题") : ""
+
+            icon.width: 20
+            icon.height: 20
+            display: sideBar.expanded ? AbstractButton.TextBesideIcon : AbstractButton.IconOnly
+
+            contentItem: Row {
+                spacing: 10
+                anchors.left: parent.left
+                anchors.leftMargin: 12
+                anchors.verticalCenter: parent.verticalCenter
+
+                Image {
+                    source: applicationWindow.isDarkTheme ? "qrc:/resources/icons/status/dark.svg" : "qrc:/resources/icons/status/light.svg"
+                    width: 20
+                    height: 20
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                Text {
+                    text: qsTr("主题")
+                    visible: sideBar.expanded
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: "#333333"
+                }
+            }
+
+            background: HoverBackground {
+                isHovered: parent.hovered
+            }
+            
+            onClicked: {
+                applicationWindow.isDarkTheme = !applicationWindow.isDarkTheme;
+            }
+        }
+
         // 设置按钮
         Button {
             Layout.fillWidth: true
@@ -164,6 +209,7 @@ Rectangle {
             // background: null
 
             icon.source: "qrc:/resources/icons/actions/setting.svg"
+            icon.color: "#333333"
             text: sideBar.expanded ? qsTr("设置") : ""
 
             icon.width: 20
@@ -181,6 +227,7 @@ Rectangle {
                     width: 20
                     height: 20
                     anchors.verticalCenter: parent.verticalCenter
+                    // color: "#333333"
                 }
 
                 Text {

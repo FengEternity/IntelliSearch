@@ -7,8 +7,13 @@ Rectangle {
     id: root
     anchors.fill: parent
     anchors.centerIn: parent
-    color: "#ffffff"
+    color: applicationWindow.isDarkTheme ? "#1E1E1E" : "#ffffff"
     radius: 10
+    
+    // 添加颜色过渡动画
+    Behavior on color {
+        ColorAnimation { duration: 200 }
+    }
 
     property StackView stackView
 
@@ -19,14 +24,25 @@ Rectangle {
         Rectangle {
             Layout.fillHeight: true
             Layout.preferredWidth: 2
+            color: applicationWindow.isDarkTheme ? "#444444" : "#eeeeee"
             opacity: 0.5
+            
+            // 添加颜色过渡动画
+            Behavior on color {
+                ColorAnimation { duration: 200 }
+            }
         }
 
         // 左侧导航栏
         Rectangle {
             Layout.preferredWidth: 200
             Layout.fillHeight: true
-            color: "#ffffff"
+            color: applicationWindow.isDarkTheme ? "#1E1E1E" : "#ffffff"
+            
+            // 添加颜色过渡动画
+            Behavior on color {
+                ColorAnimation { duration: 200 }
+            }
 
             ColumnLayout {
                 anchors.fill: parent
@@ -57,12 +73,18 @@ Rectangle {
                                 Layout.preferredWidth: 20
                                 Layout.preferredHeight: 20
                                 fillMode: Image.PreserveAspectFit
+                                // 添加颜色滤镜使图标在暗黑模式下更明显
+                                opacity: applicationWindow.isDarkTheme ? 0.9 : 0.7
 
                                 HoverBackground {
                                     anchors.centerIn: parent
-                                    implicitWidth: parent.width + 16  // 使用 implicitWidth 替代 width
-                                    implicitHeight: parent.height + 16 // 使用 implicitHeight 替代 height
+                                    implicitWidth: parent.width + 16
+                                    implicitHeight: parent.height + 16
                                     isHovered: parent.parent.parent.hovered
+                                    // 降低背景不透明度，避免完全覆盖图标
+                                    opacity: 0.7
+                                    // 确保背景在图标下方
+                                    z: -1
                                 }
                             }
                         }
@@ -78,7 +100,12 @@ Rectangle {
                     Layout.preferredHeight: 1
                     Layout.leftMargin: 16
                     Layout.rightMargin: 16
-                    color: "#eeeeee"
+                    color: applicationWindow.isDarkTheme ? "#444444" : "#eeeeee"
+                    
+                    // 添加颜色过渡动画
+                    Behavior on color {
+                        ColorAnimation { duration: 200 }
+                    }
                 }
 
                 // 左侧导航栏的内容
@@ -90,15 +117,18 @@ Rectangle {
                         ListElement {
                             name: "模型"
                             icon: "qrc:/resources/icons/actions/model.svg"
+                            iconColor: "#707070"  // 修改为普通属性而非嵌套属性
                         }
                         ListElement {
                             name: "搜索"
                             icon: "qrc:/resources/icons/actions/search.svg"
+                            iconColor: "#707070"  // 添加相同的属性保持一致性
                         }
                         // ListElement { name: "主题设置"; icon: "qrc:/resources/icons/settings/theme.svg" }
                         ListElement {
                             name: "关于"
                             icon: "qrc:/resources/icons/status/about.svg"
+                            iconColor: "#707070"  // 添加相同的属性保持一致性
                         }
                     }
 
@@ -116,14 +146,20 @@ Rectangle {
                                 Layout.preferredWidth: 24
                                 Layout.preferredHeight: 24
                                 fillMode: Image.PreserveAspectFit
+                                // 使用iconColor属性
+                                opacity: applicationWindow.isDarkTheme ? 0.9 : 0.7
                             }
 
                             Label {
                                 text: model.name
                                 font.pixelSize: 14
-                                color: "#333333"
-                            }
+                                color: applicationWindow.isDarkTheme ? "#FFFFFF" : "#333333"
 
+                                // 添加颜色过渡动画
+                                Behavior on color {
+                                    ColorAnimation { duration: 200 }
+                                }
+                            }
                             Item {
                                 Layout.fillWidth: true
                             }
@@ -145,15 +181,25 @@ Rectangle {
         Rectangle {
             Layout.fillHeight: true  // 改为填充高度
             Layout.preferredWidth: 2  // 设置固定宽度
-            color: "#eeeeee"
+            color: applicationWindow.isDarkTheme ? "#444444" : "#eeeeee"
             opacity: 0.5
+            
+            // 添加颜色过渡动画
+            Behavior on color {
+                ColorAnimation { duration: 200 }
+            }
         }
 
         // 右侧内容区域
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            color: "#ffffff"
+            color: applicationWindow.isDarkTheme ? "#1E1E1E" : "#ffffff"
+            
+            // 添加颜色过渡动画
+            Behavior on color {
+                ColorAnimation { duration: 200 }
+            }
 
             StackLayout {
                 id: rightContent
@@ -174,7 +220,12 @@ Rectangle {
 
                 Rectangle {
                     // 关于页面
-                    color: "#ffffff"
+                    color: applicationWindow.isDarkTheme ? "#1E1E1E" : "#ffffff"
+                    
+                    // 添加颜色过渡动画
+                    Behavior on color {
+                        ColorAnimation { duration: 200 }
+                    }
                 }
             }
         }
@@ -182,13 +233,24 @@ Rectangle {
         Rectangle {
             Layout.fillHeight: true  // 改为填充高度
             Layout.preferredWidth: 2  // 设置固定宽度
-            color: "#eeeeee"
+            color: applicationWindow.isDarkTheme ? "#444444" : "#eeeeee"
             opacity: 0.5
+            
+            // 添加颜色过渡动画
+            Behavior on color {
+                ColorAnimation { duration: 200 }
+            }
         }
 
         Rectangle {
             Layout.fillHeight: true
             Layout.fillWidth: true
+            color: applicationWindow.isDarkTheme ? "#1E1E1E" : "#ffffff"
+            
+            // 添加颜色过渡动画
+            Behavior on color {
+                ColorAnimation { duration: 200 }
+            }
         }
     }
 }

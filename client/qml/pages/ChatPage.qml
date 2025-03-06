@@ -7,10 +7,19 @@ Rectangle {
     id: root
     anchors.fill: parent
     anchors.centerIn: parent
-    color: "#ffffff"
+    color: applicationWindow.isDarkTheme ? "#1E1E1E" : "#ffffff"
     radius: 10
-    border.color: "#dddddd"
+    border.color: applicationWindow.isDarkTheme ? "#333333" : "#dddddd"
     border.width: 1
+    
+    // 添加颜色过渡动画
+    Behavior on color {
+        ColorAnimation { duration: 200 }
+    }
+    
+    Behavior on border.color {
+        ColorAnimation { duration: 200 }
+    }
     
     // 添加属性接收初始消息
     property string initialMessage: ""
@@ -33,7 +42,12 @@ Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.margins: 0
-            color: "#F9F9F9"
+            color: applicationWindow.isDarkTheme ? "#121212" : "#F9F9F9"
+            
+            // 添加颜色过渡动画
+            Behavior on color {
+                ColorAnimation { duration: 200 }
+            }
             
             ColumnLayout {
                 anchors.fill: parent

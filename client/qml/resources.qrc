@@ -25,6 +25,9 @@
         <file>resources/icons/actions/model.svg</file>
 
         <file>resources/icons/status/about.svg</file>
+        <file>resources/icons/status/light.svg</file>
+        <file>resources/icons/status/dark.svg</file>
+
 
         <file>resources/icons/navigations/back.svg</file>
 

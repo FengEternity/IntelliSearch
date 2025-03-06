@@ -11,18 +11,40 @@ Rectangle {
     property alias placeholder: placeholderText.text
     signal textSubmitted(string text)
 
-    color: "#ffffff"
-    border.color: textArea.focus ? "#007AFF" : "#E5E5EA"
+    color: applicationWindow.isDarkTheme ? "#2A2A2A" : "#ffffff"
+    border.color: textArea.focus ? 
+                 (applicationWindow.isDarkTheme ? "#64B5F6" : "#007AFF") : 
+                 (applicationWindow.isDarkTheme ? "#444444" : "#E5E5EA")
     border.width: 1
     radius: 8
+    
+    // 添加颜色过渡动画
+    Behavior on color {
+        ColorAnimation { duration: 200 }
+    }
+    
+    Behavior on border.color {
+        ColorAnimation { duration: 200 }
+    }
 
     Rectangle {
         // 移除重复的属性声明
         anchors.fill: parent
-        color: "#ffffff"
-        border.color: textArea.focus ? "#007AFF" : "#E5E5EA"
+        color: applicationWindow.isDarkTheme ? "#2A2A2A" : "#ffffff"
+        border.color: textArea.focus ? 
+                     (applicationWindow.isDarkTheme ? "#64B5F6" : "#007AFF") : 
+                     (applicationWindow.isDarkTheme ? "#444444" : "#E5E5EA")
         border.width: 1
         radius: 8
+        
+        // 添加颜色过渡动画
+        Behavior on color {
+            ColorAnimation { duration: 200 }
+        }
+        
+        Behavior on border.color {
+            ColorAnimation { duration: 200 }
+        }
 
         Button {
             id: sendButton
@@ -63,14 +85,18 @@ Rectangle {
                 margins: 8
             }
             font.pixelSize: 14
-            color: "#000000"
+            color: applicationWindow.isDarkTheme ? "#FFFFFF" : "#000000"
             wrapMode: TextArea.Wrap
             background: null
             verticalAlignment: TextArea.VerticalAlignTop
             padding: 4
-            // 移除之前的 padding 设置，使用更小的值
             topPadding: 4
             bottomPadding: 4
+            
+            // 添加颜色过渡动画
+            Behavior on color {
+                ColorAnimation { duration: 200 }
+            }
 
             Text {
                 id: placeholderText
@@ -83,9 +109,14 @@ Rectangle {
                 }
                 verticalAlignment: TextArea.VerticalAlignTop
                 text: "你想了解些什么..."
-                color: "#C7C7CC"
+                color: applicationWindow.isDarkTheme ? "#777777" : "#C7C7CC"
                 visible: !textArea.text && !textArea.activeFocus
                 font.pixelSize: 14
+                
+                // 添加颜色过渡动画
+                Behavior on color {
+                    ColorAnimation { duration: 200 }
+                }
             }
 
             Keys.onReturnPressed: function (event) {

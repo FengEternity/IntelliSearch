@@ -6,6 +6,12 @@ Rectangle {
     id: root
     anchors.fill: parent
     anchors.centerIn: parent
+    color: applicationWindow.isDarkTheme ? "#121212" : "#ffffff"
+    
+    // 添加颜色过渡动画
+    Behavior on color {
+        ColorAnimation { duration: 200 }
+    }
 
     signal switchToChatPage(string initialMessage)
 
@@ -13,7 +19,6 @@ Rectangle {
     RowLayout {
         anchors.fill: parent
         spacing: 0
-
 
         // 主要内容区域
         ColumnLayout {
@@ -52,6 +57,12 @@ Rectangle {
                     font.pixelSize: 40
                     font.bold: true
                     Layout.alignment: Qt.AlignHCenter
+                    color: applicationWindow.isDarkTheme ? "#FFFFFF" : "#000000"
+                    
+                    // 添加颜色过渡动画
+                    Behavior on color {
+                        ColorAnimation { duration: 200 }
+                    }
                 }
 
                 Text {
@@ -60,6 +71,12 @@ Rectangle {
                     font.pixelSize: 16
                     Layout.alignment: Qt.AlignHCenter
                     opacity: 0.65
+                    color: applicationWindow.isDarkTheme ? "#FFFFFF" : "#000000"
+                    
+                    // 添加颜色过渡动画
+                    Behavior on color {
+                        ColorAnimation { duration: 200 }
+                    }
                 }
             }
 
