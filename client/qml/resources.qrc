@@ -13,7 +13,8 @@
         <file>components/SearchListView.qml</file>
         <file>components/SearchTextField.qml</file>
         <file>components/HoverBackground.qml</file>
-
+        <file>components/SendChatBox.qml</file>
+        <file>components/ReplyChatBox.qml</file>
 
         <file>resources/icons/logo.svg</file>
 

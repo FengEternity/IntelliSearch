@@ -95,6 +95,7 @@ ApplicationWindow {
 
     // 添加属性标记用户是否手动设置了主题
     property bool userSetTheme: false
+    property bool isSettingPage: false
 
     // 提供手动切换主题的方法
     function toggleTheme() {

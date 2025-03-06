@@ -47,13 +47,12 @@ int main(int argc, char *argv[]) {
         &engine,
         &QQmlApplicationEngine::objectCreationFailed,
         &app,
-        []() { 
+        []() {
             // ERRORLOG("QML object creation failed");
             QCoreApplication::exit(-1); 
         },
         Qt::QueuedConnection
     );
-    
     // DEBUGLOG("Starting to load QML file: {}", url.toString().toStdString());
     engine.load(url);
 
