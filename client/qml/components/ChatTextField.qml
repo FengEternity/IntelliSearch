@@ -66,20 +66,22 @@ Rectangle {
             color: "#000000"
             wrapMode: TextArea.Wrap
             background: null
-            verticalAlignment: TextArea.AlignVCenter
-            padding: 0
+            verticalAlignment: TextArea.VerticalAlignTop
+            padding: 4
             // 移除之前的 padding 设置，使用更小的值
-            topPadding: 0
-            bottomPadding: 0
-        
+            topPadding: 4
+            bottomPadding: 4
 
             Text {
                 id: placeholderText
                 anchors {
                     left: parent.left
-                    right: parent.right
-                    verticalCenter: parent.verticalCenter
+                    right: sendButton.left
+                    top: parent.top
+                    bottom: parent.bottom
+                    margins: 8
                 }
+                verticalAlignment: TextArea.VerticalAlignTop
                 text: "你想了解些什么..."
                 color: "#C7C7CC"
                 visible: !textArea.text && !textArea.activeFocus
@@ -113,13 +115,16 @@ Rectangle {
 
         Row {
             spacing: 8
-            anchors.left: parent.left
+            anchors {
+                left: parent.left
+                verticalCenter: parent.verticalCenter  // 通过 anchors 设置垂直居中
+            }
 
             // 附件按钮
             ToolButton {
                 id: attachmentButton
-                width: 24
-                height: 24
+                width: 30
+                height: 30
                 icon.source: "qrc:/resources/icons/actions/model.svg"
                 icon.color: "#666666"
                 opacity: 0.8
