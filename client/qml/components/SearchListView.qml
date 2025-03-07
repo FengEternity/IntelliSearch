@@ -6,8 +6,8 @@ import "."
 ListView {
     id: searchListView
 
-    anchors.fill: parent
-
+    // 移除 anchors.fill: parent，让父布局管理尺寸
+    
     model: ListModel {
         ListElement {
             name: "博查"

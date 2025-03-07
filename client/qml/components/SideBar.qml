@@ -244,6 +244,11 @@ Rectangle {
 
             onClicked: {
                 console.log("打开设置");
+                // 检查当前是否已经在设置页面，如果是则不再重复打开
+                if (stackView.depth > 0 && stackView.currentItem.objectName === "settingPage") {
+                    console.log("已经在设置页面，不再重复打开");
+                    return;
+                }
                 stackView.push("qrc:/pages/SettingPage.qml", {
                     stackView: stackView
                 });

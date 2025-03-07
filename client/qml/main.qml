@@ -83,15 +83,16 @@ ApplicationWindow {
     }
 
     // 添加系统主题变化监听
-    Connections {
-        target: Platform.ColorScheme
-        function onDarkChanged() {
-            // 如果用户没有手动设置主题，则跟随系统
-            if (!userSetTheme) {
-                isDarkTheme = Platform.ColorScheme.dark
-            }
-        }
-    }
+    // 移除有问题的Connections，因为Platform.ColorScheme可能没有onDarkChanged信号
+    // Connections {
+    //     target: Platform.ColorScheme
+    //     function onDarkChanged() {
+    //         // 如果用户没有手动设置主题，则跟随系统
+    //         if (!userSetTheme) {
+    //             isDarkTheme = Platform.ColorScheme.dark
+    //         }
+    //     }
+    // }
 
     // 添加属性标记用户是否手动设置了主题
     property bool userSetTheme: false

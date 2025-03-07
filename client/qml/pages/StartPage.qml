@@ -4,8 +4,9 @@ import "../components"
 
 Rectangle {
     id: root
-    anchors.fill: parent
-    anchors.centerIn: parent
+    // 移除冲突的anchors属性，使用width和height替代
+    width: parent.width
+    height: parent.height
     color: applicationWindow.isDarkTheme ? "#121212" : "#ffffff"
     
     // 添加颜色过渡动画
@@ -24,9 +25,11 @@ Rectangle {
         ColumnLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            anchors.fill: parent
-            anchors.centerIn: parent
-            anchors.margins: 20
+            // 移除冲突的anchors属性
+            // anchors.fill: parent
+            // anchors.centerIn: parent
+            // anchors.margins: 20
+            Layout.margins: 20
             spacing: 40
             
             // 顶部留白

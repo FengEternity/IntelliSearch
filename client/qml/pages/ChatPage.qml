@@ -5,8 +5,9 @@ import "../components"
 
 Rectangle {
     id: root
-    anchors.fill: parent
-    anchors.centerIn: parent
+    // 移除冲突的anchors属性，使用width和height替代
+    width: parent.width
+    height: parent.height
     color: applicationWindow.isDarkTheme ? "#1E1E1E" : "#ffffff"
     radius: 10
     border.color: applicationWindow.isDarkTheme ? "#333333" : "#dddddd"

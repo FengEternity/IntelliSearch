@@ -88,7 +88,7 @@ Rectangle {
             color: applicationWindow.isDarkTheme ? "#FFFFFF" : "#000000"
             wrapMode: TextArea.Wrap
             background: null
-            verticalAlignment: TextArea.VerticalAlignTop
+            verticalAlignment: TextEdit.AlignTop
             padding: 4
             topPadding: 4
             bottomPadding: 4
@@ -102,12 +102,12 @@ Rectangle {
                 id: placeholderText
                 anchors {
                     left: parent.left
-                    right: sendButton.left
+                    right: parent.right
                     top: parent.top
                     bottom: parent.bottom
-                    margins: 8
+                    margins: 0
                 }
-                verticalAlignment: TextArea.VerticalAlignTop
+                verticalAlignment: Text.AlignTop
                 text: "你想了解些什么..."
                 color: applicationWindow.isDarkTheme ? "#777777" : "#C7C7CC"
                 visible: !textArea.text && !textArea.activeFocus

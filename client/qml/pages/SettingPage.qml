@@ -5,8 +5,12 @@ import "../components"
 
 Rectangle {
     id: root
-    anchors.fill: parent
-    anchors.centerIn: parent
+    // 添加objectName属性，用于在SideBar中识别当前页面
+    objectName: "settingPage"
+    // 移除anchors.fill: parent，避免与StackView冲突
+    // anchors.fill: parent
+    Layout.fillWidth: true
+    Layout.fillHeight: true
     color: applicationWindow.isDarkTheme ? "#1E1E1E" : "#ffffff"
     radius: 10
     
@@ -18,6 +22,7 @@ Rectangle {
     property StackView stackView
 
     RowLayout {
+        // 保留anchors.fill: parent，因为这是顶层布局
         anchors.fill: parent
         spacing: 0
 
@@ -49,10 +54,13 @@ Rectangle {
                 spacing: 0
 
                 RowLayout {
-                    anchors.fill: parent
+                    // 移除冲突的anchors属性
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 48
                     spacing: 0
 
                     SearchTextField {
+                        Layout.fillWidth: true
                         onSearch: function (searchText) {
                             console.log("搜索:", searchText);
                             // 这里可以添加搜索处理逻辑
@@ -60,7 +68,7 @@ Rectangle {
                     }
 
                     Button {
-                        Layout.fillWidth: true
+                        Layout.preferredWidth: 48
                         Layout.preferredHeight: 48
                         flat: true
 
@@ -203,8 +211,11 @@ Rectangle {
 
             StackLayout {
                 id: rightContent
-                anchors.fill: parent
-                anchors.margins: 24  // 添加边距
+                // 移除冲突的anchors属性
+                width: parent.width
+                height: parent.height
+                // 使用Layout属性设置边距
+                Layout.margins: 24  // 添加边距
 
                 ModelListView {
                     Layout.alignment: Qt.AlignTop  // 内容靠上对齐
