@@ -14,6 +14,7 @@
         <file>components/HoverBackground.qml</file>
         <file>components/SendChatBox.qml</file>
         <file>components/ReplyChatBox.qml</file>
+        <file>components/BorderButton.qml</file>
 
         <file>resources/icons/logo.svg</file>
 

@@ -267,21 +267,25 @@ SplitView {
                         rightPadding: 8
                     }
 
-                    Button {
-                        text: "获取"
-                        onClicked: {
-                            console.log("获取API密钥");
-                            // 这里可以添加获取API密钥的逻辑
-                        }
-                    }
+                    // BorderButton {
+                    //     text: "获取"
+                    //     onClicked: {
+                    //         console.log("获取API密钥");
+                    //         // 这里可以添加获取API密钥的逻辑
+                    //     }
+                    //     borderColor: applicationWindow.isDarkTheme ? "#444444" : "#DDDDDD"
+                    //     textColor: "#FFFFFF"
+                    //     hoverTextColor: "#FFFFFF"
+                    //     borderRadius: 4
+                    // }
 
-                    Button {
-                        text: "检查"
-                        onClicked: {
-                            console.log("检查API密钥");
-                            // 这里可以添加检查API密钥的逻辑
-                        }
-                    }
+                    // Button {
+                    //     text: "检查"
+                    //     onClicked: {
+                    //         console.log("检查API密钥");
+                    //         // 这里可以添加检查API密钥的逻辑
+                    //     }
+                    // }
                 }
 
                 // Label {
@@ -344,7 +348,7 @@ SplitView {
                         padding: 1
 
                         // 添加阴影效果
-                        // background: HoverBackground {
+                        // ground: HoverBackground {
                         //     isHovered: parent.hovered
                         // }
 
