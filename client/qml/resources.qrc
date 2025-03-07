@@ -6,7 +6,6 @@
         <file>pages/StartPage.qml</file>
         <file>pages/SettingPage.qml</file>
 
-
         <file>components/SideBar.qml</file>
         <file>components/ChatTextField.qml</file>
         <file>components/ModelListView.qml</file>
@@ -29,8 +28,8 @@
         <file>resources/icons/status/light.svg</file>
         <file>resources/icons/status/dark.svg</file>
 
-
         <file>resources/icons/navigations/back.svg</file>
+        <file>resources/icons/navigations/refresh.svg</file>
 
         <file>resources/icons/model/kimi.svg</file>
         <file>resources/icons/model/hunyuan.svg</file>

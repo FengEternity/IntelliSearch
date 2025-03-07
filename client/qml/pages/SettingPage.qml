@@ -21,10 +21,36 @@ Rectangle {
 
     property StackView stackView
 
-    RowLayout {
+    // 使用SplitView替换RowLayout，以支持可拖动分割线
+    SplitView {
         // 保留anchors.fill: parent，因为这是顶层布局
         anchors.fill: parent
-        spacing: 0
+        orientation: Qt.Horizontal
+        // 设置分割线的样式
+        handle: Rectangle {
+            implicitWidth: 4
+            implicitHeight: 4
+            color: applicationWindow.isDarkTheme ? "#444444" : "#eeeeee"
+            opacity: 0.5
+            
+            // 添加颜色过渡动画
+            Behavior on color {
+                ColorAnimation { duration: 200 }
+            }
+            
+            // 添加鼠标悬停效果
+            Rectangle {
+                anchors.centerIn: parent
+                width: 2
+                height: 30
+                radius: 1
+                color: SplitHandle.hovered ? (applicationWindow.isDarkTheme ? "#888888" : "#999999") : "transparent"
+                
+                Behavior on color {
+                    ColorAnimation { duration: 100 }
+                }
+            }
+        }
 
         Rectangle {
             Layout.fillHeight: true
@@ -40,8 +66,9 @@ Rectangle {
 
         // 左侧导航栏
         Rectangle {
-            Layout.preferredWidth: 200
-            Layout.fillHeight: true
+            SplitView.preferredWidth: 200
+            SplitView.minimumWidth: 150
+            SplitView.fillHeight: true
             color: applicationWindow.isDarkTheme ? "#1E1E1E" : "#ffffff"
             
             // 添加颜色过渡动画
@@ -186,22 +213,11 @@ Rectangle {
             }
         }
 
-        Rectangle {
-            Layout.fillHeight: true  // 改为填充高度
-            Layout.preferredWidth: 2  // 设置固定宽度
-            color: applicationWindow.isDarkTheme ? "#444444" : "#eeeeee"
-            opacity: 0.5
-            
-            // 添加颜色过渡动画
-            Behavior on color {
-                ColorAnimation { duration: 200 }
-            }
-        }
-
         // 右侧内容区域
         Rectangle {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+            SplitView.fillWidth: true
+            SplitView.fillHeight: true
+            SplitView.minimumWidth: 300
             color: applicationWindow.isDarkTheme ? "#1E1E1E" : "#ffffff"
             
             // 添加颜色过渡动画
@@ -241,26 +257,48 @@ Rectangle {
             }
         }
 
-        Rectangle {
-            Layout.fillHeight: true  // 改为填充高度
-            Layout.preferredWidth: 2  // 设置固定宽度
-            color: applicationWindow.isDarkTheme ? "#444444" : "#eeeeee"
-            opacity: 0.5
+        // 使用第二个SplitView来处理第二个可拖动分割线
+        SplitView {
+            SplitView.fillWidth: true
+            SplitView.fillHeight: true
+            orientation: Qt.Horizontal
             
-            // 添加颜色过渡动画
-            Behavior on color {
-                ColorAnimation { duration: 200 }
+            // 设置分割线的样式
+            handle: Rectangle {
+                implicitWidth: 4
+                implicitHeight: 4
+                color: applicationWindow.isDarkTheme ? "#444444" : "#eeeeee"
+                opacity: 0.5
+                
+                // 添加颜色过渡动画
+                Behavior on color {
+                    ColorAnimation { duration: 200 }
+                }
+                
+                // 添加鼠标悬停效果
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: 2
+                    height: 30
+                    radius: 1
+                    color: SplitHandle.hovered ? (applicationWindow.isDarkTheme ? "#888888" : "#999999") : "transparent"
+                    
+                    Behavior on color {
+                        ColorAnimation { duration: 100 }
+                    }
+                }
             }
-        }
-
-        Rectangle {
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-            color: applicationWindow.isDarkTheme ? "#1E1E1E" : "#ffffff"
             
-            // 添加颜色过渡动画
-            Behavior on color {
-                ColorAnimation { duration: 200 }
+            // 空白区域
+            Rectangle {
+                SplitView.fillHeight: true
+                SplitView.fillWidth: true
+                color: applicationWindow.isDarkTheme ? "#1E1E1E" : "#ffffff"
+                
+                // 添加颜色过渡动画
+                Behavior on color {
+                    ColorAnimation { duration: 200 }
+                }
             }
         }
     }
