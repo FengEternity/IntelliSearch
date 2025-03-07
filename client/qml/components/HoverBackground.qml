@@ -15,7 +15,7 @@ Rectangle {
     radius: 8
     
     // 添加颜色过渡动画
-    Behavior on color {
-        ColorAnimation { duration: 200 }
-    }
+    // Behavior on color {
+    //     ColorAnimation { duration: 200 }
+    // }
 }
