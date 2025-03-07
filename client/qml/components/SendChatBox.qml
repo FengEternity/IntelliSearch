@@ -1,16 +1,16 @@
 import QtQuick
+import QtQuick.Controls 2.15
+import QtQuick.Controls
 
 Rectangle {
     id: sendChatBox
     width: parent.width
-    height: contentText.contentHeight + 24 // 动态高度，根据文本内容调整
-    // 设置背景为透明
+    height: contentText.contentHeight + 24
     color: "transparent"
     
     property string messageText: ""
-    property int maxBubbleWidth: parent.width * 0.7 // 气泡最大宽度为父容器的70%
+    property int maxBubbleWidth: parent.width * 0.7
     
-    // 消息气泡
     Rectangle {
         id: messageBubble
         anchors.right: parent.right
@@ -20,14 +20,12 @@ Rectangle {
         width: Math.min(contentText.implicitWidth + 16, maxBubbleWidth)
         height: contentText.contentHeight + 16
         radius: 8
-        color: applicationWindow.isDarkTheme ? "#333333" : "#e0e0e0" // 蓝色气泡
+        color: applicationWindow.isDarkTheme ? "#333333" : "#e0e0e0"
         
-        // 添加颜色过渡动画
         Behavior on color {
             ColorAnimation { duration: 200 }
         }
         
-        // 消息文本
         Text {
             id: contentText
             anchors.left: parent.left
@@ -35,17 +33,15 @@ Rectangle {
             anchors.top: parent.top
             anchors.margins: 8
             text: messageText
-            color: applicationWindow.isDarkTheme ? "#FFFFFF" : "#000000" // 根据主题调整文字颜色
+            color: applicationWindow.isDarkTheme ? "#FFFFFF" : "#000000"
             wrapMode: Text.Wrap
             width: Math.min(implicitWidth, maxBubbleWidth - 24)
             font.pixelSize: 14
             
-            // 添加颜色过渡动画
             Behavior on color {
                 ColorAnimation { duration: 200 }
             }
             
-            // 限制最大宽度
             onImplicitWidthChanged: {
                 if (implicitWidth > maxBubbleWidth - 24) {
                     width = maxBubbleWidth - 24
@@ -55,17 +51,14 @@ Rectangle {
             }
         }
         
-        // 添加鼠标区域来检测悬停
         MouseArea {
             id: bubbleMouseArea
             anchors.fill: parent
             hoverEnabled: true
-            // 不处理点击事件，只用于检测悬停
             onClicked: {}
         }
     }
     
-    // 底部工具栏（包含时间和按钮）
     Rectangle {
         id: toolbarBackground
         anchors.right: messageBubble.right
@@ -75,29 +68,25 @@ Rectangle {
         height: bottomToolbar.height
         color: "transparent"
         
-        // 添加鼠标区域来检测工具栏悬停，但不拦截子组件的鼠标事件
         MouseArea {
             id: toolbarMouseArea
             anchors.fill: parent
             hoverEnabled: true
-            propagateComposedEvents: true // 允许事件传递给子组件
-            // 不处理点击事件，只用于检测悬停
+            propagateComposedEvents: true
             onClicked: function(mouse) {
-                mouse.accepted = false; // 不消费事件，允许传递给子组件
+                mouse.accepted = false;
             }
         }
         
         Row {
             id: bottomToolbar
             spacing: 8
-            opacity: bubbleMouseArea.containsMouse || toolbarMouseArea.containsMouse || copyMouseArea.containsMouse || refreshMouseArea.containsMouse ? 1.0 : 0.0 // 根据所有鼠标区域的悬停状态控制可见性
+            opacity: bubbleMouseArea.containsMouse || toolbarMouseArea.containsMouse || copyMouseArea.containsMouse || refreshMouseArea.containsMouse ? 1.0 : 0.0
             
-            // 添加透明度过渡动画
             Behavior on opacity {
                 NumberAnimation { duration: 200 }
             }
             
-            // 复制按钮
             Rectangle {
                 id: copyButton
                 width: 20
@@ -123,16 +112,14 @@ Rectangle {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        // 复制消息内容到剪贴板
-                        var clipboard = Qt.createQmlObject('import QtQuick; QtObject { function setText(text) { console.log("复制到剪贴板: " + text) } }', parent, 'Clipboard');
-                        clipboard.setText(messageText);
-                        // 可以添加一个提示，表示复制成功
-                        console.log("消息已复制到剪贴板");
+                        // 使用QtQuick.Controls的Clipboard
+                        Clipboard.text = messageText;
+                        copySuccessMessage.visible = true;
+                        copySuccessTimer.restart();
                     }
                 }
             }
             
-            // 刷新按钮
             Rectangle {
                 id: refreshButton
                 width: 20
@@ -158,14 +145,11 @@ Rectangle {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        // 重新发送消息
                         console.log("重新发送消息: " + messageText);
-                        // 这里可以添加重新发送消息的逻辑
                     }
                 }
             }
             
-            // 发送时间
             Text {
                 id: timeText
                 text: Qt.formatDateTime(new Date(), "hh:mm")
@@ -173,11 +157,37 @@ Rectangle {
                 color: applicationWindow.isDarkTheme ? "#AAAAAA" : "#888888"
                 anchors.verticalCenter: copyButton.verticalCenter
                 
-                // 添加颜色过渡动画
                 Behavior on color {
                     ColorAnimation { duration: 200 }
                 }
             }
+        }
+    }
+    
+    Rectangle {
+        id: copySuccessMessage
+        anchors.horizontalCenter: messageBubble.horizontalCenter
+        anchors.bottom: messageBubble.top
+        anchors.bottomMargin: 8
+        width: copySuccessText.width + 16
+        height: copySuccessText.height + 8
+        radius: 4
+        color: applicationWindow.isDarkTheme ? "#424242" : "#333333"
+        opacity: 0.9
+        visible: false
+        
+        Text {
+            id: copySuccessText
+            text: "已复制到剪贴板"
+            color: "#FFFFFF"
+            font.pixelSize: 12
+            anchors.centerIn: parent
+        }
+        
+        Timer {
+            id: copySuccessTimer
+            interval: 2000
+            onTriggered: copySuccessMessage.visible = false
         }
     }
 }

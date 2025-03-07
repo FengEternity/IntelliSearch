@@ -163,7 +163,7 @@ Rectangle {
 
             icon.source: applicationWindow.isDarkTheme ? "qrc:/resources/icons/status/dark.svg" : "qrc:/resources/icons/status/light.svg"
             icon.color: "#333333"
-            text: sideBar.expanded? qsTr("主题") : ""
+            text: sideBar.expanded ? qsTr("主题") : ""
 
             icon.width: 20
             icon.height: 20
@@ -186,14 +186,14 @@ Rectangle {
                     text: qsTr("主题")
                     visible: sideBar.expanded
                     anchors.verticalCenter: parent.verticalCenter
-                    color: "#333333"
+                    color: applicationWindow.isDarkTheme ? "#FFFFFF" : "#000000"
                 }
             }
 
             background: HoverBackground {
                 isHovered: parent.hovered
             }
-            
+
             onClicked: {
                 applicationWindow.isDarkTheme = !applicationWindow.isDarkTheme;
             }
@@ -234,7 +234,7 @@ Rectangle {
                     text: qsTr("设置")
                     visible: sideBar.expanded
                     anchors.verticalCenter: parent.verticalCenter
-                    color: "#333333"
+                    color: applicationWindow.isDarkTheme ? "#FFFFFF" : "#000000"
                 }
             }
 
@@ -244,7 +244,6 @@ Rectangle {
 
             onClicked: {
                 console.log("打开设置");
-                // 检查当前是否已经在设置页面，如果是则不再重复打开
                 if (stackView.depth > 0 && stackView.currentItem.objectName === "settingPage") {
                     console.log("已经在设置页面，不再重复打开");
                     return;
