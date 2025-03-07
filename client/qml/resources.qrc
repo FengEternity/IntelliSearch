@@ -24,6 +24,8 @@
         <file>resources/icons/actions/search.svg</file>
         <file>resources/icons/actions/setting.svg</file>
         <file>resources/icons/actions/model.svg</file>
+        <file>resources/icons/actions/copy.svg</file>
+
 
         <file>resources/icons/status/about.svg</file>
         <file>resources/icons/status/light.svg</file>
