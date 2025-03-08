@@ -112,6 +112,7 @@ Rectangle {
                 
                 // 底部输入框
                 ChatTextField {
+                    id: chatTextField
                     Layout.fillWidth: true
                     Layout.preferredHeight: 60
                     Layout.leftMargin: 16
@@ -132,7 +133,13 @@ Rectangle {
     // 用户消息组件
     Component {
         id: userMessageComponent
-        SendChatBox {}
+        SendChatBox {
+            onEditRequested: function(text) {
+                // 处理编辑请求，将文本设置到输入框
+                console.log("接收到编辑请求:", text);
+                chatTextField.text = text;
+            }
+        }
     }
     
     // 机器人消息组件（后续实现）

@@ -125,9 +125,9 @@ IntelliSearch/
 
 ## TODO
 
-* [ ] 支持更多的 API 服务
-  * [ ] AI：openai, deepseek, qwen...
-  * [ ] search: exa.ai,
+* [X] 支持更多的 API 服务
+  * [X] AI：openai, deepseek, qwen...
+  * [X] search: exa.ai,
 * [ ] 优化客户端体验
 * [ ] 结合 RAG 架构，对搜索到的的内容进行 AI 分析读取
 * [ ] 参考 MindSearch，实现搜索意图深度分析，并实时搜索反馈根据反馈结果判断是否进行下一轮搜索分析

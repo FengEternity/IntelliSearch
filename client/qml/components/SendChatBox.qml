@@ -1,6 +1,4 @@
 import QtQuick
-import QtQuick.Controls 2.15
-import QtQuick.Controls
 
 Rectangle {
     id: sendChatBox
@@ -10,6 +8,9 @@ Rectangle {
     
     property string messageText: ""
     property int maxBubbleWidth: parent.width * 0.7
+    
+    // 添加编辑请求信号
+    signal editRequested(string text)
     
     Rectangle {
         id: messageBubble
@@ -26,7 +27,7 @@ Rectangle {
             ColorAnimation { duration: 200 }
         }
         
-        Text {
+        TextEdit {
             id: contentText
             anchors.left: parent.left
             anchors.right: parent.right
@@ -37,6 +38,11 @@ Rectangle {
             wrapMode: Text.Wrap
             width: Math.min(implicitWidth, maxBubbleWidth - 24)
             font.pixelSize: 14
+            readOnly: true
+            selectByMouse: true
+            selectByKeyboard: true
+            selectionColor: applicationWindow.isDarkTheme ? "#64B5F6" : "#69aef8"
+            textFormat: TextEdit.PlainText
             
             Behavior on color {
                 ColorAnimation { duration: 200 }
@@ -51,12 +57,7 @@ Rectangle {
             }
         }
         
-        MouseArea {
-            id: bubbleMouseArea
-            anchors.fill: parent
-            hoverEnabled: true
-            onClicked: {}
-        }
+
     }
     
     Rectangle {
@@ -68,20 +69,12 @@ Rectangle {
         height: bottomToolbar.height
         color: "transparent"
         
-        MouseArea {
-            id: toolbarMouseArea
-            anchors.fill: parent
-            hoverEnabled: true
-            propagateComposedEvents: true
-            onClicked: function(mouse) {
-                mouse.accepted = false;
-            }
-        }
+
         
         Row {
             id: bottomToolbar
             spacing: 8
-            opacity: bubbleMouseArea.containsMouse || toolbarMouseArea.containsMouse || copyMouseArea.containsMouse || refreshMouseArea.containsMouse ? 1.0 : 0.0
+            opacity: 1.0  // 工具栏始终显示
             
             Behavior on opacity {
                 NumberAnimation { duration: 200 }
@@ -112,10 +105,48 @@ Rectangle {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        // 使用QtQuick.Controls的Clipboard
-                        Clipboard.text = messageText;
+                        // 如果没有选中文本，则复制整个消息
+                        if (contentText.selectedText === "") {
+                            contentText.selectAll();
+                            contentText.copy();
+                            contentText.deselect();
+                        } else {
+                            // 如果已选中文本，直接复制选中部分
+                            contentText.copy();
+                        }
                         copySuccessMessage.visible = true;
                         copySuccessTimer.restart();
+                    }
+                }
+            }
+
+            Rectangle {
+                id: editButton
+                width: 20
+                height: 20
+                radius: 10
+                color: editMouseArea.containsMouse?
+                      (applicationWindow.isDarkTheme? "#444444" : "#E0E0E0") :
+                      "transparent"
+
+                Image {
+                    anchors.centerIn: parent
+                    source: "qrc:/resources/icons/actions/edit.svg"
+                    width: 14
+                    height: 14
+                    sourceSize.width: 14
+                    sourceSize.height: 14
+                    opacity: applicationWindow.isDarkTheme? 0.7 : 0.6
+                }
+                MouseArea {
+                    id: editMouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        console.log("编辑消息: " + messageText);
+                        // 触发编辑请求信号，将当前消息文本传递给父组件
+                        sendChatBox.editRequested(messageText);
                     }
                 }
             }
@@ -161,33 +192,6 @@ Rectangle {
                     ColorAnimation { duration: 200 }
                 }
             }
-        }
-    }
-    
-    Rectangle {
-        id: copySuccessMessage
-        anchors.horizontalCenter: messageBubble.horizontalCenter
-        anchors.bottom: messageBubble.top
-        anchors.bottomMargin: 8
-        width: copySuccessText.width + 16
-        height: copySuccessText.height + 8
-        radius: 4
-        color: applicationWindow.isDarkTheme ? "#424242" : "#333333"
-        opacity: 0.9
-        visible: false
-        
-        Text {
-            id: copySuccessText
-            text: "已复制到剪贴板"
-            color: "#FFFFFF"
-            font.pixelSize: 12
-            anchors.centerIn: parent
-        }
-        
-        Timer {
-            id: copySuccessTimer
-            interval: 2000
-            onTriggered: copySuccessMessage.visible = false
         }
     }
 }

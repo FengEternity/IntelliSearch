@@ -25,6 +25,7 @@
         <file>resources/icons/actions/setting.svg</file>
         <file>resources/icons/actions/model.svg</file>
         <file>resources/icons/actions/copy.svg</file>
+        <file>resources/icons/actions/edit.svg</file>
 
 
         <file>resources/icons/status/about.svg</file>
@@ -35,9 +36,13 @@
         <file>resources/icons/navigations/refresh.svg</file>
 
         <file>resources/icons/model/kimi.svg</file>
+        <file>resources/icons/model/kimi-dark.svg</file>
         <file>resources/icons/model/hunyuan.svg</file>
+        <file>resources/icons/model/hunyuan-dark.svg</file>
         <file>resources/icons/model/deepseek.svg</file>
+        <file>resources/icons/model/deepseek-dark.svg</file>
         <file>resources/icons/model/qwen.svg</file>
+        <file>resources/icons/model/qwen-dark.svg</file>
         <file>resources/icons/model/bocha.ico</file>
         <file>resources/icons/model/exa.png</file>
 
