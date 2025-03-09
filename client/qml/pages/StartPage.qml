@@ -91,7 +91,10 @@ Rectangle {
                 Layout.topMargin: 20
                 
                 onTextSubmitted: function(text) {
-                    root.switchToChatPage(text)
+                    if (text.trim() !== "") {
+                        console.log("从StartPage发送初始消息:", text)
+                        root.switchToChatPage(text)
+                    }
                 }
             }
 

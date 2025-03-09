@@ -28,19 +28,16 @@ SearchBridge::SearchBridge(QObject* parent)
     , dbManager(DatabaseManagerFactory::createDatabaseManager())
     , currentTurnNumber(0)
 {
-    // 1. 检查数据库管理器创建是否成功
     if (!dbManager) {
         CRITICALLOG("Failed to create database manager");
         throw std::runtime_error("Database manager creation failed");
     }
 
-    // 2. 初始化数据库
     if (!dbManager->initialize()) {
         CRITICALLOG("Failed to initialize database");
         throw std::runtime_error("Database initialization failed");
     }
 
-    // 3. 连接信号
     connect(&searchWatcher, &QFutureWatcher<QString>::finished, 
             this, &SearchBridge::handleSearchComplete);
 

@@ -25,6 +25,9 @@ Rectangle {
     // 添加属性接收初始消息
     property string initialMessage: ""
     
+    // 添加属性表示是否正在搜索
+    property bool isSearching: searchBridge.isSearching
+    
     // 添加消息列表模型
     ListModel {
         id: chatModel
@@ -36,7 +39,23 @@ Rectangle {
             // 这里可以处理初始消息，例如添加到聊天记录中
             console.log("收到初始消息:", initialMessage)
             addMessage(initialMessage, true)
+            // 发送初始消息到后端处理
+            searchBridge.handleSearch(initialMessage)
         }
+        
+        // 连接搜索结果信号
+        searchBridge.searchResultsReady.connect(function(results) {
+            console.log("收到搜索结果:", results)
+            // 解析JSON结果
+            try {
+                var jsonResult = JSON.parse(results)
+                // 添加机器人回复消息
+                addMessage(JSON.stringify(jsonResult, null, 2), false)
+            } catch (e) {
+                console.error("解析搜索结果出错:", e)
+                addMessage("抱歉，处理您的请求时出现错误。", false)
+            }
+        })
     }
     
     // 添加消息到聊天记录的函数
@@ -123,7 +142,8 @@ Rectangle {
                         console.log("发送消息:", text)
                         // 添加用户消息到聊天记录
                         addMessage(text, true)
-                        // 这里可以添加发送到后端的逻辑
+                        // 发送消息到后端处理
+                        searchBridge.handleSearch(text)
                     }
                 }
             }
@@ -142,16 +162,12 @@ Rectangle {
         }
     }
     
-    // 机器人消息组件（后续实现）
+    // 机器人消息组件
     Component {
         id: botMessageComponent
-        Rectangle {
-            property string messageText: ""
-            property int maxBubbleWidth: 0
-            width: parent.width
-            height: 40
-            color: "transparent"
-            // 这里后续实现机器人回复的气泡
+        ReplyChatBox {
+            messageText: model.messageText
+            maxBubbleWidth: chatListView.width * 0.7
         }
     }
 }
