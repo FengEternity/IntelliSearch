@@ -15,6 +15,8 @@
         <file>components/SendChatBox.qml</file>
         <file>components/ReplyChatBox.qml</file>
         <file>components/BorderButton.qml</file>
+        <file>components/HistoryRecord.qml</file>
+
 
         <file>resources/icons/logo.svg</file>
 
@@ -34,6 +36,8 @@
 
         <file>resources/icons/navigations/back.svg</file>
         <file>resources/icons/navigations/refresh.svg</file>
+        <file>resources/icons/navigations/add.svg</file>
+
 
         <file>resources/icons/model/kimi.svg</file>
         <file>resources/icons/model/kimi-dark.svg</file>

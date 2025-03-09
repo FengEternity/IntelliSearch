@@ -133,12 +133,12 @@ Rectangle {
                 // 底部输入框
                 ChatTextField {
                     id: chatTextField
-                    Layout.fillWidth: true
-                    Layout.minimumHeight: 60
-                    Layout.maximumHeight: 150
-                    Layout.leftMargin: 16
-                    Layout.rightMargin: 16
-                    Layout.bottomMargin: 16
+                    // Layout.fillWidth: true
+                    // Layout.minimumHeight: 60
+                    // Layout.maximumHeight: 150
+                    // Layout.leftMargin: 16
+                    // Layout.rightMargin: 16
+                    // Layout.bottomMargin: 16
                     // 移除Layout.alignment: Qt.AlignBottom，改用anchors进行定位
                     // Layout.alignment: Qt.AlignBottom
                     anchors.left: parent.left

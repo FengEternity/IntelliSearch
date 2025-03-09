@@ -11,6 +11,9 @@ ApplicationWindow {
     width: 1080
     height: 720
 
+    // 添加searchBridge属性
+    property var searchBridge
+
     // 修改系统主题检测方式
     property bool systemInDarkMode: {
         // macOS平台检测方式

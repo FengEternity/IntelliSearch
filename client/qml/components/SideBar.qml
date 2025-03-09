@@ -60,7 +60,9 @@ Rectangle {
                     icon.source: sideBar.expanded ? "qrc:/resources/icons/actions/toggle-left.svg" : "qrc:/resources/icons/actions/toggle-right.svg"
                     icon.color: "#707070"
 
-                    background: null
+                    background: HoverBackground {
+                        isHovered: parent.hovered
+                    }
                     icon.width: 20
                     icon.height: 20
                     display: AbstractButton.IconOnly
@@ -68,85 +70,36 @@ Rectangle {
             }
         }
 
-        // 添加菜单项按钮
-        Repeater {
-            model: []
-
-            delegate: Button {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 40
-                flat: true
-
-                icon.source: modelData.icon
-                text: sideBar.expanded ? modelData.text : ""
-
-                icon.width: 20
-                icon.height: 20
-                display: sideBar.expanded ? AbstractButton.TextBesideIcon : AbstractButton.IconOnly
-
-                contentItem: Row {
-                    spacing: 10
-                    anchors.centerIn: parent
-
-                    Image {
-                        source: modelData.icon
-                        width: 20
-                        height: 20
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
-
-                    Text {
-                        text: modelData.text
-                        visible: sideBar.expanded
-                        anchors.verticalCenter: parent.verticalCenter
-                        color: "#333333"
-                    }
-                }
-
-                background: Rectangle {
-                    color: parent.hovered ? "#e0e0e0" : "transparent"
+        // 历史记录组件
+        HistoryRecord {
+            id: historyRecordComponent
+            Layout.fillWidth: true
+            Layout.preferredHeight: sideBar.expanded ? 300 : 0
+            visible: sideBar.expanded
+            searchBridge: applicationWindow.searchBridge
+            stackView: sideBar.stackView
+            
+            // 添加高度过渡动画
+            Behavior on Layout.preferredHeight {
+                NumberAnimation {
+                    duration: 200
+                    easing.type: Easing.InOutQuad
                 }
             }
         }
-
-        // 菜单项列表
-        Repeater {
-            model: []
-
-            delegate: Button {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 40
-                flat: true
-
-                icon.source: modelData.icon
-                text: sideBar.expanded ? modelData.text : ""
-
-                icon.width: 20
-                icon.height: 20
-                display: sideBar.expanded ? AbstractButton.TextBesideIcon : AbstractButton.IconOnly
-
-                contentItem: Row {
-                    spacing: 10
-                    anchors.centerIn: parent
-
-                    Image {
-                        source: modelData.icon
-                        width: 20
-                        height: 20
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
-
-                    Text {
-                        text: modelData.text
-                        visible: sideBar.expanded
-                        anchors.verticalCenter: parent.verticalCenter
-                        color: "#333333"
-                    }
-                }
-
-                background: HoverBackground {
-                    isHovered: parent.hovered
-                }
+        
+        // 分隔线
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 1
+            Layout.leftMargin: 8
+            Layout.rightMargin: 8
+            color: applicationWindow.isDarkTheme ? "#444444" : "#eeeeee"
+            visible: sideBar.expanded
+            
+            // 添加颜色过渡动画
+            Behavior on color {
+                ColorAnimation { duration: 200 }
             }
         }
 

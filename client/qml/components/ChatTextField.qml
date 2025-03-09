@@ -12,19 +12,21 @@ Rectangle {
     signal textSubmitted(string text)
 
     color: applicationWindow.isDarkTheme ? "#2A2A2A" : "#ffffff"
-    border.color: textArea.focus ? 
-                 (applicationWindow.isDarkTheme ? "#64B5F6" : "#007AFF") : 
-                 (applicationWindow.isDarkTheme ? "#444444" : "#E5E5EA")
+    border.color: textArea.focus ? (applicationWindow.isDarkTheme ? "#64B5F6" : "#007AFF") : (applicationWindow.isDarkTheme ? "#444444" : "#E5E5EA")
     border.width: 1
     radius: 8
-    
+
     // 添加颜色过渡动画
     Behavior on color {
-        ColorAnimation { duration: 200 }
+        ColorAnimation {
+            duration: 200
+        }
     }
-    
+
     Behavior on border.color {
-        ColorAnimation { duration: 200 }
+        ColorAnimation {
+            duration: 200
+        }
     }
 
     // 添加高度过渡动画
@@ -38,9 +40,7 @@ Rectangle {
         // 移除重复的属性声明
         anchors.fill: parent
         color: applicationWindow.isDarkTheme ? "#2A2A2A" : "#ffffff"
-        border.color: textArea.focus ? 
-                     (applicationWindow.isDarkTheme ? "#64B5F6" : "#007AFF") : 
-                     (applicationWindow.isDarkTheme ? "#444444" : "#E5E5EA")
+        border.color: textArea.focus ? (applicationWindow.isDarkTheme ? "#64B5F6" : "#007AFF") : (applicationWindow.isDarkTheme ? "#444444" : "#E5E5EA")
         border.width: 1
         radius: 8
         clip: true  // 防止内容溢出
@@ -99,19 +99,18 @@ Rectangle {
                 verticalCenter: parent.verticalCenter
                 rightMargin: 8
             }
-            width: 36
-            height: 36
-            icon.color: "#d1000000"
+            icon.source: "qrc:/resources/icons/actions/send.svg"
+            icon.color: "#707070"
+            icon.width: 20
+            icon.height: 20
+            display: AbstractButton.IconOnly
+
+            background: HoverBackground {
+                isHovered: parent.hovered
+            }
+
             font.kerning: false
             flat: false
-
-            background: Image {
-                source: "qrc:/resources/icons/actions/send.svg"
-                opacity: 0.5
-                sourceSize.width: 24
-                sourceSize.height: 24
-                fillMode: Image.PreserveAspectFit
-            }
 
             onClicked: {
                 if (textArea.text.trim() !== "") {
