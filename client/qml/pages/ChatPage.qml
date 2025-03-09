@@ -94,6 +94,7 @@ Rectangle {
                     id: chatScrollView
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    // 移除固定高度计算，使用Layout.fillHeight让它自动填充剩余空间
                     clip: true
                     background: Rectangle {
                         color: "transparent"
@@ -133,9 +134,19 @@ Rectangle {
                 ChatTextField {
                     id: chatTextField
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 60
+                    Layout.minimumHeight: 60
+                    Layout.maximumHeight: 150
                     Layout.leftMargin: 16
                     Layout.rightMargin: 16
+                    Layout.bottomMargin: 16
+                    // 移除Layout.alignment: Qt.AlignBottom，改用anchors进行定位
+                    // Layout.alignment: Qt.AlignBottom
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                    anchors.leftMargin: 16
+                    anchors.rightMargin: 16
+                    anchors.bottomMargin: 16
                     
                     onTextSubmitted: function(text) {
                         // 处理发送消息的逻辑

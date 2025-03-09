@@ -18,8 +18,8 @@ Rectangle {
         width: Math.min(contentText.implicitWidth + 16, maxBubbleWidth)
         height: contentText.contentHeight + 16
         radius: 8
-        color: applicationWindow.isDarkTheme ? "#1E1E1E" : "#FFFFFF"
-        border.color: applicationWindow.isDarkTheme ? "#333333" : "#E0E0E0"
+        color: applicationWindow.isDarkTheme ? "#1E1E1E" : "#ffffff"
+        border.color: applicationWindow.isDarkTheme ? "#333333" : "#3ee0e0e0"
         border.width: 1
         
         Behavior on color {
