@@ -37,7 +37,6 @@ Rectangle {
     }
 
     Rectangle {
-        // 移除重复的属性声明
         anchors.fill: parent
         color: applicationWindow.isDarkTheme ? "#2A2A2A" : "#ffffff"
         border.color: textArea.focus ? (applicationWindow.isDarkTheme ? "#64B5F6" : "#007AFF") : (applicationWindow.isDarkTheme ? "#444444" : "#E5E5EA")
@@ -58,7 +57,7 @@ Rectangle {
             }
         }
 
-        // 工具栏放在内部矩形中，使其成为ScrollView的兄弟元素
+        // 工具栏放在内部矩形中
         Rectangle {
             id: toolBar
             anchors {
@@ -74,10 +73,9 @@ Rectangle {
                 spacing: 8
                 anchors {
                     left: parent.left
-                    verticalCenter: parent.verticalCenter  // 通过 anchors 设置垂直居中
+                    verticalCenter: parent.verticalCenter
                 }
 
-                // 附件按钮
                 ToolButton {
                     id: attachmentButton
                     width: 30
@@ -85,9 +83,7 @@ Rectangle {
                     icon.source: "qrc:/resources/icons/actions/model.svg"
                     icon.color: "#666666"
                     opacity: 0.8
-                    onClicked:
-                    // 处理附件功能
-                    {}
+                    onClicked: {}
                 }
             }
         }
@@ -129,9 +125,9 @@ Rectangle {
                 bottom: toolBar.top
                 margins: 8
             }
-            clip: true  // 防止内容溢出
-            ScrollBar.vertical.policy: ScrollBar.AsNeeded  // 需要时显示滚动条
-            ScrollBar.horizontal.policy: ScrollBar.AlwaysOff  // 禁用水平滚动条
+            clip: true
+            ScrollBar.vertical.policy: ScrollBar.AsNeeded
+            ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
             TextArea {
                 id: textArea
@@ -145,7 +141,6 @@ Rectangle {
                 topPadding: 4
                 bottomPadding: 4
 
-                // 添加颜色过渡动画
                 Behavior on color {
                     ColorAnimation {
                         duration: 200
@@ -166,7 +161,6 @@ Rectangle {
                     visible: !textArea.text && !textArea.activeFocus
                     font.pixelSize: 14
 
-                    // 添加颜色过渡动画
                     Behavior on color {
                         ColorAnimation {
                             duration: 200
