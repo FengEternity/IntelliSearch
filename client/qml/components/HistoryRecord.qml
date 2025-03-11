@@ -183,24 +183,24 @@ Rectangle {
                         color: applicationWindow.isDarkTheme ? "#999999" : "#666666"
                     }
 
-                    Button {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: "开始新对话"
-                        flat: true
+                    // Button {
+                    //     anchors.horizontalCenter: parent.horizontalCenter
+                    //     text: "开始新对话"
+                    //     flat: true
 
-                        onClicked: {
-                            // 创建新会话并切换到该会话
-                            var newSessionId = searchBridge.createAndSwitchToNewSession();
-                            // 打开聊天页面
-                            if (stackView.depth > 0 && stackView.currentItem.objectName === "chatPage") {
-                                console.log("已经在聊天页面，不再重复打开");
-                                return;
-                            }
-                            stackView.push("qrc:/pages/ChatPage.qml", {
-                                stackView: stackView
-                            });
-                        }
-                    }
+                    //     onClicked: {
+                    //         // 创建新会话并切换到该会话
+                    //         var newSessionId = searchBridge.createAndSwitchToNewSession();
+                    //         // 打开聊天页面
+                    //         if (stackView.depth > 0 && stackView.currentItem.objectName === "chatPage") {
+                    //             console.log("已经在聊天页面，不再重复打开");
+                    //             return;
+                    //         }
+                    //         stackView.push("qrc:/pages/ChatPage.qml", {
+                    //             stackView: stackView
+                    //         });
+                    //     }
+                    // }
                 }
             }
 
@@ -285,10 +285,12 @@ Rectangle {
 
                 background: Rectangle {
                     color: parent.hovered ? (applicationWindow.isDarkTheme ? "#444444" : "#f0f0f0") : "transparent"
-                    
+
                     // 添加颜色过渡动画
                     Behavior on color {
-                        ColorAnimation { duration: 100 }
+                        ColorAnimation {
+                            duration: 100
+                        }
                     }
                 }
 
