@@ -5,11 +5,31 @@
 #include <QIcon>
 #include <QFile>
 #include <QGuiApplication>
-
+#include <QJSEngine>
 
 #include "log/Logger.h"
 #include "config/ConfigManager.h"
 #include "SearchBridge.h"
+
+// QML日志处理函数
+void qmlMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    switch (type) {
+        case QtDebugMsg:
+            QMLDEBUG(msg);
+            break;
+        case QtInfoMsg:
+            QMLINFO(msg);
+            break;
+        case QtWarningMsg:
+            QMLWARN(msg);
+            break;
+        case QtCriticalMsg:
+        case QtFatalMsg:
+            QMLERROR(msg);
+            break;
+    }
+}
 
 int main(int argc, char *argv[]) {
     // 初始化配置管理器
@@ -18,6 +38,9 @@ int main(int argc, char *argv[]) {
     // 初始化日志
     INITLOG(ConfigManager::getInstance()->getLogConfig());
     INFOLOG("Application started");
+
+    // 安装QML消息处理器
+    qInstallMessageHandler(qmlMessageHandler);
 
     QApplication app(argc, argv);
     
@@ -37,6 +60,9 @@ int main(int argc, char *argv[]) {
     
     // 创建 SearchBridge 实例并设置为上下文属性
     IntelliSearch::SearchBridge *searchBridge = new IntelliSearch::SearchBridge();
+    
+    // 注册Logger实例到QML上下文
+    engine.rootContext()->setContextProperty("logger", Logger::getInstance());
     engine.rootContext()->setContextProperty("searchBridge", searchBridge);
     
     // 加载主QML文件

@@ -11,6 +11,7 @@ Rectangle {
     property int collapsedWidth: 50
 
     property StackView stackView
+    property var searchBridge
 
     color: "#f5f5f5"
 
@@ -76,7 +77,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: sideBar.expanded ? 300 : 0
             visible: sideBar.expanded
-            searchBridge: applicationWindow.searchBridge
+            searchBridge: sideBar.searchBridge
             stackView: sideBar.stackView
             
             // 添加高度过渡动画

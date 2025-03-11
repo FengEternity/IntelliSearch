@@ -6,17 +6,23 @@
  * Other: 该代码参考 https://blog.csdn.net/SaberJYang/article/details/128691465
  */
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef LOGGRR_H
+#define LOGGRR_H
 
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/rotating_file_sink.h"
 
+#include <QObject>
+#include <QString>
+#include <memory>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/rotating_file_sink.h>
+#include <filesystem>
 #include "../config/ConfigManager.h"
 
-// 日志的单例模式
-class Logger
+// 使用ConfigManager.h中定义的LogConfig结构体
+
+class Logger : public QObject
 {
+    Q_OBJECT
 public:
     static Logger* getInstance()
     {
@@ -24,7 +30,16 @@ public:
         return &instance;
     }
 
-    //c++14返回值可设置为auto
+    Q_INVOKABLE void log(const QString& level, const QString& message, const QString& component = QString());
+    Q_INVOKABLE QString getLogLevel();
+    Q_INVOKABLE void setLogLevel(const QString& level);
+
+    // 添加QML日志处理方法
+    Q_INVOKABLE void debug(const QString& message, const QString& component = QString()) { log("debug", message, component); }
+    Q_INVOKABLE void info(const QString& message, const QString& component = QString()) { log("info", message, component); }
+    Q_INVOKABLE void warn(const QString& message, const QString& component = QString()) { log("warn", message, component); }
+    Q_INVOKABLE void error(const QString& message, const QString& component = QString()) { log("error", message, component); }
+
     std::shared_ptr<spdlog::logger> getLogger()
     {
         return loggerPtr;
@@ -33,13 +48,22 @@ public:
     void Init(const LogConfig& conf);
 
     std::string GetLogLevel();
-
     void SetLogLevel(const std::string& level);
+
+signals:
+    void logLevelChanged(const QString& newLevel);
 
 private:
     Logger() = default;
     std::shared_ptr<spdlog::logger> loggerPtr;
 };
+
+// 定义宏用于QML日志
+#define QMLLOG(level, message) Logger::getInstance()->log(level, message)
+#define QMLDEBUG(message) Logger::getInstance()->debug(message)
+#define QMLINFO(message) Logger::getInstance()->info(message)
+#define QMLWARN(message) Logger::getInstance()->warn(message)
+#define QMLERROR(message) Logger::getInstance()->error(message)
 
 // 日志相关操作的宏封装
 #define INITLOG(conf)      Logger::getInstance()->Init(conf)

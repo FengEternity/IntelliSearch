@@ -5,6 +5,18 @@
 #include "Logger.h"
 #include "../config/ConfigManager.h"
 #include <iostream>
+#include <chrono>
+#include <iomanip>
+#include <sstream>
+#include <QFileInfo>
+
+std::string getDateString() {
+    auto now = std::chrono::system_clock::now();
+    auto time = std::chrono::system_clock::to_time_t(now);
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&time), "%Y-%m-%d");
+    return ss.str();
+}
 
 void Logger::Init(const LogConfig& conf)
 {
@@ -13,8 +25,12 @@ void Logger::Init(const LogConfig& conf)
         std::filesystem::path logPath(conf.logPath);
         std::filesystem::create_directories(logPath.parent_path());
         
+        // 在日志文件名中添加日期
+        std::string dateStr = getDateString();
+        std::string filename = logPath.parent_path().string() + "/" + dateStr + "-" + logPath.filename().string();
+        
         //自定义的sink
-        loggerPtr = spdlog::rotating_logger_mt("base_logger", conf.logPath.c_str(), conf.maxFileSize, conf.maxFiles);
+        loggerPtr = spdlog::rotating_logger_mt("base_logger", filename.c_str(), conf.maxFileSize, conf.maxFiles);
         //设置格式
         //参见文档 https://github.com/gabime/spdlog/wiki/3.-Custom-formatting
         //[%Y-%m-%d %H:%M:%S.%e] 时间
@@ -54,6 +70,50 @@ std::string Logger::GetLogLevel()
         std::cerr << "Failed to get log level: " << e.what() << std::endl;
         return "unknown";
     }
+}
+
+void Logger::log(const QString& level, const QString& message, const QString& component) {
+    std::string levelStr = level.toStdString();
+    std::string messageStr = message.toStdString();
+    std::string componentStr;
+    
+    // 解析component字符串，提取文件路径和行号信息
+    if (component.isEmpty()) {
+        componentStr = "QML";
+    } else {
+        // 期望的格式："文件路径:行号:组件名"
+        QStringList parts = component.split(":");
+        if (parts.size() >= 3) {
+            // 包含完整的文件路径、行号和组件名
+            QString filePath = parts[0];
+            QString lineNumber = parts[1];
+            QString componentName = parts[2];
+            // 提取文件名（不包含路径）
+            QString fileName = QFileInfo(filePath).fileName();
+            componentStr = "QML [" + fileName.toStdString() + ":" + lineNumber.toStdString() + "] [" + componentName.toStdString() + "]";
+        } else if (parts.size() == 2) {
+            // 只包含文件路径和行号
+            QString filePath = parts[0];
+            QString lineNumber = parts[1];
+            QString fileName = QFileInfo(filePath).fileName();
+            componentStr = "QML [" + fileName.toStdString() + ":" + lineNumber.toStdString() + "]";
+        } else {
+            // 只有组件名
+            componentStr = "QML [" + component.toStdString() + "]";
+        }
+    }
+    
+    auto logLevel = spdlog::level::from_str(levelStr);
+    BASELOG(loggerPtr, logLevel, "[{}] {}", componentStr, messageStr);
+}
+
+QString Logger::getLogLevel() {
+    return QString::fromStdString(GetLogLevel());
+}
+
+void Logger::setLogLevel(const QString& level) {
+    SetLogLevel(level.toStdString());
+    emit logLevelChanged(level);
 }
 
 void Logger::SetLogLevel(const std::string& log_level)

@@ -85,18 +85,6 @@ ApplicationWindow {
         ColorAnimation { duration: 200 }
     }
 
-    // 添加系统主题变化监听
-    // 移除有问题的Connections，因为Platform.ColorScheme可能没有onDarkChanged信号
-    // Connections {
-    //     target: Platform.ColorScheme
-    //     function onDarkChanged() {
-    //         // 如果用户没有手动设置主题，则跟随系统
-    //         if (!userSetTheme) {
-    //             isDarkTheme = Platform.ColorScheme.dark
-    //         }
-    //     }
-    // }
-
     // 添加属性标记用户是否手动设置了主题
     property bool userSetTheme: false
     property bool isSettingPage: false
@@ -105,6 +93,13 @@ ApplicationWindow {
     function toggleTheme() {
         userSetTheme = true
         isDarkTheme = !isDarkTheme
+    }
+    
+    // 组件加载完成后设置searchBridge
+    Component.onCompleted: {
+        // 将C++中的searchBridge设置到applicationWindow的属性中
+        applicationWindow.searchBridge = searchBridge
+        logger.info("应用程序窗口已加载，searchBridge已设置")
     }
 
     RowLayout {
@@ -121,6 +116,7 @@ ApplicationWindow {
             Layout.minimumWidth: expanded ? expandedWidth : collapsedWidth
             stackView: stackView
             color: isDarkTheme ? "#1E1E1E" : "#f5f5f5"
+            searchBridge: applicationWindow.searchBridge  // 传递searchBridge给SideBar
             
             // 添加颜色过渡动画
             Behavior on color {
@@ -141,7 +137,10 @@ ApplicationWindow {
         id: startPage
         visible: false
         onSwitchToChatPage: function(initialMessage) {
-            stackView.push("qrc:/pages/ChatPage.qml", { initialMessage: initialMessage })
+            stackView.push("qrc:/pages/ChatPage.qml", { 
+                initialMessage: initialMessage,
+                searchBridge: applicationWindow.searchBridge  // 传递searchBridge给ChatPage
+            })
         }
     }
 
