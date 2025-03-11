@@ -137,10 +137,16 @@ ApplicationWindow {
         id: startPage
         visible: false
         onSwitchToChatPage: function(initialMessage) {
-            stackView.push("qrc:/pages/ChatPage.qml", { 
-                initialMessage: initialMessage,
-                searchBridge: applicationWindow.searchBridge  // 传递searchBridge给ChatPage
-            })
+            // 确保在创建 ChatPage 时传入 searchBridge
+            var component = Qt.createComponent("qrc:/pages/ChatPage.qml")
+            if (component.status === Component.Ready) {
+                stackView.push(component, {
+                    initialMessage: initialMessage,
+                    searchBridge: applicationWindow.searchBridge
+                })
+            } else {
+                console.error("Error loading ChatPage:", component.errorString())
+            }
         }
     }
 

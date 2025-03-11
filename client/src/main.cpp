@@ -65,6 +65,14 @@ int main(int argc, char *argv[]) {
     engine.rootContext()->setContextProperty("logger", Logger::getInstance());
     engine.rootContext()->setContextProperty("searchBridge", searchBridge);
     
+    // 验证上下文属性是否设置成功
+    QVariant contextProperty = engine.rootContext()->contextProperty("searchBridge");
+    if (contextProperty.isValid()) {
+        DEBUGLOG("SearchBridge successfully registered to QML context");
+    } else {
+        ERRORLOG("Failed to register SearchBridge to QML context");
+    }
+    
     // 加载主QML文件
     const QUrl url("qrc:/main.qml");
     QObject::connect(

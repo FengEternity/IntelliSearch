@@ -20,8 +20,10 @@ Rectangle {
         ColorAnimation { duration: 200 }
     }
     
+    // 将 property var searchBridge 改为 required property
+    required property var searchBridge
     property string initialMessage: ""
-    property bool isSearching: searchBridge.isSearching
+    property bool isSearching: searchBridge ? searchBridge.isSearching : false
     
     ListModel {
         id: chatModel
