@@ -22,23 +22,31 @@ Rectangle {
 
     // 组件初始化完成后加载会话历史
     Component.onCompleted: {
-        loadSessionHistory();
+        // 只有当searchBridge存在时才加载会话历史
+        if (historyRecord.searchBridge) {
+            loadSessionHistory();
+        } else {
+            console.log("searchBridge is not available")
+        }
     }
 
     // 监听会话历史变化
     Connections {
-        target: searchBridge
-        function sessionHistoryChanged() {
+        target: historyRecord.searchBridge
+        enabled: historyRecord.searchBridge !== null && historyRecord.searchBridge !== undefined
+
+        // 使用正确的信号连接语法
+        onSessionHistoryChanged: {
             loadSessionHistory();
         }
 
-        function sessionCreated(sessionId) {
+        onSessionCreated: function (sessionId) {
             // 当创建新会话时，更新当前会话ID
             currentSessionId = sessionId;
             loadSessionHistory();
         }
 
-        function sessionUpdated(sessionId) {
+        onSessionUpdated: function (sessionId) {
             // 当会话更新时，刷新会话历史
             loadSessionHistory();
         }
@@ -46,21 +54,30 @@ Rectangle {
 
     // 加载会话历史数据
     function loadSessionHistory() {
+        // 检查searchBridge是否存在
+        if (!searchBridge) {
+            console.warn("searchBridge is not available yet");
+            return;
+        }
+
         // 清空现有模型
         sessionModel.clear();
+        try {
+            // 获取会话历史数据
+            var sessions = searchBridge.getSessionsList(100);
 
-        // 获取会话历史数据
-        var sessions = searchBridge.getSessionsList(10);
-
-        // 将数据添加到模型中
-        for (var i = 0; i < sessions.length; i++) {
-            sessionModel.append({
-                sessionId: sessions[i].id,
-                title: sessions[i].title || "未命名会话",
-                lastUpdated: sessions[i].last_updated || "",
-                messageCount: sessions[i].message_count || 0,
-                lastQuery: sessions[i].last_query || ""
-            });
+            // 将数据添加到模型中
+            for (var i = 0; i < sessions.length; i++) {
+                sessionModel.append({
+                    sessionId: sessions[i].id,
+                    title: sessions[i].title || "未命名会话",
+                    lastUpdated: sessions[i].last_updated || "",
+                    messageCount: sessions[i].message_count || 0,
+                    lastQuery: sessions[i].last_query || ""
+                });
+            }
+        } catch (e) {
+            console.error("Error loading session history:", e);
         }
     }
 
@@ -131,14 +148,14 @@ Rectangle {
 
                     onClicked: {
                         // 创建新会话并切换到该会话
-                        var newSessionId = searchBridge.createAndSwitchToNewSession();
+                        var newSessionId = historyRecord.searchBridge.createAndSwitchToNewSession();
                         // 打开聊天页面
-                        if (stackView.depth > 0 && stackView.currentItem.objectName === "chatPage") {
+                        if (historyRecord.stackView.depth > 0 && historyRecord.stackView.currentItem.objectName === "chatPage") {
                             console.log("已经在聊天页面，不再重复打开");
                             return;
                         }
-                        stackView.push("qrc:/pages/ChatPage.qml", {
-                            stackView: stackView
+                        historyRecord.stackView.push("qrc:/pages/ChatPage.qml", {
+                            stackView: historyRecord.stackView
                         });
                     }
                 }
@@ -153,9 +170,7 @@ Rectangle {
 
             // 添加颜色过渡动画
             Behavior on color {
-                ColorAnimation {
-                    duration: 200
-                }
+                ColorAnimation { duration: 200 }
             }
         }
 
@@ -182,25 +197,6 @@ Rectangle {
                         text: "暂无历史记录"
                         color: applicationWindow.isDarkTheme ? "#999999" : "#666666"
                     }
-
-                    // Button {
-                    //     anchors.horizontalCenter: parent.horizontalCenter
-                    //     text: "开始新对话"
-                    //     flat: true
-
-                    //     onClicked: {
-                    //         // 创建新会话并切换到该会话
-                    //         var newSessionId = searchBridge.createAndSwitchToNewSession();
-                    //         // 打开聊天页面
-                    //         if (stackView.depth > 0 && stackView.currentItem.objectName === "chatPage") {
-                    //             console.log("已经在聊天页面，不再重复打开");
-                    //             return;
-                    //         }
-                    //         stackView.push("qrc:/pages/ChatPage.qml", {
-                    //             stackView: stackView
-                    //         });
-                    //     }
-                    // }
                 }
             }
 
@@ -212,13 +208,6 @@ Rectangle {
                 Rectangle {
                     anchors.fill: parent
                     color: model.sessionId === currentSessionId ? (applicationWindow.isDarkTheme ? "#383838" : "#e8e8e8") : "transparent"
-
-                    // 添加颜色过渡动画
-                    Behavior on color {
-                        ColorAnimation {
-                            duration: 100
-                        }
-                    }
                 }
 
                 RowLayout {
@@ -283,16 +272,9 @@ Rectangle {
                     }
                 }
 
-                background: Rectangle {
-                    color: parent.hovered ? (applicationWindow.isDarkTheme ? "#444444" : "#f0f0f0") : "transparent"
-
-                    // 添加颜色过渡动画
-                    Behavior on color {
-                        ColorAnimation {
-                            duration: 100
-                        }
+                background: HoverBackground {
+                        isHovered: parent.hovered
                     }
-                }
 
                 onClicked: {
                     // 设置当前会话ID

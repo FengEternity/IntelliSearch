@@ -90,19 +90,19 @@ Rectangle {
         }
         
         // 分隔线
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 1
-            Layout.leftMargin: 8
-            Layout.rightMargin: 8
-            color: applicationWindow.isDarkTheme ? "#444444" : "#eeeeee"
-            visible: sideBar.expanded
+        // Rectangle {
+        //     Layout.fillWidth: true
+        //     Layout.preferredHeight: 1
+        //     Layout.leftMargin: 8
+        //     Layout.rightMargin: 8
+        //     color: applicationWindow.isDarkTheme ? "#444444" : "#eeeeee"
+        //     visible: sideBar.expanded
             
-            // 添加颜色过渡动画
-            Behavior on color {
-                ColorAnimation { duration: 200 }
-            }
-        }
+        //     // 添加颜色过渡动画
+        //     Behavior on color {
+        //         ColorAnimation { duration: 200 }
+        //     }
+        // }
 
         // 弹性空间，将设置按钮推到底部
         Item {

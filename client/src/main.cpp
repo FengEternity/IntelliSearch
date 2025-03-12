@@ -58,20 +58,12 @@ int main(int argc, char *argv[]) {
     
     QQmlApplicationEngine engine;
     
-    // 创建 SearchBridge 实例并设置为上下文属性
-    IntelliSearch::SearchBridge *searchBridge = new IntelliSearch::SearchBridge();
-    
     // 注册Logger实例到QML上下文
     engine.rootContext()->setContextProperty("logger", Logger::getInstance());
-    engine.rootContext()->setContextProperty("searchBridge", searchBridge);
     
-    // 验证上下文属性是否设置成功
-    QVariant contextProperty = engine.rootContext()->contextProperty("searchBridge");
-    if (contextProperty.isValid()) {
-        DEBUGLOG("SearchBridge successfully registered to QML context");
-    } else {
-        ERRORLOG("Failed to register SearchBridge to QML context");
-    }
+    // 使用qmlRegisterType注册SearchBridge类型
+    qmlRegisterType<IntelliSearch::SearchBridge>("IntelliSearch", 1, 0, "SearchBridge");
+    DEBUGLOG("SearchBridge type registered to QML");
     
     // 加载主QML文件
     const QUrl url("qrc:/main.qml");

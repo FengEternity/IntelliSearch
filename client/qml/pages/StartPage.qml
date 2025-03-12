@@ -9,6 +9,9 @@ Rectangle {
     height: parent.height
     color: applicationWindow.isDarkTheme ? "#121212" : "#ffffff"
     
+    // 添加required property searchBridge
+    required property var searchBridge
+    
     // 添加颜色过渡动画
     Behavior on color {
         ColorAnimation { duration: 200 }

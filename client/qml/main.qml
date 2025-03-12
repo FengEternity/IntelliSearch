@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Controls.Material
 import QtQuick.Layouts
 import Qt.labs.platform as Platform  // 添加平台特定功能
+import IntelliSearch 1.0  // 导入IntelliSearch模块
 import "pages"
 import "components"
 
@@ -11,8 +12,10 @@ ApplicationWindow {
     width: 1080
     height: 720
 
-    // 添加searchBridge属性
-    property var searchBridge
+    // 创建SearchBridge实例
+    SearchBridge {
+        id: searchBridge
+    }
 
     // 修改系统主题检测方式
     property bool systemInDarkMode: {
@@ -95,11 +98,9 @@ ApplicationWindow {
         isDarkTheme = !isDarkTheme
     }
     
-    // 组件加载完成后设置searchBridge
+    // 组件加载完成后记录日志
     Component.onCompleted: {
-        // 将C++中的searchBridge设置到applicationWindow的属性中
-        applicationWindow.searchBridge = searchBridge
-        logger.info("应用程序窗口已加载，searchBridge已设置")
+        logger.info("应用程序窗口已加载")
     }
 
     RowLayout {
@@ -116,7 +117,7 @@ ApplicationWindow {
             Layout.minimumWidth: expanded ? expandedWidth : collapsedWidth
             stackView: stackView
             color: isDarkTheme ? "#1E1E1E" : "#f5f5f5"
-            searchBridge: applicationWindow.searchBridge  // 传递searchBridge给SideBar
+            searchBridge: searchBridge  // 使用SearchBridge实例
             
             // 添加颜色过渡动画
             Behavior on color {
@@ -136,13 +137,14 @@ ApplicationWindow {
     StartPage {
         id: startPage
         visible: false
+        searchBridge: searchBridge  // 使用SearchBridge实例
         onSwitchToChatPage: function(initialMessage) {
             // 确保在创建 ChatPage 时传入 searchBridge
             var component = Qt.createComponent("qrc:/pages/ChatPage.qml")
             if (component.status === Component.Ready) {
                 stackView.push(component, {
                     initialMessage: initialMessage,
-                    searchBridge: applicationWindow.searchBridge
+                    searchBridge: searchBridge
                 })
             } else {
                 console.error("Error loading ChatPage:", component.errorString())
