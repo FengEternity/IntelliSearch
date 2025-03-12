@@ -121,7 +121,7 @@ IntelliSearch/
 
 ## 演示截图
 
-![1739021061202](image/README/1739021061202.png)
+![1741761090382](image/README/1741761090382.png)
 
 ## TODO
 
