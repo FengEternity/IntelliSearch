@@ -108,59 +108,6 @@ Rectangle {
         anchors.fill: parent
         spacing: 0
 
-        // 标题栏
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 40
-            color: "transparent"
-
-            RowLayout {
-                anchors.fill: parent
-                anchors.leftMargin: 16
-                anchors.rightMargin: 8
-
-                Text {
-                    text: "历史记录"
-                    font.pixelSize: 14
-                    font.bold: true
-                    color: applicationWindow.isDarkTheme ? "#FFFFFF" : "#333333"
-                }
-
-                Item {
-                    Layout.fillWidth: true
-                }
-
-                Button {
-                    flat: true
-                    icon.source: "qrc:/resources/icons/navigations/add.svg"
-                    icon.color: "#707070"
-                    icon.width: 20
-                    icon.height: 20
-                    display: AbstractButton.IconOnly
-
-                    // ToolTip.visible: hovered
-                    // ToolTip.text: "新建会话"
-
-                    // background: null
-                    background: HoverBackground {
-                        isHovered: parent.hovered
-                    }
-
-                    onClicked: {
-                        // 创建新会话并切换到该会话
-                        var newSessionId = historyRecord.searchBridge.createAndSwitchToNewSession();
-                        // 打开聊天页面
-                        if (historyRecord.stackView.depth > 0 && historyRecord.stackView.currentItem.objectName === "chatPage") {
-                            console.log("已经在聊天页面，不再重复打开");
-                            return;
-                        }
-                        historyRecord.stackView.push("qrc:/pages/ChatPage.qml", {
-                            stackView: historyRecord.stackView
-                        });
-                    }
-                }
-            }
-        }
 
         // 分隔线
         Rectangle {
@@ -202,7 +149,7 @@ Rectangle {
 
             delegate: ItemDelegate {
                 width: parent.width
-                height: 60
+                height: 40
 
                 // 高亮当前选中的会话
                 Rectangle {
@@ -214,27 +161,12 @@ Rectangle {
                     anchors.fill: parent
                     anchors.leftMargin: 16
                     anchors.rightMargin: 8
-                    spacing: 8
-
-                    // 会话图标
-                    Rectangle {
-                        Layout.preferredWidth: 32
-                        Layout.preferredHeight: 32
-                        radius: 16
-                        color: applicationWindow.isDarkTheme ? "#444444" : "#e0e0e0"
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: model.title.charAt(0).toUpperCase()
-                            font.pixelSize: 14
-                            color: applicationWindow.isDarkTheme ? "#FFFFFF" : "#333333"
-                        }
-                    }
+                    spacing: 4
 
                     // 会话信息
                     ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 4
+                        spacing: 2
 
                         Text {
                             text: model.title
@@ -242,14 +174,6 @@ Rectangle {
                             elide: Text.ElideRight
                             Layout.fillWidth: true
                             color: applicationWindow.isDarkTheme ? "#FFFFFF" : "#333333"
-                        }
-
-                        Text {
-                            text: model.lastQuery
-                            font.pixelSize: 12
-                            elide: Text.ElideRight
-                            Layout.fillWidth: true
-                            color: applicationWindow.isDarkTheme ? "#AAAAAA" : "#666666"
                         }
                     }
 
@@ -260,12 +184,6 @@ Rectangle {
 
                         Text {
                             text: formatDateTime(model.lastUpdated)
-                            font.pixelSize: 10
-                            color: applicationWindow.isDarkTheme ? "#AAAAAA" : "#666666"
-                        }
-
-                        Text {
-                            text: model.messageCount + "条消息"
                             font.pixelSize: 10
                             color: applicationWindow.isDarkTheme ? "#AAAAAA" : "#666666"
                         }

@@ -75,7 +75,7 @@ Rectangle {
         HistoryRecord {
             id: historyRecordComponent
             Layout.fillWidth: true
-            Layout.fillHeight: sideBar.expanded  // 展开时填充剩余空间
+            Layout.fillHeight: true  // 始终填充可用空间
             visible: sideBar.expanded
             searchBridge: sideBar.searchBridge
             stackView: sideBar.stackView
@@ -89,16 +89,10 @@ Rectangle {
             }
         }
 
-        // 弹性空间不再需要
-        // Item {
-        //     Layout.fillHeight: true
-        //     visible: !sideBar.expanded
-        // }
-
         // 弹性空间，将设置按钮推到底部
         Item {
             Layout.fillHeight: true
-            visible: !sideBar.expanded  // 当侧边栏展开时隐藏
+            visible: !sideBar.expanded  // 当侧边栏折叠时显示
         }
 
         Button {
