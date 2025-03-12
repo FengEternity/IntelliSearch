@@ -75,7 +75,7 @@ Rectangle {
         HistoryRecord {
             id: historyRecordComponent
             Layout.fillWidth: true
-            Layout.preferredHeight: sideBar.expanded ? 300 : 0
+            Layout.fillHeight: sideBar.expanded  // 展开时填充剩余空间
             visible: sideBar.expanded
             searchBridge: sideBar.searchBridge
             stackView: sideBar.stackView
@@ -88,31 +88,23 @@ Rectangle {
                 }
             }
         }
-        
-        // 分隔线
-        // Rectangle {
-        //     Layout.fillWidth: true
-        //     Layout.preferredHeight: 1
-        //     Layout.leftMargin: 8
-        //     Layout.rightMargin: 8
-        //     color: applicationWindow.isDarkTheme ? "#444444" : "#eeeeee"
-        //     visible: sideBar.expanded
-            
-        //     // 添加颜色过渡动画
-        //     Behavior on color {
-        //         ColorAnimation { duration: 200 }
-        //     }
+
+        // 弹性空间不再需要
+        // Item {
+        //     Layout.fillHeight: true
+        //     visible: !sideBar.expanded
         // }
 
         // 弹性空间，将设置按钮推到底部
         Item {
             Layout.fillHeight: true
+            visible: !sideBar.expanded  // 当侧边栏展开时隐藏
         }
 
         Button {
             Layout.fillWidth: true
             Layout.preferredHeight: 40
-            Layout.margins: 8
+            Layout.margins: 0
             flat: true
 
             icon.source: applicationWindow.isDarkTheme ? "qrc:/resources/icons/status/dark.svg" : "qrc:/resources/icons/status/light.svg"
@@ -157,7 +149,7 @@ Rectangle {
         Button {
             Layout.fillWidth: true
             Layout.preferredHeight: 40
-            Layout.margins: 8
+            Layout.margins: 0
             flat: true
 
             // background: null
