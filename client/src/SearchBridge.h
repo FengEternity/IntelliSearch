@@ -40,12 +40,12 @@ public slots:
     }
 
 signals:
-    void searchResultsReady(const QString& results);
-    void searchingChanged();
-    void searchStatusChanged(const QString &status);
-    void sessionCreated(const QString& sessionId);
-    void sessionUpdated(const QString& sessionId);
-    void sessionHistoryChanged();
+    void searchResultsReady(const QString& results); // 搜索结果就绪
+    void searchingChanged();   // 搜索状态改变
+    void searchStatusChanged(const QString &status); // 搜索状态改变
+    void sessionCreated(const QString& sessionId); // 会话创建
+    void sessionUpdated(const QString& sessionId); // 会话更新
+    void sessionHistoryChanged();  // 会话历史改变
 
 private slots:
     void handleSearchComplete();

@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 
 Rectangle {
     id: chatTextField
@@ -84,6 +85,32 @@ Rectangle {
                     icon.color: "#666666"
                     opacity: 0.8
                     onClicked: {}
+                }
+
+                ToolButton {
+                    id: linkButton
+                    width: 30
+                    height: 30
+                    icon.source: "qrc:/resources/icons/actions/link.svg"
+                    icon.color: "#666666"
+                    opacity: 0.8
+                    onClicked: {
+                        // 创建并打开链接输入对话框
+                        var component = Qt.createComponent("LinkInputDialog.qml")
+                        if (component.status === Component.Ready) {
+                            var dialog = component.createObject(applicationWindow)
+                            dialog.open()
+                            dialog.linksSubmitted.connect(function(links) {
+                                // 将链接添加到文本框
+                                if (links.length > 0) {
+                                    var linksText = links.join("\n")
+                                    textArea.insert(textArea.cursorPosition, linksText)
+                                }
+                            })
+                        } else {
+                            console.error("Error loading LinkInputDialog:", component.errorString())
+                        }
+                    }
                 }
             }
         }

@@ -148,10 +148,9 @@ void SearchBridge::handleSearchComplete() {
 QString SearchBridge::startNewSession() {
     INFOLOG("Creating new chat session");
     QString sessionId = dbManager->createSession();
-    // 不再在这里发送 sessionHistoryChanged 信号，
-    // 因为新会话在有搜索记录之前不应该显示
     if (!sessionId.isEmpty()) {
         emit sessionCreated(sessionId);
+        emit sessionHistoryChanged();  // 添加这行，确保在创建新会话时更新历史记录
         INFOLOG("Created new session with ID: {}", sessionId.toStdString());
     } else {
         ERRORLOG("Failed to create new session");

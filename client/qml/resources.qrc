@@ -16,7 +16,7 @@
         <file>components/ReplyChatBox.qml</file>
         <file>components/BorderButton.qml</file>
         <file>components/HistoryRecord.qml</file>
-
+        <file>components/LinkInputDialog.qml</file>
 
         <file>resources/icons/logo.svg</file>
 
@@ -28,7 +28,7 @@
         <file>resources/icons/actions/model.svg</file>
         <file>resources/icons/actions/copy.svg</file>
         <file>resources/icons/actions/edit.svg</file>
-
+        <file>resources/icons/actions/link.svg</file>
 
         <file>resources/icons/status/about.svg</file>
         <file>resources/icons/status/light.svg</file>
@@ -37,7 +37,7 @@
         <file>resources/icons/navigations/back.svg</file>
         <file>resources/icons/navigations/refresh.svg</file>
         <file>resources/icons/navigations/add.svg</file>
-
+        <file>resources/icons/navigations/delete.svg</file>
 
         <file>resources/icons/model/kimi.svg</file>
         <file>resources/icons/model/kimi-dark.svg</file>
