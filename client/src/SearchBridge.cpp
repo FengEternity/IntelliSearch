@@ -26,6 +26,7 @@ SearchBridge::SearchBridge(QObject* parent)
     : QObject(parent)
     , intentParser(std::make_unique<IntentParser>())
     , dbManager(DatabaseManagerFactory::createDatabaseManager())
+    , crawlerManager(std::make_unique<CrawlerManager>())
     , currentTurnNumber(0)
 {
     if (!dbManager) {
@@ -40,6 +41,14 @@ SearchBridge::SearchBridge(QObject* parent)
 
     connect(&searchWatcher, &QFutureWatcher<QString>::finished, 
             this, &SearchBridge::handleSearchComplete);
+            
+    // 连接爬虫管理器信号
+    connect(crawlerManager.get(), &CrawlerManager::crawlingCompleted,
+            this, &SearchBridge::crawlingCompleted);
+    connect(crawlerManager.get(), &CrawlerManager::errorOccurred,
+            this, &SearchBridge::crawlingError);
+    connect(crawlerManager.get(), &CrawlerManager::progressChanged,
+            this, &SearchBridge::crawlingProgress);
 
     INFOLOG("SearchBridge initialization completed");
 }
@@ -195,4 +204,34 @@ void SearchBridge::setCurrentSession(const QString& sessionId) {
         INFOLOG("Set current session to: {}", sessionId.toStdString());
     }
 }
+
+/*
+ * Summary: 开始爬取URL
+ * Parameters:
+ *   const QStringList& urls - 要爬取的URL列表
+ * Return: void
+ * Description: 调用爬虫管理器开始爬取URL
+ */
+void SearchBridge::startCrawling(const QStringList& urls) {
+    if (urls.isEmpty()) {
+        WARNLOG("No URLs provided for crawling");
+        return;
+    }
+    
+    INFOLOG("Starting crawling with {} URLs", urls.size());
+    crawlerManager->startCrawling(urls);
+    emit crawlingStarted();
+}
+
+/*
+ * Summary: 停止爬取
+ * Parameters: 无
+ * Return: void
+ * Description: 调用爬虫管理器停止爬取
+ */
+void SearchBridge::stopCrawling() {
+    INFOLOG("Stopping crawling");
+    crawlerManager->stopCrawling();
+}
+
 } // namespace IntelliSearch

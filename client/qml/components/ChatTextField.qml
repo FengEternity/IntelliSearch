@@ -98,7 +98,15 @@ Rectangle {
                         // 创建并打开链接输入对话框
                         var component = Qt.createComponent("LinkInputDialog.qml")
                         if (component.status === Component.Ready) {
-                            var dialog = component.createObject(applicationWindow)
+                            // 获取SearchBridge实例
+                            var searchBridgeInstance = null
+                            if (applicationWindow.searchBridge) {
+                                searchBridgeInstance = applicationWindow.searchBridge
+                            }
+                            
+                            var dialog = component.createObject(applicationWindow, {
+                                "searchBridge": searchBridgeInstance
+                            })
                             dialog.open()
                             dialog.linksSubmitted.connect(function(links) {
                                 // 将链接添加到文本框

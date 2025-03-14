@@ -79,7 +79,7 @@ Rectangle {
             visible: sideBar.expanded
             searchBridge: sideBar.searchBridge
             stackView: sideBar.stackView
-            
+
             // 添加高度过渡动画
             Behavior on Layout.preferredHeight {
                 NumberAnimation {

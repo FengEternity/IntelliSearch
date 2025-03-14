@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import IntelliSearch 1.0  
 
 Dialog {
     id: linkInputDialog
@@ -11,11 +12,20 @@ Dialog {
     anchors.centerIn: parent
     // title: "添加链接"
     standardButtons: Dialog.Ok | Dialog.Cancel
+
+    SearchBridge {
+        id: searchBridge
+    }
     
     // 自定义属性
     property var linkList: []
+    property bool isCrawling: false
+    // property var searchBridge: null
     signal linksSubmitted(var links)
-    
+    signal crawlingStarted()
+    signal crawlingError(string errorMessage)
+    signal crawlingCompleted()
+
     // 对话框背景
     background: Rectangle {
         color: applicationWindow.isDarkTheme ? "#2A2A2A" : "#ffffff"
@@ -210,7 +220,20 @@ Dialog {
     // 确认按钮
     onAccepted: {
         if (linkList.length > 0) {
-            linksSubmitted(linkList)
+            // 验证所有链接
+            let validLinks = linkList.filter(url => isValidUrl(url))
+            if (validLinks.length > 0) {
+                linksSubmitted(validLinks)
+                crawlingStarted()
+                
+                // 如果有searchBridge属性，则调用其startCrawling方法
+                if (searchBridge) {
+                    searchBridge.startCrawling(validLinks)
+                    console.log("URLs sent to crawler: " + validLinks.join(", "))
+                } else {
+                    console.warn("SearchBridge not available, cannot start crawling")
+                }
+            }
         }
     }
     

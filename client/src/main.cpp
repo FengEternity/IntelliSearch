@@ -10,6 +10,7 @@
 #include "log/Logger.h"
 #include "config/ConfigManager.h"
 #include "SearchBridge.h"
+#include "../../data/crawler/CrawlerManager.h"
 
 // QML日志处理函数
 void qmlMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
@@ -64,6 +65,10 @@ int main(int argc, char *argv[]) {
     // 使用qmlRegisterType注册SearchBridge类型
     qmlRegisterType<IntelliSearch::SearchBridge>("IntelliSearch", 1, 0, "SearchBridge");
     DEBUGLOG("SearchBridge type registered to QML");
+    
+    // 注册CrawlerManager类型到QML
+    qmlRegisterType<IntelliSearch::CrawlerManager>("IntelliSearch", 1, 0, "CrawlerManager");
+    DEBUGLOG("CrawlerManager type registered to QML");
     
     // 加载主QML文件
     const QUrl url("qrc:/main.qml");
