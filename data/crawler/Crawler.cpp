@@ -17,8 +17,8 @@ namespace IntelliSearch
                 this, &Crawler::requestNextUrl);
 
         // 设置默认配置
-        m_config.maxDepth = 2;
-        m_config.maxPages = 100;
+        m_config.maxDepth = 0;
+        m_config.maxPages = 1;
         m_config.requestDelay = 1000;
         m_config.followExternalLinks = false;
 
@@ -226,6 +226,14 @@ namespace IntelliSearch
 
         // 提取链接
         result.links = extractLinks(url, html);
+
+        INFOLOG("Parsed HTML for URL: {}", url.toStdString());
+        INFOLOG("Parser result - Title: {}, Content length: {}, Links count: {}, content: {}", 
+            result.title.toStdString(), 
+            result.content.length(), 
+            result.links.size(),
+            result.content.toStdString()
+        );
 
         return result;
     }
