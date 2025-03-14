@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import IntelliSearch 1.0  
+import IntelliSearch 1.0
 
 Dialog {
     id: linkInputDialog
@@ -97,7 +97,7 @@ Dialog {
                         
                         // 回车键添加链接
                         Keys.onReturnPressed: {
-                            addLink()
+                            linkInputDialog.addLink()
                         }
                     }
                     
@@ -116,7 +116,7 @@ Dialog {
                         }
                         
                         onClicked: {
-                            addLink()
+                            linkInputDialog.addLink()
                         }
                     }
                 }
@@ -141,11 +141,11 @@ Dialog {
                     anchors.fill: parent
                     anchors.margins: 8
                     clip: true
-                    model: linkList
+                    model: linkInputDialog.linkList
                     spacing: 8
                     
                     delegate: Rectangle {
-                        width: linkListView.width
+                        width: ListView.view.width
                         height: 40
                         color: applicationWindow.isDarkTheme ? "#333333" : "#FFFFFF"
                         radius: 6
@@ -265,8 +265,8 @@ Dialog {
     
     // 简单的URL验证函数
     function isValidUrl(url) {
-        // 简单验证，可以根据需要增加更复杂的验证
-        return url.startsWith("http://") || url.startsWith("https://")
+        // TO DO: 更复杂的URL验证
+        return true
     }
     
     // 打开对话框时清空输入框并聚焦

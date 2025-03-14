@@ -17,6 +17,8 @@
         <file>components/BorderButton.qml</file>
         <file>components/HistoryRecord.qml</file>
         <file>components/LinkInputDialog.qml</file>
+        <file>components/LinkTag.qml</file>
+
 
         <file>resources/icons/logo.svg</file>
 

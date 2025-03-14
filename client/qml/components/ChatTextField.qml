@@ -96,27 +96,53 @@ Rectangle {
                     opacity: 0.8
                     onClicked: {
                         // 创建并打开链接输入对话框
-                        var component = Qt.createComponent("LinkInputDialog.qml")
+                        var component = Qt.createComponent("LinkInputDialog.qml");
                         if (component.status === Component.Ready) {
                             // 获取SearchBridge实例
-                            var searchBridgeInstance = null
+                            var searchBridgeInstance = null;
                             if (applicationWindow.searchBridge) {
-                                searchBridgeInstance = applicationWindow.searchBridge
+                                searchBridgeInstance = applicationWindow.searchBridge;
                             }
-                            
+
                             var dialog = component.createObject(applicationWindow, {
                                 "searchBridge": searchBridgeInstance
-                            })
-                            dialog.open()
-                            dialog.linksSubmitted.connect(function(links) {
-                                // 将链接添加到文本框
-                                if (links.length > 0) {
-                                    var linksText = links.join("\n")
-                                    textArea.insert(textArea.cursorPosition, linksText)
-                                }
-                            })
+                            });
+                            dialog.open();
+                            dialog.linksSubmitted.connect(function (links) {
+                                // 为每个链接创建一个标签组件
+                                links.forEach(function (link, index) {
+                                    var tagComponent = Qt.createComponent("LinkTag.qml");
+                                    if (tagComponent.status === Component.Ready) {
+                                        // 从预定义的颜色列表中随机选择一个颜色
+                                        var colors = ["#64B5F6", "#4CAF50", "#FF9800", "#9C27B0", "#F44336", "#009688"];
+                                        var randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+                                        // 在当前光标位置插入空格
+                                        var pos = textArea.cursorPosition;
+                                        if (pos > 0 && textArea.text.charAt(pos - 1) !== ' ') {
+                                            textArea.insert(pos, ' ');
+                                            pos += 1;
+                                        }
+
+                                        // 创建并插入标签
+                                        var tag = tagComponent.createObject(textArea, {
+                                            "text": link,
+                                            "tagColor": randomColor,
+                                            "linkIndex": index + 1,
+                                            "parent": textArea
+                                        });
+
+                                        // 插入标签文本并添加结尾空格
+                                        // var tagText = "#link" + (index + 1);
+                                        // textArea.insert(pos, tagText + ' ');
+                                        // textArea.cursorPosition = pos + tagText.length + 1;
+                                    } else {
+                                        console.error("Error loading LinkTag:", tagComponent.errorString());
+                                    }
+                                });
+                            });
                         } else {
-                            console.error("Error loading LinkInputDialog:", component.errorString())
+                            console.error("Error loading LinkInputDialog:", component.errorString());
                         }
                     }
                 }
