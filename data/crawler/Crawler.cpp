@@ -1,6 +1,5 @@
 #include "Crawler.h"
 #include "../../log/Logger.h"
-#include <QTextDocument>
 
 namespace IntelliSearch
 {
@@ -53,7 +52,7 @@ namespace IntelliSearch
         // 添加初始URL到队列
         for (const QString &url : urls)
         {
-            QString normalizedUrl = normalizeUrl("", url);
+            QString normalizedUrl = m_htmlParser.normalizeUrl("", url, m_config.followExternalLinks, m_config.allowedDomains, m_config.urlFilters);
             if (!normalizedUrl.isEmpty())
             {
                 m_urlQueue.enqueue(normalizedUrl);
@@ -159,8 +158,8 @@ namespace IntelliSearch
             {
                 QString html = QString::fromUtf8(data);
 
-                // 解析HTML
-                CrawlResult result = parseHtml(url, html);
+                // 使用HTML解析器解析HTML
+                CrawlResult result = m_htmlParser.parseHtml(url, html);
 
                 // 处理结果
                 processResult(result);
@@ -205,136 +204,7 @@ namespace IntelliSearch
         }
     }
 
-    CrawlResult Crawler::parseHtml(const QString &url, const QString &html)
-    {
-        CrawlResult result;
-        result.url = url;
-        result.timestamp = QDateTime::currentDateTime();
 
-        // 提取标题
-        QRegularExpression titleRegex("<title>([^<]*)</title>", QRegularExpression::CaseInsensitiveOption);
-        QRegularExpressionMatch titleMatch = titleRegex.match(html);
-        if (titleMatch.hasMatch())
-        {
-            result.title = titleMatch.captured(1).trimmed();
-        }
-
-        // 提取内容 (简单实现，移除HTML标签)
-        QTextDocument doc;
-        doc.setHtml(html);
-        result.content = doc.toPlainText();
-
-        // 提取链接
-        result.links = extractLinks(url, html);
-
-        INFOLOG("Parsed HTML for URL: {}", url.toStdString());
-        INFOLOG("Parser result - Title: {}, Content length: {}, Links count: {}, content: {}", 
-            result.title.toStdString(), 
-            result.content.length(), 
-            result.links.size(),
-            result.content.toStdString()
-        );
-
-        return result;
-    }
-
-    QStringList Crawler::extractLinks(const QString &baseUrl, const QString &html)
-    {
-        QStringList links;
-        QSet<QString> uniqueLinks;
-
-        // 提取href属性
-        QRegularExpression hrefRegex("href=\"([^\"]*)\"", QRegularExpression::CaseInsensitiveOption);
-        QRegularExpressionMatchIterator i = hrefRegex.globalMatch(html);
-
-        while (i.hasNext())
-        {
-            QRegularExpressionMatch match = i.next();
-            QString href = match.captured(1).trimmed();
-
-            // 规范化URL
-            QString normalizedUrl = normalizeUrl(baseUrl, href);
-
-            // 检查URL是否有效且未被处理过
-            if (!normalizedUrl.isEmpty() && !uniqueLinks.contains(normalizedUrl))
-            {
-                uniqueLinks.insert(normalizedUrl);
-                links.append(normalizedUrl);
-            }
-        }
-
-        return links;
-    }
-
-    QString Crawler::normalizeUrl(const QString &baseUrl, const QString &url)
-    {
-        // 创建QUrl对象
-        QUrl qurl;
-        if (url.startsWith("http://") || url.startsWith("https://"))
-        {
-            qurl = QUrl(url);
-        }
-        else
-        {
-            QUrl base(baseUrl);
-            qurl = base.resolved(QUrl(url));
-        }
-
-        // 检查URL是否有效
-        if (!qurl.isValid())
-        {
-            return QString();
-        }
-
-        // 移除片段(#后面的内容)
-        qurl.setFragment(QString());
-
-        // 获取规范化的URL字符串
-        QString normalizedUrl = qurl.toString();
-
-        // 检查是否应该跟随外部链接
-        if (!m_config.followExternalLinks && !baseUrl.isEmpty())
-        {
-            QUrl baseQUrl(baseUrl);
-            if (baseQUrl.host() != qurl.host())
-            {
-                return QString();
-            }
-        }
-
-        // 检查是否在允许的域名列表中
-        if (!m_config.allowedDomains.isEmpty())
-        {
-            bool allowed = false;
-            for (const QString &domain : m_config.allowedDomains)
-            {
-                if (qurl.host().endsWith(domain, Qt::CaseInsensitive))
-                {
-                    allowed = true;
-                    break;
-                }
-            }
-            if (!allowed)
-            {
-                return QString();
-            }
-        }
-
-        // 应用URL过滤规则
-        if (!m_config.urlFilters.isEmpty())
-        {
-            for (const QString &filter : m_config.urlFilters)
-            {
-                QRegularExpression regex(filter);
-                if (regex.match(normalizedUrl).hasMatch())
-                {
-                    return QString();
-                }
-            }
-        }
-
-        return normalizedUrl;
-    }
 
     bool Crawler::shouldCrawl(const QString &url)
     {

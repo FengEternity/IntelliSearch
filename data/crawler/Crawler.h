@@ -15,6 +15,7 @@
 #include <QJsonArray>
 #include <QRegularExpression>
 #include <memory>
+#include "HtmlParser.h"
 
 namespace IntelliSearch
 {
@@ -29,16 +30,7 @@ namespace IntelliSearch
         Error      // 错误
     };
 
-    // 爬取结果结构体
-    struct CrawlResult
-    {
-        QString url;          // 页面URL
-        QString title;        // 页面标题
-        QString content;      // 页面内容
-        QStringList links;    // 页面中的链接
-        QJsonObject metadata; // 元数据
-        QDateTime timestamp;  // 爬取时间戳
-    };
+    // 使用HtmlParser.h中定义的CrawlResult结构体
 
     // 爬虫配置结构体
     struct CrawlerConfig
@@ -108,15 +100,6 @@ namespace IntelliSearch
         // 处理网络响应
         virtual void handleNetworkReply(QNetworkReply *reply);
 
-        // 解析HTML内容
-        virtual CrawlResult parseHtml(const QString &url, const QString &html);
-
-        // 提取链接
-        virtual QStringList extractLinks(const QString &baseUrl, const QString &html);
-
-        // 规范化URL
-        virtual QString normalizeUrl(const QString &baseUrl, const QString &url);
-
         // 检查URL是否应该被爬取
         virtual bool shouldCrawl(const QString &url);
 
@@ -136,6 +119,7 @@ namespace IntelliSearch
         QTimer *m_requestTimer;                  // 请求定时器
         int m_currentDepth;                      // 当前爬取深度
         QMap<QString, int> m_urlDepthMap;        // URL深度映射
+        HtmlParser m_htmlParser;                 // HTML解析器
     };
 
 } // namespace IntelliSearch

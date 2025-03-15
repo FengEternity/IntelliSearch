@@ -51,6 +51,8 @@ set(SOURCES
     ${CMAKE_SOURCE_DIR}/../data/database/DatabaseManager.cpp
     ${CMAKE_SOURCE_DIR}/../data/crawler/Crawler.cpp
     ${CMAKE_SOURCE_DIR}/../data/crawler/CrawlerManager.cpp
+    ${CMAKE_SOURCE_DIR}/../data/crawler/HtmlParser.cpp
+
 )
 
 set(RESOURCE_FILES
