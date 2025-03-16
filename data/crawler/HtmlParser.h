@@ -17,6 +17,7 @@
 #include <QNetworkRequest>
 #include <QEventLoop>
 #include <QTimer>
+#include "JSExecutionAnalyzer.h"
 
 namespace IntelliSearch
 {
@@ -60,11 +61,17 @@ namespace IntelliSearch
         // WebEngine页面加载完成标志
         bool m_loadFinished;
         
+        // JavaScript执行分析器
+        JSExecutionAnalyzer m_jsAnalyzer;
+        
         // 创建WebEnginePage实例
         QWebEnginePage* createWebPage();
         
         // 等待页面加载完成
         bool waitForPageLoad(QWebEnginePage *page, int timeout);
+        
+        // 使用JavaScript执行分析器检测动态内容
+        bool detectDynamicContentWithJSAnalyzer(const QString &url, int timeout = 5000);
     };
 
 } // namespace IntelliSearch

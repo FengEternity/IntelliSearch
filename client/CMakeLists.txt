@@ -55,6 +55,7 @@ set(SOURCES
     ${CMAKE_SOURCE_DIR}/../data/crawler/CrawlerManager.cpp
     ${CMAKE_SOURCE_DIR}/../data/crawler/HtmlParser.cpp
     ${CMAKE_SOURCE_DIR}/../data/crawler/WebEnginePage.cpp
+    ${CMAKE_SOURCE_DIR}/../data/crawler/JSExecutionAnalyzer.cpp
 
 )
 
