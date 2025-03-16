@@ -56,6 +56,7 @@ namespace IntelliSearch
         Q_INVOKABLE void setFollowExternalLinks(bool follow);
         Q_INVOKABLE void setAllowedDomains(const QStringList &domains);
         Q_INVOKABLE void setUrlFilters(const QStringList &filters);
+        Q_INVOKABLE void setUseDynamicCrawling(bool useDynamic);
 
         // 获取爬取结果
         Q_INVOKABLE QVariantList getCrawlResults(int limit = 100) const;

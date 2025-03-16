@@ -20,6 +20,8 @@ find_package(Qt6 REQUIRED COMPONENTS
     Widgets
     QuickTemplates2
     Network
+    WebEngineCore
+    WebEngineWidgets
 )
 find_package(CURL REQUIRED)
 find_package(nlohmann_json REQUIRED)
@@ -52,6 +54,7 @@ set(SOURCES
     ${CMAKE_SOURCE_DIR}/../data/crawler/Crawler.cpp
     ${CMAKE_SOURCE_DIR}/../data/crawler/CrawlerManager.cpp
     ${CMAKE_SOURCE_DIR}/../data/crawler/HtmlParser.cpp
+    ${CMAKE_SOURCE_DIR}/../data/crawler/WebEnginePage.cpp
 
 )
 
@@ -91,6 +94,8 @@ target_link_libraries(IntelliSearch
     Qt6::Widgets
     Qt6::QuickTemplates2
     Qt6::Network
+    Qt6::WebEngineCore
+    Qt6::WebEngineWidgets
     CURL::libcurl
     nlohmann_json::nlohmann_json
     Qt6::Sql

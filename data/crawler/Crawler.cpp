@@ -20,6 +20,8 @@ namespace IntelliSearch
         m_config.maxPages = 1;
         m_config.requestDelay = 1000;
         m_config.followExternalLinks = false;
+        m_config.useDynamicCrawling = false;
+        m_config.pageLoadTimeout = 30000;
 
         INFOLOG("Crawler initialized");
     }
@@ -156,10 +158,25 @@ namespace IntelliSearch
             // 只处理HTML内容
             if (contentType.contains("text/html", Qt::CaseInsensitive))
             {
+                CrawlResult result;
+                
+                // 将响应内容转换为字符串
                 QString html = QString::fromUtf8(data);
-
-                // 使用HTML解析器解析HTML
-                CrawlResult result = m_htmlParser.parseHtml(url, html);
+                
+                // 智能判断是否需要动态爬取
+                bool needsDynamic = m_config.useDynamicCrawling && m_htmlParser.needsDynamicCrawling(url, html);
+                
+                if (needsDynamic)
+                {
+                    // 使用动态网页抓取
+                    INFOLOG("Using dynamic crawling for URL: {}", url.toStdString());
+                    result = m_htmlParser.parseDynamicHtml(url, m_config.pageLoadTimeout);
+                }
+                else
+                {
+                    // 使用静态HTML解析
+                    result = m_htmlParser.parseHtml(url, html);
+                }
 
                 // 处理结果
                 processResult(result);

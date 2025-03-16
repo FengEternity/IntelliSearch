@@ -39,6 +39,8 @@ namespace IntelliSearch
         int maxPages = 100;               // 最大爬取页面数
         int requestDelay = 1000;          // 请求延迟(毫秒)
         bool followExternalLinks = false; // 是否跟随外部链接
+        bool useDynamicCrawling = false;  // 是否使用动态爬取（WebEngine）
+        int pageLoadTimeout = 30000;      // 页面加载超时时间（毫秒）
         QStringList allowedDomains;       // 允许的域名列表
         QStringList urlFilters;           // URL过滤规则
         QStringList contentFilters;       // 内容过滤规则

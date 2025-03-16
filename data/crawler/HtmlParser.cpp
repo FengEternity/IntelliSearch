@@ -1,12 +1,50 @@
 #include "HtmlParser.h"
+#include "WebEnginePage.h"
 #include "../../log/Logger.h"
 
 namespace IntelliSearch
 {
 
-    HtmlParser::HtmlParser()
+    HtmlParser::HtmlParser() : m_loadFinished(false)
     {
         // 构造函数实现
+    }
+
+    bool HtmlParser::needsDynamicCrawling(const QString &url, const QString &html) {
+        // 强特征：直接判定
+        if (html.contains("__NEXT_DATA__") || 
+            html.contains("ReactDOM.render(") || 
+            html.contains("fetch(\"/api/") || 
+            html.contains("XMLHttpRequest")) {
+            DEBUGLOG("Strong dynamic feature detected");
+            return true;
+        }
+    
+        // 弱特征组合：需满足至少两个条件
+        int weakConditionsMet = 0;
+    
+        // 条件1：URL包含动态路径
+        if (url.contains(QRegularExpression("/(spa|api|graphql)/", QRegularExpression::CaseInsensitiveOption))) {
+            weakConditionsMet++;
+        }
+    
+        // 条件2：存在模板语法
+        if (html.contains(QRegularExpression("\\{\\{.*?\\}\\}"))) {
+            weakConditionsMet++;
+        }
+    
+        // 条件3：脚本数量 > 5 且包含动态关键词
+        if (html.count("<script") > 5 && html.contains("data-binding")) {
+            weakConditionsMet++;
+        }
+    
+        // 至少满足两个弱特征才判定
+        if (weakConditionsMet >= 2) {
+            DEBUGLOG("Multiple weak conditions met");
+            return true;
+        }
+    
+        return false;
     }
 
     HtmlParser::~HtmlParser()
@@ -42,6 +80,9 @@ namespace IntelliSearch
             result.content.length(), 
             result.links.size()
         );
+        // 打印解析结果
+        INFOLOG("Parser Content: {}", result.content.toStdString());
+
 
         return result;
     }
@@ -145,6 +186,95 @@ namespace IntelliSearch
         }
 
         return normalizedUrl;
+    }
+    
+    QWebEnginePage* HtmlParser::createWebPage()
+    {
+        // 创建自定义WebEnginePage实例
+        WebEnginePage *page = new WebEnginePage();
+        return page;
+    }
+    
+    bool HtmlParser::waitForPageLoad(QWebEnginePage *page, int timeout)
+    {
+        QEventLoop loop;
+        QTimer timer;
+        timer.setSingleShot(true);
+        
+        // 连接页面加载完成信号
+        QObject::connect(page, &QWebEnginePage::loadFinished, [&](bool success) {
+            m_loadFinished = success;
+            loop.quit();
+        });
+        
+        // 连接超时信号
+        QObject::connect(&timer, &QTimer::timeout, [&]() {
+            WARNLOG("Page load timeout");
+            loop.quit();
+        });
+        
+        // 启动超时计时器
+        timer.start(timeout);
+        
+        // 等待页面加载完成或超时
+        loop.exec();
+        
+        return m_loadFinished;
+    }
+    
+    CrawlResult HtmlParser::parseDynamicHtml(const QString &url, int timeout)
+    {
+        INFOLOG("Parsing dynamic HTML for URL: {}", url.toStdString());
+        
+        CrawlResult result;
+        result.url = url;
+        result.timestamp = QDateTime::currentDateTime();
+        
+        // 创建WebEnginePage实例
+        QWebEnginePage *page = createWebPage();
+        
+        // 加载URL
+        page->load(QUrl(url));
+        
+        // 等待页面加载完成
+        if (!waitForPageLoad(page, timeout))
+        {
+            ERRORLOG("Failed to load page: {}", url.toStdString());
+            delete page;
+            return result;
+        }
+        
+        // 获取页面标题
+        result.title = page->title();
+        
+        // 获取页面HTML内容
+        QEventLoop loop;
+        page->toHtml([&](const QString &html) {
+            // 提取内容
+            QTextDocument doc;
+            doc.setHtml(html);
+            result.content = doc.toPlainText();
+            
+            // 提取链接
+            result.links = extractLinks(url, html);
+            
+            loop.quit();
+        });
+        
+        // 等待HTML内容获取完成
+        loop.exec();
+        
+        INFOLOG("Parsed dynamic HTML for URL: {}", url.toStdString());
+        INFOLOG("Parser result - Title: {}, Content length: {}, Links count: {}", 
+            result.title.toStdString(), 
+            result.content.length(), 
+            result.links.size()
+        );
+        
+        // 清理资源
+        delete page;
+        
+        return result;
     }
 
 } // namespace IntelliSearch

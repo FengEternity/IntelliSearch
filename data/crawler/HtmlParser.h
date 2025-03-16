@@ -9,6 +9,14 @@
 #include <QJsonObject>
 #include <QDateTime>
 #include <QSet>
+#include <QWebEnginePage>
+#include <QWebEngineProfile>
+#include <QNetworkAccessManager>
+#include <QNetworkCookie>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QEventLoop>
+#include <QTimer>
 
 namespace IntelliSearch
 {
@@ -30,8 +38,14 @@ namespace IntelliSearch
         explicit HtmlParser();
         ~HtmlParser();
 
+        // 判断页面是否需要动态爬取
+        bool needsDynamicCrawling(const QString &url, const QString &html);
+
         // 解析HTML内容
         CrawlResult parseHtml(const QString &url, const QString &html);
+
+        // 解析动态网页内容（使用WebEngine）
+        CrawlResult parseDynamicHtml(const QString &url, int timeout = 30000);
 
         // 提取链接
         QStringList extractLinks(const QString &baseUrl, const QString &html);
@@ -43,7 +57,14 @@ namespace IntelliSearch
                             const QStringList &urlFilters = QStringList());
 
     private:
-        // 可以添加私有成员变量和方法
+        // WebEngine页面加载完成标志
+        bool m_loadFinished;
+        
+        // 创建WebEnginePage实例
+        QWebEnginePage* createWebPage();
+        
+        // 等待页面加载完成
+        bool waitForPageLoad(QWebEnginePage *page, int timeout);
     };
 
 } // namespace IntelliSearch

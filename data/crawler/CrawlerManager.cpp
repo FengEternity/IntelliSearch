@@ -7,6 +7,11 @@ namespace IntelliSearch
     CrawlerManager::CrawlerManager(QObject *parent)
         : QObject(parent), m_crawler(std::make_unique<Crawler>()), m_isCrawling(false), m_crawledCount(0), m_totalCount(0)
     {
+        // 启用动态爬取
+        CrawlerConfig config = m_crawler->getConfig();
+        config.useDynamicCrawling = true;
+        m_crawler->setConfig(config);
+
         // 连接爬虫信号到管理器槽函数
         connect(m_crawler.get(), &Crawler::progressChanged,
                 this, &CrawlerManager::handleProgressChanged);
@@ -133,6 +138,14 @@ namespace IntelliSearch
         config.urlFilters = filters;
         m_crawler->setConfig(config);
         INFOLOG("Set URL filters: {}", filters.join(", ").toStdString());
+    }
+
+    void CrawlerManager::setUseDynamicCrawling(bool useDynamic)
+    {
+        CrawlerConfig config = m_crawler->getConfig();
+        config.useDynamicCrawling = useDynamic;
+        m_crawler->setConfig(config);
+        INFOLOG("Set use dynamic crawling to {}", useDynamic);
     }
 
     QVariantList CrawlerManager::getCrawlResults(int limit) const
