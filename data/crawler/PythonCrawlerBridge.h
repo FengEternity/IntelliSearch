@@ -34,7 +34,7 @@ namespace IntelliSearch
     struct PythonCrawlerConfig
     {
         int maxDepth = 1;                 // 最大爬取深度
-        int maxPages = 1;               // 最大爬取页面数
+        int maxPages = 100;               // 最大爬取页面数
         int requestDelay = 1000;          // 请求延迟(毫秒)
         bool followExternalLinks = false; // 是否跟随外部链接
         bool useDynamicCrawling = false;  // 是否使用动态爬取
