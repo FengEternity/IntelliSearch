@@ -68,8 +68,8 @@ class CrawlerConfig:
     """爬虫配置类，存储爬虫的配置参数"""
     
     def __init__(self):
-        self.max_depth = 2                  # 最大爬取深度
-        self.max_pages = 100                # 最大爬取页面数
+        self.max_depth = 1                  # 最大爬取深度
+        self.max_pages = 1                  # 最大爬取页面数
         self.request_delay = 1.0            # 请求延迟(秒)
         self.follow_external_links = False  # 是否跟随外部链接
         self.use_dynamic_crawling = False   # 是否使用动态爬取

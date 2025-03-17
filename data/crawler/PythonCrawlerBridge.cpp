@@ -9,8 +9,8 @@ namespace IntelliSearch
           m_crawledCount(0), m_totalCount(0)
     {
         // 设置默认配置
-        m_config.maxDepth = 2;
-        m_config.maxPages = 100;
+        m_config.maxDepth = 1;
+        m_config.maxPages = 1;
         m_config.requestDelay = 1000;
         m_config.followExternalLinks = false;
         m_config.useDynamicCrawling = false;
@@ -236,14 +236,24 @@ namespace IntelliSearch
         if (!errorStr.isEmpty())
         {
             // 解析日志级别
-            if (errorStr.startsWith("INFO", Qt::CaseInsensitive)) {
-                INFOLOG("Python crawler: {}", errorStr.toStdString());
-            } else if (errorStr.startsWith("WARN", Qt::CaseInsensitive)) {
-                WARNLOG("Python crawler: {}", errorStr.toStdString());
-            } else if (errorStr.startsWith("DEBUG", Qt::CaseInsensitive)) {
-                DEBUGLOG("Python crawler: {}", errorStr.toStdString());
+            QRegularExpression logLevelRegex("- (INFO|WARN|DEBUG|ERROR) -");
+            QRegularExpressionMatch match = logLevelRegex.match(errorStr);
+            
+            if (match.hasMatch()) {
+                QString logLevel = match.captured(1);
+                
+                if (logLevel == "INFO") {
+                    INFOLOG("Python crawler: {}", errorStr.toStdString());
+                } else if (logLevel == "WARN") {
+                    WARNLOG("Python crawler: {}", errorStr.toStdString());
+                } else if (logLevel == "DEBUG") {
+                    DEBUGLOG("Python crawler: {}", errorStr.toStdString());
+                } else if (logLevel == "ERROR") {
+                    ERRORLOG("Python crawler error: {}", errorStr.toStdString());
+                    emit errorOccurred(errorStr);
+                }
             } else {
-                // 默认当作错误处理
+                // 如果无法识别日志级别，默认当作错误处理
                 ERRORLOG("Python crawler error: {}", errorStr.toStdString());
                 emit errorOccurred(errorStr);
             }
