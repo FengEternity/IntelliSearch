@@ -9,6 +9,7 @@ docs/google.txt
 docs/project_structure.md
 DOCS/bug.md
 client/CMakeLists.txt.user
-data/crawler/__pycache__/
-data/crawler/crawl_result/
-data/crawler/results/
+/data/crawler/__pycache__/
+/data/crawler/crawl_result/
+/data/crawler/python_crawler/crawl_results/
+/data/crawler/python_crawler/results/crawl_result*
