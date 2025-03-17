@@ -11,4 +11,4 @@ DOCS/bug.md
 client/CMakeLists.txt.user
 data/crawler/__pycache__/
 data/crawler/crawl_result/
-data/crawler/result/
+data/crawler/results/
