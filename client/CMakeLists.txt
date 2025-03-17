@@ -51,11 +51,8 @@ set(SOURCES
     ${CMAKE_SOURCE_DIR}/../log/Logger.cpp
     ${CMAKE_SOURCE_DIR}/../config/ConfigManager.cpp
     ${CMAKE_SOURCE_DIR}/../data/database/DatabaseManager.cpp
-    ${CMAKE_SOURCE_DIR}/../data/crawler/Crawler.cpp
     ${CMAKE_SOURCE_DIR}/../data/crawler/CrawlerManager.cpp
-    ${CMAKE_SOURCE_DIR}/../data/crawler/HtmlParser.cpp
-    ${CMAKE_SOURCE_DIR}/../data/crawler/WebEnginePage.cpp
-    ${CMAKE_SOURCE_DIR}/../data/crawler/JSExecutionAnalyzer.cpp
+    ${CMAKE_SOURCE_DIR}/../data/crawler/PythonCrawlerBridge.cpp
 
 )
 
@@ -79,6 +76,7 @@ target_include_directories(IntelliSearch
     ${CMAKE_SOURCE_DIR}/../core/api
     ${CMAKE_SOURCE_DIR}/../config
     ${CMAKE_SOURCE_DIR}/../data/database
+    ${CMAKE_SOURCE_DIR}/../data/crawler
     ${CURL_INCLUDE_DIRS}
 )
 
@@ -109,6 +107,14 @@ file(COPY ${CMAKE_SOURCE_DIR}/../config/IntentParserPrompt.json
      DESTINATION ${CMAKE_BINARY_DIR}/config)
 file(COPY ${CMAKE_SOURCE_DIR}/../config/SearchParserPrompt.json
      DESTINATION ${CMAKE_BINARY_DIR}/config)
+
+# 复制Python爬虫相关文件到构建目录
+file(COPY ${CMAKE_SOURCE_DIR}/../data/crawler/python_crawler/
+     DESTINATION ${CMAKE_BINARY_DIR}/data/crawler/python_crawler
+     PATTERN "__pycache__" EXCLUDE
+     PATTERN "*.pyc" EXCLUDE
+     PATTERN "results" EXCLUDE
+     PATTERN "crawl_results" EXCLUDE)
 
 # 显示构建信息
 message(STATUS "Project: ${PROJECT_NAME}")

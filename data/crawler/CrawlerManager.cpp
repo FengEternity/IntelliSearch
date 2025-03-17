@@ -1,30 +1,31 @@
 #include "CrawlerManager.h"
+#include "PythonCrawlerBridge.h"
 #include "../../log/Logger.h"
 
 namespace IntelliSearch
 {
 
     CrawlerManager::CrawlerManager(QObject *parent)
-        : QObject(parent), m_crawler(std::make_unique<Crawler>()), m_isCrawling(false), m_crawledCount(0), m_totalCount(0)
+        : QObject(parent), m_pythonCrawler(std::make_unique<PythonCrawlerBridge>()), m_isCrawling(false), m_crawledCount(0), m_totalCount(0)
     {
         // 启用动态爬取
-        CrawlerConfig config = m_crawler->getConfig();
+        PythonCrawlerConfig config = m_pythonCrawler->getConfig();
         config.useDynamicCrawling = true;
-        m_crawler->setConfig(config);
+        m_pythonCrawler->setConfig(config);
 
         // 连接爬虫信号到管理器槽函数
-        connect(m_crawler.get(), &Crawler::progressChanged,
+        connect(m_pythonCrawler.get(), &PythonCrawlerBridge::progressChanged,
                 this, &CrawlerManager::handleProgressChanged);
-        connect(m_crawler.get(), &Crawler::statusChanged,
+        connect(m_pythonCrawler.get(), &PythonCrawlerBridge::statusChanged,
                 this, &CrawlerManager::handleStatusChanged);
-        connect(m_crawler.get(), &Crawler::resultReady,
+        connect(m_pythonCrawler.get(), &PythonCrawlerBridge::resultReady,
                 this, &CrawlerManager::handleResultReady);
-        connect(m_crawler.get(), &Crawler::crawlingCompleted,
+        connect(m_pythonCrawler.get(), &PythonCrawlerBridge::crawlingCompleted,
                 this, &CrawlerManager::handleCrawlingCompleted);
-        connect(m_crawler.get(), &Crawler::errorOccurred,
+        connect(m_pythonCrawler.get(), &PythonCrawlerBridge::errorOccurred,
                 this, &CrawlerManager::handleErrorOccurred);
 
-        INFOLOG("CrawlerManager initialized");
+        INFOLOG("CrawlerManager initialized with Python crawler");
     }
 
     CrawlerManager::~CrawlerManager() = default;
@@ -63,7 +64,7 @@ namespace IntelliSearch
         m_totalCount = 0;
 
         // 开始爬取
-        m_crawler->startCrawling(urls);
+        m_pythonCrawler->startCrawling(urls);
 
         INFOLOG("Started crawling with {} URLs", urls.size());
     }
@@ -72,7 +73,7 @@ namespace IntelliSearch
     {
         if (m_isCrawling)
         {
-            m_crawler->pauseCrawling();
+            m_pythonCrawler->pauseCrawling();
             INFOLOG("Paused crawling");
         }
     }
@@ -81,70 +82,70 @@ namespace IntelliSearch
     {
         if (!m_isCrawling)
         {
-            m_crawler->resumeCrawling();
+            m_pythonCrawler->resumeCrawling();
             INFOLOG("Resumed crawling");
         }
     }
 
     void CrawlerManager::stopCrawling()
     {
-        m_crawler->stopCrawling();
+        m_pythonCrawler->stopCrawling();
         INFOLOG("Stopped crawling");
     }
 
     void CrawlerManager::setMaxDepth(int depth)
     {
-        CrawlerConfig config = m_crawler->getConfig();
+        PythonCrawlerConfig config = m_pythonCrawler->getConfig();
         config.maxDepth = depth;
-        m_crawler->setConfig(config);
+        m_pythonCrawler->setConfig(config);
         INFOLOG("Set max depth to {}", depth);
     }
 
     void CrawlerManager::setMaxPages(int pages)
     {
-        CrawlerConfig config = m_crawler->getConfig();
+        PythonCrawlerConfig config = m_pythonCrawler->getConfig();
         config.maxPages = pages;
-        m_crawler->setConfig(config);
+        m_pythonCrawler->setConfig(config);
         INFOLOG("Set max pages to {}", pages);
     }
 
     void CrawlerManager::setRequestDelay(int delay)
     {
-        CrawlerConfig config = m_crawler->getConfig();
+        PythonCrawlerConfig config = m_pythonCrawler->getConfig();
         config.requestDelay = delay;
-        m_crawler->setConfig(config);
+        m_pythonCrawler->setConfig(config);
         INFOLOG("Set request delay to {} ms", delay);
     }
 
     void CrawlerManager::setFollowExternalLinks(bool follow)
     {
-        CrawlerConfig config = m_crawler->getConfig();
+        PythonCrawlerConfig config = m_pythonCrawler->getConfig();
         config.followExternalLinks = follow;
-        m_crawler->setConfig(config);
+        m_pythonCrawler->setConfig(config);
         INFOLOG("Set follow external links to {}", follow);
     }
 
     void CrawlerManager::setAllowedDomains(const QStringList &domains)
     {
-        CrawlerConfig config = m_crawler->getConfig();
+        PythonCrawlerConfig config = m_pythonCrawler->getConfig();
         config.allowedDomains = domains;
-        m_crawler->setConfig(config);
+        m_pythonCrawler->setConfig(config);
         INFOLOG("Set allowed domains: {}", domains.join(", ").toStdString());
     }
 
     void CrawlerManager::setUrlFilters(const QStringList &filters)
     {
-        CrawlerConfig config = m_crawler->getConfig();
+        PythonCrawlerConfig config = m_pythonCrawler->getConfig();
         config.urlFilters = filters;
-        m_crawler->setConfig(config);
+        m_pythonCrawler->setConfig(config);
         INFOLOG("Set URL filters: {}", filters.join(", ").toStdString());
     }
 
     void CrawlerManager::setUseDynamicCrawling(bool useDynamic)
     {
-        CrawlerConfig config = m_crawler->getConfig();
+        PythonCrawlerConfig config = m_pythonCrawler->getConfig();
         config.useDynamicCrawling = useDynamic;
-        m_crawler->setConfig(config);
+        m_pythonCrawler->setConfig(config);
         INFOLOG("Set use dynamic crawling to {}", useDynamic);
     }
 
@@ -181,10 +182,10 @@ namespace IntelliSearch
         emit progressChanged(crawled, total);
     }
 
-    void CrawlerManager::handleStatusChanged(CrawlerStatus status)
+    void CrawlerManager::handleStatusChanged(PythonCrawlerStatus status)
     {
         // 更新爬取状态
-        m_isCrawling = (status == CrawlerStatus::Running);
+        m_isCrawling = (status == PythonCrawlerStatus::Running);
 
         // 发送状态变化信号
         emit crawlingStatusChanged(m_isCrawling);

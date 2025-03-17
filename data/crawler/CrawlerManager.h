@@ -7,7 +7,7 @@
 #include <QVariantMap>
 #include <QVariantList>
 #include <memory>
-#include "Crawler.h"
+#include "PythonCrawlerBridge.h"
 
 namespace IntelliSearch
 {
@@ -82,7 +82,7 @@ namespace IntelliSearch
         void handleProgressChanged(int crawled, int total);
 
         // 处理爬虫状态变化
-        void handleStatusChanged(CrawlerStatus status);
+        void handleStatusChanged(PythonCrawlerStatus status);
 
         // 处理爬虫结果
         void handleResultReady(const CrawlResult &result);
@@ -94,7 +94,7 @@ namespace IntelliSearch
         void handleErrorOccurred(const QString &errorMessage);
 
     private:
-        std::unique_ptr<Crawler> m_crawler; // 爬虫实例
+        std::unique_ptr<PythonCrawlerBridge> m_pythonCrawler; // Python爬虫实例
         QList<CrawlResult> m_results;       // 爬取结果列表
         bool m_isCrawling;                  // 是否正在爬取
         int m_crawledCount;                 // 已爬取的URL数量

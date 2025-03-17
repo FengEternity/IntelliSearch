@@ -1,0 +1,12 @@
+{
+    "max_depth": 2,
+    "max_pages": 100,
+    "request_delay": 1.0,
+    "follow_external_links": false,
+    "use_dynamic_crawling": false,
+    "page_load_timeout": 30,
+    "allowed_domains": ["example.com"],
+    "url_filters": [".*\\.pdf$", ".*\\.zip$"],
+    "user_agent": "IntelliSearch Python Crawler/1.0",
+    "output_dir": "crawl_results"
+}
