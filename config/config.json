@@ -72,7 +72,10 @@
         },
         "exa": {
             "api_key": "66a77f46-4932-46be-86a1-b40ee1603179",
-            "base_url": "https://api.exa.ai"
+            "base_url": "https://api.exa.ai",
+            "max_results": 8,
+            "timeout_ms": 5000,
+            "priority": 1
         }
     },
     "search_settings": {

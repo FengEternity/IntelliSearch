@@ -11,11 +11,14 @@
 
 namespace IntelliSearch {
 
-    Exa::Exa() {
+    Exa::Exa()  {
         // 从配置文件获取API密钥
         auto* config = ConfigManager::getInstance();
         apiKey = config->getApiProviderConfig("exa")["api_key"].get<std::string>();
         baseUrl = config->getApiProviderConfig("exa")["base_url"].get<std::string>();
+        maxResults = config->getApiProviderConfig("exa")["max_results"].get<int>();
+        timeoutMs = config->getApiProviderConfig("exa")["timeout_ms"].get<int>();
+        
 
         if (apiKey.empty()) {
             WARNLOG("Bocha API key not found in configuration");
