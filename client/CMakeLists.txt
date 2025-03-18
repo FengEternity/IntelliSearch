@@ -121,3 +121,30 @@ message(STATUS "Project: ${PROJECT_NAME}")
 message(STATUS "CMake Build Type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "C++ Standard: ${CMAKE_CXX_STANDARD}")
 message(STATUS "CMake Source Dir: ${CMAKE_SOURCE_DIR}")
+
+# 查找Cppcheck并配置静态分析目标
+find_program(CPPCHECK_BIN NAMES cppcheck HINTS "/opt/homebrew/bin/")
+if(CPPCHECK_BIN)
+    set(CPPCHECK_ARGS
+        "--library=qt"
+        "--suppress=missingIncludeSystem"
+        "--suppress=unusedFunction"
+        "-I/opt/homebrew/lib/qt6/include/QtCore"
+        "-I${CMAKE_SOURCE_DIR}/../log"
+        "-I${CMAKE_SOURCE_DIR}/../config"
+        "--enable=all"
+        "--xml"
+        "--xml-version=2"
+        "--output-file=${CMAKE_SOURCE_DIR}/cppcheck_report.xml"
+        "-i=${CMAKE_BINARY_DIR}"  # 使用 -i 参数代替 --exclude
+        "${CMAKE_SOURCE_DIR}/../src"
+        "${CMAKE_SOURCE_DIR}/../core"
+        "${CMAKE_SOURCE_DIR}/../data"
+        "${CMAKE_SOURCE_DIR}/../log"
+        "${CMAKE_SOURCE_DIR}/../config"
+    )
+    add_custom_target(cppcheck
+        COMMAND ${CPPCHECK_BIN} ${CPPCHECK_ARGS}
+        COMMENT "Running Cppcheck static analysis..."
+    )
+endif()
