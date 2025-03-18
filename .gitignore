@@ -14,3 +14,4 @@ client/CMakeLists.txt.user
 data/crawler/python_crawler/__pycache__/*
 TscanCode-master/*
 
+client/cppcheck_report.xml
