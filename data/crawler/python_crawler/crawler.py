@@ -381,7 +381,7 @@ class Crawler:
         self.results.append(result)
         
         # 检查是否达到最大深度
-        if self.config.max_depth > 0 and current_depth >= self.config.max_depth:
+        if self.config.max_depth >= 0 and current_depth >= self.config.max_depth:
             logger.debug(f"达到最大深度 ({self.config.max_depth})，不再继续爬取链接")
             return
         

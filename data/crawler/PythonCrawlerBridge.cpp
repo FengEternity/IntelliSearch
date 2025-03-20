@@ -9,8 +9,8 @@ namespace IntelliSearch
           m_crawledCount(0), m_totalCount(0)
     {
         // 设置默认配置
-        m_config.maxDepth = 1;
-        m_config.maxPages = 1;
+        m_config.maxDepth = 0;
+        m_config.maxPages = 100;
         m_config.requestDelay = 1000;
         m_config.followExternalLinks = false;
         m_config.useDynamicCrawling = false;
@@ -72,6 +72,15 @@ namespace IntelliSearch
             ERRORLOG("Failed to generate config file");
             emit errorOccurred("Failed to generate config file");
             return;
+        }
+        
+        // 根据配置选择爬虫脚本
+        if (m_config.useDynamicCrawling) {
+            m_config.crawlerScript = QDir::currentPath() + "/data/crawler/python_crawler/dynamic_crawler.py";
+            INFOLOG("Using dynamic crawler script: {}", m_config.crawlerScript.toStdString());
+        } else {
+            m_config.crawlerScript = QDir::currentPath() + "/data/crawler/python_crawler/crawler.py";
+            INFOLOG("Using standard crawler script: {}", m_config.crawlerScript.toStdString());
         }
         
         // 构建命令行参数
@@ -328,7 +337,26 @@ namespace IntelliSearch
         // 设置输出目录
         config["output_dir"] = m_config.outputDir;
         
-        // 写入配置文件
+        // 检查配置文件是否存在
+        QFile existingFile(m_config.configPath);
+        if (existingFile.exists())
+        {
+            // 读取现有配置文件
+            if (existingFile.open(QIODevice::ReadOnly))
+            {
+                QJsonDocument existingDoc = QJsonDocument::fromJson(existingFile.readAll());
+                existingFile.close();
+                
+                // 比较配置内容
+                if (existingDoc.object() == config)
+                {
+                    DEBUGLOG("Config file already exists with same content: {}", m_config.configPath.toStdString());
+                    return true;
+                }
+            }
+        }
+        
+        // 写入新的配置文件
         QFile file(m_config.configPath);
         if (!file.open(QIODevice::WriteOnly))
         {
