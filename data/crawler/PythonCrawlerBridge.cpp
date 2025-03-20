@@ -74,6 +74,15 @@ namespace IntelliSearch
             return;
         }
         
+        // 根据配置选择爬虫脚本
+        if (m_config.useDynamicCrawling) {
+            m_config.crawlerScript = QDir::currentPath() + "/data/crawler/python_crawler/dynamic_crawler.py";
+            INFOLOG("Using dynamic crawler script: {}", m_config.crawlerScript.toStdString());
+        } else {
+            m_config.crawlerScript = QDir::currentPath() + "/data/crawler/python_crawler/crawler.py";
+            INFOLOG("Using standard crawler script: {}", m_config.crawlerScript.toStdString());
+        }
+        
         // 构建命令行参数
         QStringList args;
         args << m_config.crawlerScript;
