@@ -10,11 +10,11 @@
 #include <sstream>
 #include <QFileInfo>
 
-std::string getDateString() {
+std::string getTimeString() {
     auto now = std::chrono::system_clock::now();
     auto time = std::chrono::system_clock::to_time_t(now);
     std::stringstream ss;
-    ss << std::put_time(std::localtime(&time), "%Y-%m-%d");
+    ss << std::put_time(std::localtime(&time), "%Y-%m-%d_%H-%M-%S");
     return ss.str();
 }
 
@@ -25,9 +25,9 @@ void Logger::Init(const LogConfig& conf)
         std::filesystem::path logPath(conf.logPath);
         std::filesystem::create_directories(logPath.parent_path());
         
-        // 在日志文件名中添加日期
-        std::string dateStr = getDateString();
-        std::string filename = logPath.parent_path().string() + "/" + dateStr + "-" + logPath.filename().string();
+        // 在日志文件名中添加日期和时间
+        std::string timeStr = getTimeString();
+        std::string filename = logPath.parent_path().string() + "/" + timeStr + "-" + logPath.filename().string();
         
         //自定义的sink
         loggerPtr = spdlog::rotating_logger_mt("base_logger", filename.c_str(), conf.maxFileSize, conf.maxFiles);
