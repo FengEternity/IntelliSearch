@@ -63,6 +63,7 @@ class DynamicCrawler(Crawler):
                 # 设置无头模式
                 if self.config.headless:
                     options.add_argument("--headless")
+                    options.add_argument("--no-sandbox")
                 
                 # 设置窗口大小
                 options.add_argument(f"--window-size={self.config.window_width},{self.config.window_height}")
