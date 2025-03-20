@@ -7,6 +7,10 @@
 #include <QVariantMap>
 #include <QVariantList>
 #include <memory>
+#include <queue>
+#include <mutex>
+#include <QThreadPool>
+#include <QRunnable>
 #include "PythonCrawlerBridge.h"
 
 namespace IntelliSearch
@@ -94,11 +98,26 @@ namespace IntelliSearch
         void handleErrorOccurred(const QString &errorMessage);
 
     private:
+        // 爬虫任务类
+        class CrawlerTask : public QRunnable {
+        public:
+            CrawlerTask(const QString& url, PythonCrawlerBridge* crawler);
+            void run() override;
+        private:
+            QString m_url;
+            PythonCrawlerBridge* m_crawler;
+        };
+
         std::unique_ptr<PythonCrawlerBridge> m_pythonCrawler; // Python爬虫实例
         QList<CrawlResult> m_results;       // 爬取结果列表
         bool m_isCrawling;                  // 是否正在爬取
         int m_crawledCount;                 // 已爬取的URL数量
         int m_totalCount;                   // 总URL数量
+
+        QThreadPool m_threadPool;           // 线程池
+        std::queue<QString> m_taskQueue;    // 任务队列
+        std::mutex m_mutex;                 // 互斥锁
+        int m_maxThreads;                   // 最大线程数
     };
 
 } // namespace IntelliSearch
