@@ -1,4 +1,4 @@
-#include "Bocha.h"
+#include "Google.h"
 #include "../../log/Logger.h"
 #include "../../config/ConfigManager.h"
 #include <curl/curl.h>
@@ -8,14 +8,15 @@
 namespace IntelliSearch
 {
 
-    Bocha::Bocha()
+    Google::Google()
     {
-        // 从配置文件获取API密钥
+        // 从配置文件中读取必要的配置
         auto *config = ConfigManager::getInstance();
-        apiKey = config->getApiProviderConfig("bocha")["api_key"].get<std::string>();
-        baseUrl = config->getApiProviderConfig("bocha")["base_url"].get<std::string>();
-        maxResults = config->getApiProviderConfig("bocha")["max_results"].get<int>();
-        timeoutMs = config->getApiProviderConfig("bocha")["timeout_ms"].get<int>();
+        apiKey = config->getApiProviderConfig("google")["api_key"].get<std::string>();
+        baseUrl = config->getApiProviderConfig("google")["base_url"].get<std::string>();
+        maxResults = config->getApiProviderConfig("google")["max_results"].get<int>();
+        timeoutMs = config->getApiProviderConfig("google")["timeout_ms"].get<int>();
+        searchEngineId = config->getApiProviderConfig("google")["search_engine_id"].get<std::string>();
 
         if (apiKey.empty())
         {
@@ -25,6 +26,11 @@ namespace IntelliSearch
         if (baseUrl.empty())
         {
             WARNLOG("Bocha base URL not found in configuration");
+        }
+
+        if (searchEngineId.empty())
+        {
+            WARNLOG("Bocha search engine ID not found in configuration");
         }
 
         if (maxResults <= 0)
@@ -38,7 +44,8 @@ namespace IntelliSearch
         }
     }
 
-    Bocha::~Bocha() = default;
+    Google::~Google() = default;
+
 
     // 静态回调函数用于接收响应数据
     static size_t WriteCallback(void *contents, size_t size, size_t nmemb, std::string *userp)
@@ -47,126 +54,99 @@ namespace IntelliSearch
         return size * nmemb;
     }
 
-    nlohmann::json Bocha::performSearch(const std::string &intentResult)
+    bool Google::validateApiKey() const
+    {
+        // 简单验证 API 密钥是否存在
+        return !apiKey.empty();
+    }
+
+    void Google::handleError(const std::string &error)
+    {
+        ERRORLOG("Google Search API error: " + error);
+    }
+
+    nlohmann::json Google::performSearch(const std::string &intentResult)
     {
         try
         {
-            // 从 intentResult 中正确提取 query 字段
+            // 解析意图结果
             std::string query = intentResult;
-            std::string freshness = "oneYear"; // 默认值
+            std::string freshness = "";
             bool summary = true;
             int count = 10;
 
-            // // 根据意图调整搜索参数
-            // if (intentResult["intent"] == "time_sensitive_query") {
-            //     freshness = "day";
-            // }
-
-            // nlohmann::json response = search(query, freshness, summary, count);
-            return search(query, freshness, summary, count); // 待优化，根据意图调整搜索参数
+            // 执行搜索
+            return search(query, freshness, summary, count);
         }
         catch (const std::exception &e)
         {
-
-            ERRORLOG("Search failed: {}", e.what());
-            throw;
+            handleError("Failed to parse intent result: " + std::string(e.what()));
+            return nlohmann::json();
         }
     }
 
-    nlohmann::json Bocha::search(const std::string &query,
-                                 const std::string &freshness,
-                                 bool summary,
-                                 int count)
+    nlohmann::json Google::search(
+        const std::string &query,
+        const std::string &freshness,
+        bool summary,
+        int count)
     {
 
+        // 构建请求 URL
+        std::string url =
+            "https://www.googleapis.com/customsearch/v1?key=" + apiKey +
+            "&cx=" + searchEngineId +
+            "&q=" + curl_easy_escape(nullptr, query.c_str(), query.size()) + // URL 编码查询参数
+            "&num=" + std::to_string(std::min(count, maxResults));                            // 返回 10 条结果
+
+        // 如果指定了时间范围
+        if (!freshness.empty())
+        {
+            url += "&dateRestrict=" + freshness;
+        }
+
+        // 设置 CURL 选项
         CURL *curl = curl_easy_init();
         if (!curl)
         {
-            throw std::runtime_error("Failed to initialize CURL");
+            handleError("Failed to initialize CURL");
+            return nlohmann::json();
         }
 
-        std::string readBuffer;
-        struct curl_slist *headers = NULL;
+        std::string response;
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, timeoutMs);
+
+        // 设置请求头
+        struct curl_slist *headers = nullptr;
+        headers = curl_slist_append(headers, "Accept: application/json");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+        // 执行请求
+        CURLcode res = curl_easy_perform(curl);
+        curl_slist_free_all(headers);
+        curl_easy_cleanup(curl);
+
+        if (res != CURLE_OK)
+        {
+            handleError("CURL request failed: " + std::string(curl_easy_strerror(res)));
+            return nlohmann::json();
+        }
 
         try
         {
-            // 准备请求体
-            INFOLOG("Performing Bocha search for query: {}", query);
-            nlohmann::json requestBody = {
-                {"query", query},
-                {"freshness", freshness},
-                {"summary", summary},
-                {"count", count}};
-            std::string jsonBody = requestBody.dump();
-
-            // 设置请求头
-            headers = curl_slist_append(headers, "Content-Type: application/json");
-            std::string authHeader = "Authorization: Bearer " + apiKey;
-            headers = curl_slist_append(headers, authHeader.c_str());
-
-            // 配置 CURL
-            std::string url = baseUrl + "/web-search";
-            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonBody.c_str());
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-            curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, timeoutMs);
-
-            // 执行请求
-            CURLcode res = curl_easy_perform(curl);
-
-            // 检查响应状态
-            long httpCode = 0;
-            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
-
-            // 清理
-            curl_easy_cleanup(curl);
-
-            if (res != CURLE_OK)
-            {
-                ERRORLOG("Curl request failed: {}", curl_easy_strerror(res));
-                throw std::runtime_error("Search API request failed");
-            }
-
-            if (httpCode != 200)
-            {
-                ERRORLOG("Bocha API request failed with status code: {} - {}", httpCode, readBuffer);
-                throw std::runtime_error("Search API request failed");
-            }
-
-            // 添加API返回结果的日志
-            INFOLOG("Bocha API response: {}", readBuffer);
-
-            return nlohmann::json::parse(readBuffer);
+            return nlohmann::json::parse(response);
         }
         catch (const std::exception &e)
         {
-            if (headers)
-                curl_slist_free_all(headers);
-            if (curl)
-                curl_easy_cleanup(curl);
-            ERRORLOG("Search request failed: {}", e.what());
-            throw;
+            handleError("Failed to parse response: " + std::string(e.what()));
+            return nlohmann::json();
         }
     }
 
-    void Bocha::handleError(const std::string &error)
-    {
-        ERRORLOG("Bocha service error: {}", error);
-    }
-
-    bool Bocha::validateApiKey() const
-    {
-        if (apiKey.empty())
-        {
-            WARNLOG("Bocha API key is empty");
-            return false;
-        }
-        return true;
-    }
-
-    SearchResults Bocha::processSearchResults(const nlohmann::json &response)
+    SearchResults Google::processSearchResults(const nlohmann::json &response)
     {
         SearchResults results;
 
@@ -250,6 +230,7 @@ namespace IntelliSearch
                            << "\n    URL: " << (page.url.empty() ? "[No URL]" : page.url)
                            << "\n    Snippet: " << (page.snippet.empty() ? "[No Snippet]" : page.snippet)
                            << "\n    Site Name: " << (page.siteName.empty() ? "[No Site Name]" : page.siteName)
+                           << "\n    Summary: " << (page.summary.empty() ? "[No Summary]" : page.summary)
                            << "\n    Date: " << (page.date.empty() ? "[No Date]" : page.date)
                            << "\n";
                     }

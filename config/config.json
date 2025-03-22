@@ -76,6 +76,14 @@
             "max_results": 8,
             "timeout_ms": 5000,
             "priority": 1
+        },
+        "google": {
+            "api_key": "AIzaSyDsjVb7s4rbojf1lgtiCSMmsdc1gkn18gU",
+            "search_engine_id": "66252419f92ce4de1",
+            "base_url": "https://www.googleapis.com/customsearch/v1",
+            "max_results": 8,
+            "timeout_ms": 5000,
+            "priority": 1
         }
     },
     "search_settings": {

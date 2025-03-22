@@ -1,6 +1,7 @@
 #include "SearchEngine.h"
 #include "../../log/Logger.h"
 #include "../api/SearchService/Bocha.h"
+#include "../api/SearchService/Google.h"
 #include "../api/SearchServiceManager.h"
 #include "../api/AIServiceManager.h"
 
@@ -30,8 +31,10 @@ nlohmann::json SearchEngine::performSearch(const std::string& intentResult) {
         nlohmann::json searchResults = searchServiceManager->performSearch(intentResult);
         
         // 创建 Bocha 实例并处理搜索结果
-        Bocha bochaService;
-        SearchResults processedResults = bochaService.processSearchResults(searchResults);
+        // Bocha bochaService;
+        // SearchResults processedResults = bochaService.processSearchResults(searchResults);
+        Google googleService;
+        SearchResults processedResults = googleService.processSearchResults(searchResults);
         
         // 将处理后的结果转换为 JSON 格式
         nlohmann::json response = {
@@ -46,6 +49,7 @@ nlohmann::json SearchEngine::performSearch(const std::string& intentResult) {
                 {"title", page.title},
                 {"url", page.url},
                 {"snippet", page.snippet},
+                {"summary", page.summary},
                 {"siteName", page.siteName},
                 {"date", page.date}
             });
@@ -86,7 +90,7 @@ nlohmann::json SearchEngine::analyzeSearchResults(const nlohmann::json& searchRe
         if (searchResults.contains("webPages") && !searchResults["webPages"].empty()) {
             for (const auto& page : searchResults["webPages"]) {
                 prompt += "- 标题：" + page["title"].get<std::string>() + "\n";
-                prompt += "  摘要：" + page["snippet"].get<std::string>() + "\n\n";
+                prompt += "  摘要：" + page["summary"].get<std::string>() + "\n\n";
             }
         }
 

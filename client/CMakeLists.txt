@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(IntelliSearch)
 
+set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
@@ -47,6 +48,7 @@ set(SOURCES
     ${CMAKE_SOURCE_DIR}/../core/api/SearchService/SearchService.cpp
     ${CMAKE_SOURCE_DIR}/../core/api/SearchService/Bocha.cpp
     ${CMAKE_SOURCE_DIR}/../core/api/SearchService/Exa.cpp
+    ${CMAKE_SOURCE_DIR}/../core/api/SearchService/Google.cpp
 
     ${CMAKE_SOURCE_DIR}/../log/Logger.cpp
     ${CMAKE_SOURCE_DIR}/../config/ConfigManager.cpp

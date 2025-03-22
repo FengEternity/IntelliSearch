@@ -15,6 +15,7 @@ namespace IntelliSearch {
         std::string snippet;
         std::string siteName;
         std::string date;
+        std::string summary;
     };
 
     struct ImageResult
