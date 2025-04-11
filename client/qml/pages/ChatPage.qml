@@ -24,13 +24,17 @@ Rectangle {
     required property var searchBridge
     property string initialMessage: ""
     property bool isSearching: searchBridge ? searchBridge.isSearching : false
+    property string currentSessionId: ""
     
     ListModel {
         id: chatModel
     }
     
-    // 组件加载完成后处理初始消息
+    // 组件加载完成后处理初始消息和加载历史记录
     Component.onCompleted: {
+        // 加载历史记录
+        loadSessionHistory()
+        
         if (initialMessage.trim() !== "") {
             console.log("收到初始消息:", initialMessage)
             addMessage(initialMessage, true)
@@ -49,6 +53,41 @@ Rectangle {
                 addMessage("抱歉，处理您的请求时出现错误。", false)
             }
         })
+    }
+    
+    // 加载会话历史记录
+    function loadSessionHistory() {
+        if (!searchBridge) return;
+        
+        // 清空现有消息
+        chatModel.clear()
+        
+        try {
+            // 获取当前会话的对话历史
+            var dialogues = searchBridge.getSessionDialogues(currentSessionId)
+            console.log("加载历史记录:", dialogues.length, "条消息")
+            
+            // 将历史记录添加到聊天模型中
+            for (var i = 0; i < dialogues.length; i++) {
+                var dialogue = dialogues[i]
+                // 添加用户消息
+                addMessage(dialogue.user_query, true)
+                // 添加系统回复
+                if (dialogue.search_result) {
+                    try {
+                        var jsonResult = JSON.parse(dialogue.search_result)
+                        addMessage(JSON.stringify(jsonResult, null, 2), false)
+                    } catch (e) {
+                        addMessage(dialogue.search_result, false)
+                    }
+                }
+            }
+            
+            // 滚动到底部
+            chatListView.positionViewAtEnd()
+        } catch (e) {
+            console.error("加载历史记录失败:", e)
+        }
     }
     
     // 添加消息到聊天记录的函数

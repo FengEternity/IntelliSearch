@@ -204,11 +204,18 @@ Rectangle {
 
                     // 打开聊天页面
                     if (stackView.depth > 0 && stackView.currentItem.objectName === "chatPage") {
-                        console.log("已经在聊天页面，不再重复打开");
+                        // 如果已经在聊天页面，更新当前会话ID并重新加载历史记录
+                        stackView.currentItem.currentSessionId = model.sessionId;
+                        stackView.currentItem.loadSessionHistory();
                         return;
                     }
+                    
+                    // 否则创建新的聊天页面
                     stackView.push("qrc:/pages/ChatPage.qml", {
-                        stackView: stackView
+                        objectName: "chatPage",
+                        stackView: stackView,
+                        searchBridge: historyRecord.searchBridge,
+                        currentSessionId: model.sessionId
                     });
                 }
             }
