@@ -7,7 +7,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 # 设置Homebrew安装的库路径
-# list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/lib/cmake")
+list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/lib/cmake")
 
 # 查找所需的包
 find_package(Qt6 REQUIRED COMPONENTS

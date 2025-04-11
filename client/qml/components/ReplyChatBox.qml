@@ -1,4 +1,6 @@
 import QtQuick
+import QtQuick.Controls
+import "../utils/MarkdownConverter.js" as MarkdownConverter
 
 Rectangle {
     id: replyChatBox
@@ -7,6 +9,7 @@ Rectangle {
     color: "transparent"
     
     property string messageText: ""
+    property string displayText: MarkdownConverter.convertMarkdownToHtml(messageText)
     property int maxBubbleWidth: parent.width * 0.7
     
     Rectangle {
@@ -36,7 +39,7 @@ Rectangle {
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.margins: 8
-            text: messageText
+            text: displayText
             color: applicationWindow.isDarkTheme ? "#FFFFFF" : "#000000"
             wrapMode: Text.Wrap
             width: Math.min(implicitWidth, maxBubbleWidth - 24)
@@ -45,7 +48,14 @@ Rectangle {
             selectByMouse: true
             selectByKeyboard: true
             selectionColor: applicationWindow.isDarkTheme ? "#64B5F6" : "#69aef8"
-            textFormat: TextEdit.PlainText
+            textFormat: TextEdit.RichText
+            onLinkActivated: (link) => Qt.openUrlExternally(link)
+            
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.NoButton
+                cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.IBeamCursor
+            }
             
             Behavior on color {
                 ColorAnimation { duration: 200 }

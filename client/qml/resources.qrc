@@ -19,6 +19,7 @@
         <file>components/LinkInputDialog.qml</file>
         <file>components/LinkTag.qml</file>
 
+        <file>utils/MarkdownConverter.js</file>
 
         <file>resources/icons/logo.svg</file>
 
