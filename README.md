@@ -104,6 +104,7 @@ IntelliSearch/
      * C++编译器（支持C++17及以上）
      * Qt框架
      * Python 3.8+
+
 2. 克隆项目
 
    ```shell
@@ -111,8 +112,12 @@ IntelliSearch/
    cd IntelliSearch
    ```
 3. 本地运行：
-
+   安装 python 库：
+   ```shell
+   pip3 install selenium webdriver_manager beautifulsoup4
    ```
+
+   ```shell
    cd client/
    mkdir build && cd build
    cmake .. && make
