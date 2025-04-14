@@ -15,3 +15,4 @@ data/crawler/python_crawler/__pycache__/*
 TscanCode-master/*
 
 client/cppcheck_report.xml
+.cursorrules
